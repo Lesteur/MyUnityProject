@@ -1,0 +1,36 @@
+# Intro
+
+@waitSeconds 2
+@setActorSlot 0 zoe
+@setActorSlot 1 liam
+@waitSeconds 1
+@talk -1 "C'est ainsi que commença cette bien étrange histoire..."
+@talk -1 "Dans un endroit où tout... semblait très différent de ce que certains connaissaient."
+@talk -1 "Le monde semblait étrange. Rien n'était familier."
+@talk -1 "..."
+
+# Talk
+
+@setActor 0 surprised
+@talk 0 "Heu... Liam, où est-ce qu'on est ???"
+@talk 0 "C'est quoi, cet endroit ?"
+@setActor 1 thinking
+@talk 1 "Eh bien... heu... nous sommes dans..."
+@setActor 0 what
+@setActor 1 unimpressed
+@talk 1 "..."
+@talk 1 "... ..."
+@talk 1 "... ... ..."
+@setActor 1 shocked
+@talk 1 "Mais où est-ce qu'on est, b*rdel ?!?!"
+
+@setActor 0 shocked
+@talk 0 "B-Ben... Comment tu veux que je sache ?"
+@talk 0 "Je... heu... me souviens que je discutais avec Oz, tout à l'heure. Je crois qu'il voulait me demander d'aller avec lui à la fête de la Convention."
+@setActor 0 surprised
+@talk 0 "Et là, pouf ! J'ai atterri ici !"
+
+@setActor 1 thinking
+@talk 1 "Eh bien.. C'est étrange. Moi aussi, je discutais avec Omen. Tu sais, à propos de ne pas poignarder les gens et tout cela..."
+@setActor 1 surprised
+@talk 1 "Je... je ne comprends pas comment nous sommes arrivés, ici !"

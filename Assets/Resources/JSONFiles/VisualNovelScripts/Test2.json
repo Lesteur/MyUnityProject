@@ -1,0 +1,37 @@
+{
+    "commands": [
+        {
+            "command": "waitSeconds",
+            "args": [
+                "2"
+            ]
+        },
+        {
+            "command": "waitSeconds",
+            "args": [
+                "1"
+            ]
+        },
+        {
+            "command": "talk",
+            "args": [
+                "-1",
+                "C'est ainsi que commença cette bien étrange histoire..."
+            ]
+        },
+        {
+            "command": "talk",
+            "args": [
+                "-1",
+                "Dans un endroit où tout... semblait très différent de ce que certains connaissaient."
+            ]
+        },
+        {
+            "command": "talk",
+            "args": [
+                "-1",
+                "Le monde semblait étrange. Rien n'était familier."
+            ]
+        }
+    ]
+}
