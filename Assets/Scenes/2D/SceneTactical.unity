@@ -1558,19 +1558,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: jumpHeight
-      value: 5
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
+      propertyPath: maxFallHeight
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: gridPosition.x
-      value: 0
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: gridPosition.y
-      value: 0
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: movementPoints
-      value: 6
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5734348783090883360, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: m_LocalPosition.x

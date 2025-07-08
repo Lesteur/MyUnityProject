@@ -182,7 +182,7 @@ public class GridManager : MonoBehaviour
                     trueHeight = x; // Set height based on x for the first row
                 else
                 {
-                    if (x % 2 == 0 && y % 2 == 0)
+                    if (x % 2 == 0 && y % 4 == 0)
                         trueHeight = 7;
                 }
 
