@@ -182,7 +182,7 @@ MonoBehaviour:
   height: 10
   tileSize: 1
   tilePrefab: {fileID: 1800878482449061111, guid: a8aa14e112d695b4d9098e8c68e90cf2, type: 3}
-  defaultTileData: {fileID: 11400000, guid: 38ce3c4a0f194574e856f8472018b4af, type: 2}
+  defaultTileData: {fileID: 11400000, guid: 6996dbc35b0a5004591ec03c0a4e3869, type: 2}
   currentUnit: {fileID: 684959799}
 --- !u!114 &434608069
 MonoBehaviour:
@@ -1555,6 +1555,22 @@ PrefabInstance:
     - target: {fileID: 1570821991366772053, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: m_Name
       value: Unit
+      objectReference: {fileID: 0}
+    - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
+      propertyPath: jumpHeight
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
+      propertyPath: gridPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
+      propertyPath: gridPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
+      propertyPath: movementPoints
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5734348783090883360, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: m_LocalPosition.x

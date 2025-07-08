@@ -5,7 +5,8 @@ public enum TerrainType
     Grass,
     Water,
     Mountain,
-    Sand
+    Sand,
+    Void
 }
 
 [CreateAssetMenu(fileName = "New TileData", menuName = "TacticalRPG/TileData")]

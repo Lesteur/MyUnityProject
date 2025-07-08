@@ -40,12 +40,8 @@ public class GridManager : MonoBehaviour
         currentPosition = currentUnit != null ? currentUnit.gridPosition : Vector2Int.zero;
         newPosition = currentPosition; // Initialize new position to current position
 
-        int moveRange = currentUnit != null ? currentUnit.movementPoints : 5; // Default move range if no unit is set
-        int heightJump = currentUnit != null ? currentUnit.jumpHeight : 1; //
-        int maxFallHeight = currentUnit != null ? currentUnit.maxFallHeight : 10; // Default max fall height if no unit is set
-
         // Get all paths from the current position
-        paths = pathfinding.GetAllPathsFrom(currentPosition, moveRange, heightJump, maxFallHeight);
+        paths = pathfinding.GetAllPathsFrom(currentPosition, currentUnit); // moveRange, heightJump, maxFallHeight);
 
         // Initialize the current path if available
         if (paths.Count > 0)
@@ -180,10 +176,15 @@ public class GridManager : MonoBehaviour
         {
             for (int x = 0; x < width; x++)
             {
-                int trueHeight = Random.Range(0, 2); // Random height for demonstration, can be replaced with actual logic
+                int trueHeight = 0; //Random.Range(0, 2); // Random height for demonstration, can be replaced with actual logic
 
                 if (y == 0)
-                    trueHeight = x;
+                    trueHeight = x; // Set height based on x for the first row
+                else
+                {
+                    if (x % 2 == 0 && y % 2 == 0)
+                        trueHeight = 7;
+                }
 
                 GameObject tileObject = null;
 
@@ -204,6 +205,7 @@ public class GridManager : MonoBehaviour
                 }
 
                 tile.Initialize(defaultTileData, new Vector2Int(x, y), trueHeight, index);
+
                 grid[x, y] = tile;
             }
         }
@@ -233,12 +235,7 @@ public class GridManager : MonoBehaviour
         newPosition = currentUnit.gridPosition;
         Debug.Log($"Unit {currentUnit.name} finished moving. Resetting new position to {newPosition}.");
 
-        // Recalculate paths from the new position
-        int moveRange = currentUnit != null ? currentUnit.movementPoints : 5; // Default move range if no unit is set
-        int heightJump = currentUnit != null ? currentUnit.jumpHeight : 1; // Default jump height if no unit is set
-        int maxFallHeight = currentUnit != null ? currentUnit.maxFallHeight : 10; // Default max fall height if no unit is set
-
-        paths = pathfinding.GetAllPathsFrom(newPosition, moveRange, heightJump, maxFallHeight);
+        paths = pathfinding.GetAllPathsFrom(newPosition, currentUnit); //moveRange, heightJump, maxFallHeight);
         currentPath = null; // Reset current path
         currentPosition = newPosition; // Update current position to the new position
 
@@ -269,6 +266,10 @@ public class GridManager : MonoBehaviour
                 else if (paths != null && paths.Count > 0 && paths.Exists(p => p.destination.gridPosition == tile.gridPosition))
                 {
                     tile.Illuminate(Color.red); // Highlight destination tiles
+                }
+                else if (tile.terrainType == TerrainType.Void)
+                {
+                    tile.Illuminate(Color.grey); // Highlight occupied tiles
                 }
                 else
                 {

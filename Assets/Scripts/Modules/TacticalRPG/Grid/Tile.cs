@@ -6,6 +6,8 @@ public class Tile : MonoBehaviour
     public TileData tileData;
     public int height;
     public int index;
+    public bool isOccupied = false; // Indicates if the tile is occupied by a unit or object
+    public TerrainType terrainType = TerrainType.Grass; // Default terrain type, can be customized
 
     public SpriteRenderer spriteRenderer;
 
@@ -20,12 +22,12 @@ public class Tile : MonoBehaviour
         gridPosition = position;
         height = tileHeight;
         this.index = index;
+        this.terrainType = data.terrainType; // Set terrain type from TileData
 
         gameObject.name = $"Tile_{position.x}_{position.y}_H{height}";
     }
 
     public bool IsWalkable() => tileData != null && tileData.isWalkable;
-
     public int GetMovementCost() => tileData?.movementCost ?? 1;
 
     public void Illuminate(Color color)
