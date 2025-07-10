@@ -41,7 +41,7 @@ public class GridManager : MonoBehaviour
         newPosition = currentPosition; // Initialize new position to current position
 
         // Get all paths from the current position
-        paths = pathfinding.GetAllPathsFrom(currentPosition, currentUnit); // moveRange, heightJump, maxFallHeight);
+        paths = pathfinding.GetAllPathsFrom(currentPosition, currentUnit);
 
         // Initialize the current path if available
         if (paths.Count > 0)
@@ -235,7 +235,7 @@ public class GridManager : MonoBehaviour
         newPosition = currentUnit.gridPosition;
         Debug.Log($"Unit {currentUnit.name} finished moving. Resetting new position to {newPosition}.");
 
-        paths = pathfinding.GetAllPathsFrom(newPosition, currentUnit); //moveRange, heightJump, maxFallHeight);
+        paths = pathfinding.GetAllPathsFrom(newPosition, currentUnit);
         currentPath = null; // Reset current path
         currentPosition = newPosition; // Update current position to the new position
 

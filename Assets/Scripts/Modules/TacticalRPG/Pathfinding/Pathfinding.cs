@@ -29,54 +29,31 @@ public class Pathfinding : MonoBehaviour
         int maxJumpHeight = unit.jumpHeight;
         int maxFallHeight = unit.maxFallHeight;
 
-        var openSet = new PriorityQueue<TileNode>();
-        var closedSet = new HashSet<Vector2Int>();
-        var bestCosts = new Dictionary<Vector2Int, int>();
-
-        Tile startTile = gridManager.GetTileAt(start);
+        Tile startTile  = gridManager.GetTileAt(start);
         Tile targetTile = gridManager.GetTileAt(target);
 
-        var startNode = new TileNode(startTile, 0, GetHeuristic(start, target));
-        openSet.Enqueue(startNode);
-        bestCosts[start] = 0;
+        var queue       = new PriorityQueue<TileNode>();
+        var closedSet   = new HashSet<Vector2Int>();
+        var visited     = new Dictionary<Vector2Int, int>();
+        var startNode   = new TileNode(startTile, 0, GetHeuristic(start, target));
 
-        while (openSet.Count > 0)
+        queue.Enqueue(startNode);
+        visited[start] = 0;
+
+        while (queue.Count > 0)
         {
-            TileNode current = openSet.Dequeue();
+            TileNode current = queue.Dequeue();
 
             if (current.Position == target)
                 return ReconstructPath(current); // Path found
 
             closedSet.Add(current.Position);
 
-            foreach (Tile neighbor in GetNeighbors(current.Tile))
-            {
-                Vector2Int pos = neighbor.gridPosition;
+            // Expand jump paths
+            ExpandJumpPaths(current, unit, visited, queue, null, target, closedSet);
 
-                if (closedSet.Contains(pos))
-                    continue;
-
-                if (!CanTraverse(current.Tile, neighbor, unit, false))
-                    continue;
-
-                int heightDelta = neighbor.height - current.Tile.height;
-                int climbPenalty = Mathf.Max(0, heightDelta);
-                int tentativeG = current.G + neighbor.GetMovementCost() + climbPenalty;
-
-                if (bestCosts.TryGetValue(pos, out int existingG) && tentativeG >= existingG)
-                    continue;
-
-                bestCosts[pos] = tentativeG;
-
-                var neighborNode = new TileNode(
-                    neighbor,
-                    tentativeG,
-                    GetHeuristic(pos, target),
-                    current
-                );
-
-                openSet.EnqueueOrUpdate(neighborNode);
-            }
+            // Expand standard neighbors
+            ExpandStandardNeighbors(current, unit, visited, queue, null, target, closedSet);
         }
 
         return null; // No path found
@@ -90,13 +67,13 @@ public class Pathfinding : MonoBehaviour
     /// <returns>List of reachable tiles.</returns>
     public List<Tile> GetReachableTiles(Vector2Int start, Unit unit)
     {
-        int maxMovementPoints = unit.movementPoints;
+        int maxMovementPoints   = unit.movementPoints;
+        Tile startTile          = gridManager.GetTileAt(start);
 
-        var reachableTiles = new List<Tile>();
-        var visited = new Dictionary<Vector2Int, int>();
-        var queue = new Queue<TileNode>();
-
-        Tile startTile = gridManager.GetTileAt(start);
+        var reachableTiles  = new List<Tile>();
+        var visited         = new Dictionary<Vector2Int, int>();
+        var queue           = new PriorityQueue<TileNode>();
+        
         queue.Enqueue(new TileNode(startTile, 0, 0));
 
         while (queue.Count > 0)
@@ -109,21 +86,31 @@ public class Pathfinding : MonoBehaviour
             visited[current.Position] = current.G;
             reachableTiles.Add(current.Tile);
 
-            foreach (Tile neighbor in GetNeighbors(current.Tile))
-            {
-                if (!CanTraverse(current.Tile, neighbor, unit, false))
-                    continue;
+            // Expand jump paths
+            ExpandJumpPaths(current, unit, visited, queue, null);
 
-                int moveCost = current.G + neighbor.GetMovementCost();
-
-                if (moveCost > maxMovementPoints)
-                    continue;
-
-                queue.Enqueue(new TileNode(neighbor, moveCost, 0));
-            }
+            // Expand standard neighbors
+            ExpandStandardNeighbors(current, unit, visited, queue, null);
         }
 
         return reachableTiles;
+    }
+
+    public List<PathResult> GetAllPathsDebug(Vector2Int start, Unit unit)
+    {
+        var allTiles = GetReachableTiles(start, unit);
+        var results = new List<PathResult>();
+
+        foreach (var tile in allTiles)
+        {
+            var path = FindPath(start, tile.gridPosition, unit);
+            if (path != null && path.Count > 0)
+            {
+                results.Add(new PathResult(tile, path));
+            }
+        }
+
+        return results;
     }
 
     /// <summary>
@@ -135,14 +122,14 @@ public class Pathfinding : MonoBehaviour
     public List<PathResult> GetAllPathsFrom(Vector2Int start, Unit unit)
     {
         int maxMovementPoints = unit.movementPoints;
-
-        var results = new List<PathResult>();
-        var visited = new Dictionary<Vector2Int, int>();
-        var paths = new Dictionary<Vector2Int, TileNode>();
-        var queue = new PriorityQueue<TileNode>();
-
         Tile startTile = gridManager.GetTileAt(start);
-        var startNode = new TileNode(startTile, 0, 0);
+
+        var results     = new List<PathResult>();
+        var visited     = new Dictionary<Vector2Int, int>();
+        var paths       = new Dictionary<Vector2Int, TileNode>();
+        var queue       = new PriorityQueue<TileNode>();
+        var startNode   = new TileNode(startTile, 0, 0);
+
         queue.Enqueue(startNode);
         paths[start] = startNode;
 
@@ -201,12 +188,27 @@ public class Pathfinding : MonoBehaviour
         return path;
     }
 
-    private void ExpandStandardNeighbors(TileNode current, Unit unit, Dictionary<Vector2Int, int> visited, PriorityQueue<TileNode> queue, Dictionary<Vector2Int, TileNode> paths)
+    /// <summary>
+    /// Expands the neighbors of the current tile node for standard movement,
+    /// considering the unit's movement points and traversability.
+    /// </summary>
+    /// <param name="current">Current tile node being processed.</param>
+    /// <param name="unit">Unit for which the path is being calculated.</param>
+    /// <param name="visited">Dictionary tracking visited tiles and their costs.</param>
+    /// <param name="queue">Priority queue for processing tile nodes.</param>
+    /// <param name="paths">Dictionary mapping grid positions to their corresponding tile nodes.</param>
+    /// <param name="target">Optional target position for heuristic calculation.</param>
+    /// <param name="closedSet">Optional set of closed positions to avoid revisiting.</param>
+    private void ExpandStandardNeighbors(TileNode current, Unit unit, Dictionary<Vector2Int, int> visited, PriorityQueue<TileNode> queue, Dictionary<Vector2Int, TileNode> paths, Vector2Int? target = null, HashSet<Vector2Int> closedSet = null)
     {
         int maxMovementPoints = unit.movementPoints;
+        Vector2Int unitPos = unit.gridPosition;
 
         foreach (Tile neighbor in GetNeighbors(current.Tile))
         {
+            if (closedSet != null && closedSet.Contains(neighbor.gridPosition))
+                continue; // Skip if already visited
+
             if (!CanTraverse(current.Tile, neighbor, unit, false))
                 continue;
 
@@ -218,18 +220,42 @@ public class Pathfinding : MonoBehaviour
             if (visited.TryGetValue(neighbor.gridPosition, out int existingCost) && moveCost >= existingCost)
                 continue;
 
-            var neighborNode = new TileNode(neighbor, moveCost, 0, current);
-            queue.Enqueue(neighborNode);
-            paths[neighbor.gridPosition] = neighborNode;
+            if (target != null)
+                visited[neighbor.gridPosition] = moveCost;
+
+            int heuristic = target.HasValue ? GetHeuristic(unitPos, target.Value) : 0;
+
+            TileNode neighborNode = new TileNode(neighbor, moveCost, heuristic, current);
+
+            if (target != null)
+                queue.EnqueueOrUpdate(neighborNode);
+            else
+                queue.Enqueue(neighborNode);
+
+            if (paths != null)
+                paths[neighbor.gridPosition] = neighborNode;
         }
     }
 
-    private void ExpandJumpPaths(TileNode current, Unit unit, Dictionary<Vector2Int, int> visited, PriorityQueue<TileNode> queue, Dictionary<Vector2Int, TileNode> paths)
+    /// <summary>
+    /// Expands the jump paths from the current tile node, allowing for vertical movement
+    /// within the unit's jump height and fall distance limits.
+    /// </summary>
+    /// <param name="current">Current tile node being processed.</param>
+    /// <param name="unit">Unit for which the jump paths are being calculated.</param>
+    /// <param name="visited">Dictionary tracking visited tiles and their costs.</param>
+    /// <param name="queue">Priority queue for processing tile nodes.</param>
+    /// <param name="paths">Dictionary mapping grid positions to their corresponding tile nodes.</param>
+    /// <param name="target">Optional target tile grid position for heuristic calculation.</param>
+    /// <param name="closedSet">Optional set of closed tiles to avoid revisiting.</
+    private void ExpandJumpPaths(TileNode current, Unit unit, Dictionary<Vector2Int, int> visited, PriorityQueue<TileNode> queue, Dictionary<Vector2Int, TileNode> paths, Vector2Int? target = null, HashSet<Vector2Int> closedSet = null)
     {
         Tile startTile = current.Tile;
         int initialHeight = startTile.height;
         int maxMovementPoints = unit.movementPoints;
         Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
+
+        Vector2Int unitPos = unit.gridPosition;
 
         foreach (var dir in directions)
         {
@@ -238,6 +264,9 @@ public class Pathfinding : MonoBehaviour
             Vector2Int currentPos = startTile.gridPosition + dir;
 
             Tile jumpTile = gridManager.GetTileAt(currentPos);
+
+            if (closedSet != null && closedSet.Contains(currentPos))
+                continue; // Skip if already visited
 
             if (jumpTile == null || jumpTile.height >= initialHeight || 1 == initialHeight - jumpTile.height)
                 continue; // Skip if the first jump tile is invalid or at the same height or one step lower
@@ -254,7 +283,6 @@ public class Pathfinding : MonoBehaviour
                 else
                 {
                     if (heightDelta < -unit.maxFallHeight)
-                    //break;
                     {
                         moveSteps++;
                         jumpCount++;
@@ -264,7 +292,7 @@ public class Pathfinding : MonoBehaviour
 
                         if (jumpTile == null)
                             break; // Stop if we go out of bounds or hit an invalid tile
-                        
+
                         continue; // Skip if we can't fall that far
                     }
                 }
@@ -274,9 +302,20 @@ public class Pathfinding : MonoBehaviour
                 if (visited.TryGetValue(currentPos, out int existingCost) && totalMoveCost >= existingCost)
                     break;
                 
-                var jumpNode = new TileNode(jumpTile, totalMoveCost, 0, current);
-                queue.Enqueue(jumpNode);
-                paths[currentPos] = jumpNode;
+                if (target != null)
+                    visited[currentPos] = totalMoveCost;
+
+                int heuristic = target.HasValue ? GetHeuristic(unitPos, target.Value) : 0;
+
+                TileNode jumpNode = new TileNode(jumpTile, totalMoveCost, heuristic, current);
+
+                if (target != null)
+                    queue.EnqueueOrUpdate(jumpNode);
+                else
+                    queue.Enqueue(jumpNode);
+
+                if (paths != null)
+                    paths[currentPos] = jumpNode;
 
                 moveSteps++;
                 jumpCount++;
