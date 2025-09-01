@@ -2,10 +2,11 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
 
 using Game.Input;
 
-public class GridManager : MonoBehaviour
+public class TacticalController : MonoBehaviour
 {
     public int width;
     public int height;
@@ -14,25 +15,34 @@ public class GridManager : MonoBehaviour
     public TileData defaultTileData;
     public Unit currentUnit;
 
-    private Tile[,] grid;
-    private Pathfinding pathfinding;
-    private List<PathResult> paths;
-    private PathResult currentPath;
-    private Vector2Int currentPosition = Vector2Int.zero;
-    private Vector2Int newPosition = Vector2Int.zero;
-    private bool isActive = true;
+    public Tile[,] grid { get; private set; }
+    public Pathfinding pathfinding { get; private set; }
+    public List<PathResult> paths { get; private set; }
+    public PathResult currentPath { get; private set; }
+    public Vector2Int currentPosition = Vector2Int.zero;
+    public Vector2Int newPosition = Vector2Int.zero;
+    public bool isActive = true;
+
+    private TacticalStateMachine stateMachine;
+
+    private InputAction horizontalAction => InputReader.Instance.inputActions.Global.Horizontal;
+    private InputAction verticalAction => InputReader.Instance.inputActions.Global.Vertical;
+    private InputAction confirmAction => InputReader.Instance.inputActions.Global.Confirm;
+    private InputAction backAction => InputReader.Instance.inputActions.Global.Back;
 
     private void Awake()
     {
         pathfinding = GetComponent<Pathfinding>();
 
-        Debug.Log("GridManager Start called.");
+        Debug.Log("TacticalController Start called.");
         GenerateGrid();
 
         if (grid == null || grid.Length == 0)
         {
             Debug.LogError("Grid has not been initialized properly.");
         }
+
+        stateMachine = new TacticalStateMachine(this);
     }
 
     private void Start()
@@ -61,108 +71,76 @@ public class GridManager : MonoBehaviour
     {
         if (InputReader.Instance == null)
         {
-            Debug.LogError("InputReader instance is null. Ensure InputReader is initialized before GridManager.");
+            Debug.LogError("InputReader instance is null. Ensure InputReader is initialized before TacticalController.");
             return;
         }
 
-        InputReader.Instance.horizontalEvent += horizontalEvent;
-        InputReader.Instance.verticalEvent += verticalEvent;
-        InputReader.Instance.confirmEvent += confirmEvent;
-        InputReader.Instance.backEvent += backEvent;
+        InputReader.Instance.horizontalEvent    += horizontalEvent;
+        InputReader.Instance.verticalEvent      += verticalEvent;
+        InputReader.Instance.confirmEvent       += confirmEvent;
+        InputReader.Instance.backEvent          += cancelEvent;
     }
 
     private void OnDisable()
     {
-        InputReader.Instance.horizontalEvent -= horizontalEvent;
-        InputReader.Instance.verticalEvent -= verticalEvent;
-        InputReader.Instance.confirmEvent -= confirmEvent;
-        InputReader.Instance.backEvent -= backEvent;
+        InputReader.Instance.horizontalEvent    -= horizontalEvent;
+        InputReader.Instance.verticalEvent      -= verticalEvent;
+        InputReader.Instance.confirmEvent       -= confirmEvent;
+        InputReader.Instance.backEvent          -= cancelEvent;
+    }
+
+    private void Update()
+    {
+        if (InputReader.Instance == null || stateMachine == null)
+            return;
+
+        stateMachine.Update();
+    }
+
+    private void FixedUpdate()
+    {
+        if (InputReader.Instance == null || stateMachine == null)
+            return;
+
+        stateMachine.PhysicsUpdate();
     }
 
     private void horizontalEvent(int direction)
     {
-        if (!isActive)
-            return;
-
-        bool foundPath = false;
-
-        newPosition.x += direction;
-        if (newPosition.x < 0) newPosition.x = 0;
-        if (newPosition.x >= width) newPosition.x = width - 1;
-        Debug.Log($"New position after horizontal event: {newPosition}");
-
-        // Check if there's a path to the new position
-        for (int i = 0; i < paths.Count; i++)
-        {
-            if (paths[i].destination.gridPosition == newPosition)
-            {
-                foundPath = true;
-                currentPath = paths[i];
-                Debug.Log($"Current path updated to: {currentPath.destination.gridPosition}");
-                break;
-            }
-        }
-
-        if (!foundPath)
-            currentPath = null; // Reset current path if no valid path found
-
-        // Update the rendering of the grid
-        UpdateRendering();
+        stateMachine.currentState.HorizontalKey(direction);
     }
 
     private void verticalEvent(int direction)
     {
-        if (!isActive)
-            return;
-        
-        bool foundPath = false;
-
-        newPosition.y -= direction;
-        if (newPosition.y < 0) newPosition.y = 0;
-        if (newPosition.y >= height) newPosition.y = height - 1;
-        Debug.Log($"New position after vertical event: {newPosition}");
-
-        // Check if there's a path to the new position
-        for (int i = 0; i < paths.Count; i++)
-        {
-            if (paths[i].destination.gridPosition == newPosition)
-            {
-                foundPath = true;
-                currentPath = paths[i];
-                Debug.Log($"Current path updated to: {currentPath.destination.gridPosition}");
-                break;
-            }
-        }
-
-        if (!foundPath)
-            currentPath = null; // Reset current path if no valid path found
-
-        // Update the rendering of the grid
-        UpdateRendering();
+        stateMachine.currentState.VerticalKey(direction);
     }
 
     private void confirmEvent()
     {
-        if (!isActive)
-            return;
-        
-        if (currentPath != null)
-        {
-            isActive = false; // Deactivate the grid manager after confirming the path
-
-            currentUnit.GetPath(currentPath);
-            Debug.Log($"Unit {currentUnit.name} is moving to {currentPath.destination.gridPosition} along the path.");
-        }
-        else
-        {
-            Debug.LogWarning("No valid path selected for confirmation.");
-        }
+        stateMachine.currentState.ConfirmKey();
     }
 
-    private void backEvent()
+    private void cancelEvent()
     {
-        // Handle back event logic here
-        Debug.Log("Back event triggered.");
+        stateMachine.currentState.CancelKey();
+    }
+
+    public Tile GetTileAt(Vector2Int position)
+    {
+        if (position.x < 0 || position.y < 0 || position.x >= width || position.y >= height)
+            return null;
+
+        if (grid == null || grid.Length == 0)
+        {
+            Debug.LogError("Grid has not been initialized.");
+        }
+
+        return grid[position.x, position.y];
+    }
+
+    public Tile GetTileAt(int x, int y)
+    {
+        return GetTileAt(new Vector2Int(x, y));
     }
 
     private void GenerateGrid()
@@ -211,24 +189,6 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    public Tile GetTileAt(Vector2Int position)
-    {
-        if (position.x < 0 || position.y < 0 || position.x >= width || position.y >= height)
-            return null;
-
-        if (grid == null || grid.Length == 0)
-        {
-            Debug.LogError("Grid has not been initialized.");
-        }
-
-        return grid[position.x, position.y];
-    }
-
-    public Tile GetTileAt(int x, int y)
-    {
-        return GetTileAt(new Vector2Int(x, y));
-    }
-
     public void OnUnitFinishedAction(Unit currentUnit)
     {
         // Reset the new position to the current position after the unit finishes moving
@@ -245,7 +205,51 @@ public class GridManager : MonoBehaviour
         isActive = true; // Reactivate the grid manager after the unit finishes moving
     }
 
-    private void UpdateRendering()
+    public void MoveCursorTile(int x, int y)
+    {
+        if (!isActive)
+            return;
+
+        newPosition.x = Mathf.Clamp(newPosition.x + x, 0, width - 1);
+        newPosition.y = Mathf.Clamp(newPosition.y + y, 0, height - 1);
+
+        bool pathFound = false;
+
+        foreach (var path in paths)
+        {
+            if (path.destination.gridPosition == newPosition)
+            {
+                pathFound = true;
+                currentPath = path;
+                break;
+            }
+        }
+
+        if (!pathFound)
+            currentPath = null; // Reset current path if no valid path found
+
+        UpdateRendering();
+    }
+
+    public void MoveUnitPath()
+    {
+        if (!isActive)
+            return;
+
+        if (currentPath != null)
+        {
+            isActive = false; // Deactivate the grid manager after confirming the path
+
+            currentUnit.GetPath(currentPath);
+            Debug.Log($"Unit {currentUnit.name} is moving to {currentPath.destination.gridPosition} along the path.");
+        }
+        else
+        {
+            Debug.LogWarning("No valid path selected for confirmation.");
+        }
+    }
+
+    public void UpdateRendering()
     {
         foreach (Tile tile in grid)
         {

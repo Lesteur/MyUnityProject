@@ -9,12 +9,12 @@ using System.Linq;
 /// </summary>
 public class Pathfinding : MonoBehaviour
 {
-    public GridManager gridManager;
+    public TacticalController tacticalController;
 
     private void Start()
     {
-        if (gridManager == null)
-            gridManager = FindFirstObjectByType<GridManager>();
+        if (tacticalController == null)
+            tacticalController = FindFirstObjectByType<TacticalController>();
     }
 
     /// <summary>
@@ -29,8 +29,8 @@ public class Pathfinding : MonoBehaviour
         int maxJumpHeight = unit.jumpHeight;
         int maxFallHeight = unit.maxFallHeight;
 
-        Tile startTile  = gridManager.GetTileAt(start);
-        Tile targetTile = gridManager.GetTileAt(target);
+        Tile startTile  = tacticalController.GetTileAt(start);
+        Tile targetTile = tacticalController.GetTileAt(target);
 
         var queue       = new PriorityQueue<TileNode>();
         var closedSet   = new HashSet<Vector2Int>();
@@ -68,7 +68,7 @@ public class Pathfinding : MonoBehaviour
     public List<Tile> GetReachableTiles(Vector2Int start, Unit unit)
     {
         int maxMovementPoints   = unit.movementPoints;
-        Tile startTile          = gridManager.GetTileAt(start);
+        Tile startTile          = tacticalController.GetTileAt(start);
 
         var reachableTiles  = new List<Tile>();
         var visited         = new Dictionary<Vector2Int, int>();
@@ -122,7 +122,7 @@ public class Pathfinding : MonoBehaviour
     public List<PathResult> GetAllPathsFrom(Vector2Int start, Unit unit)
     {
         int maxMovementPoints = unit.movementPoints;
-        Tile startTile = gridManager.GetTileAt(start);
+        Tile startTile = tacticalController.GetTileAt(start);
 
         var results     = new List<PathResult>();
         var visited     = new Dictionary<Vector2Int, int>();
@@ -263,7 +263,7 @@ public class Pathfinding : MonoBehaviour
             int jumpCount = 0;
             Vector2Int currentPos = startTile.gridPosition + dir;
 
-            Tile jumpTile = gridManager.GetTileAt(currentPos);
+            Tile jumpTile = tacticalController.GetTileAt(currentPos);
 
             if (closedSet != null && closedSet.Contains(currentPos))
                 continue; // Skip if already visited
@@ -288,7 +288,7 @@ public class Pathfinding : MonoBehaviour
                         jumpCount++;
                         currentPos += dir;
 
-                        jumpTile = gridManager.GetTileAt(currentPos);
+                        jumpTile = tacticalController.GetTileAt(currentPos);
 
                         if (jumpTile == null)
                             break; // Stop if we go out of bounds or hit an invalid tile
@@ -321,7 +321,7 @@ public class Pathfinding : MonoBehaviour
                 jumpCount++;
                 currentPos += dir;
 
-                jumpTile = gridManager.GetTileAt(currentPos);
+                jumpTile = tacticalController.GetTileAt(currentPos);
 
                 if (jumpTile == null)
                     break; // Stop if we go out of bounds or hit an invalid tile
@@ -365,7 +365,7 @@ public class Pathfinding : MonoBehaviour
 
         foreach (var dir in directions)
         {
-            Tile neighbor = gridManager.GetTileAt(tile.gridPosition + dir);
+            Tile neighbor = tacticalController.GetTileAt(tile.gridPosition + dir);
             if (neighbor != null)
                 neighbors.Add(neighbor);
         }

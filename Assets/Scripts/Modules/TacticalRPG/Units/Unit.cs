@@ -11,21 +11,21 @@ public class Unit : MonoBehaviour
 
     private SpriteRenderer spriteRenderer; // Reference to the SpriteRenderer component
     private Pathfinding pathfinding; // Reference to the Pathfinding component
-    private GridManager gridManager; // Reference to the GridManager component
+    private TacticalController tacticalController; // Reference to the TacticalController component
     private bool isMoving = false; // Flag to indicate if the unit is currently moving
     private PathResult path;
     private Tile currentTile;
 
     private void Awake()
     {
-        // Get the Pathfinding component from the GridManager
+        // Get the Pathfinding component from the TacticalController
         pathfinding = GetComponent<Pathfinding>();
         // Get the SpriteRenderer component from the GameObject
         spriteRenderer = GetComponent<SpriteRenderer>();
-        // Get the GridManager component from the scene
-        gridManager = FindFirstObjectByType<GridManager>();
+        // Get the TacticalController component from the scene
+        tacticalController = FindFirstObjectByType<TacticalController>();
 
-        currentTile = gridManager.GetTileAt(gridPosition);
+        currentTile = tacticalController.GetTileAt(gridPosition);
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -87,14 +87,14 @@ public class Unit : MonoBehaviour
 
         isMoving = false;
 
-        // Notify the GridManager that the unit has finished moving
-        if (gridManager != null)
+        // Notify the TacticalController that the unit has finished moving
+        if (tacticalController != null)
         {
-            gridManager.OnUnitFinishedAction(this);
+            tacticalController.OnUnitFinishedAction(this);
         }
         else
         {
-            Debug.LogError("GridManager reference is null.");
+            Debug.LogError("TacticalController reference is null.");
         }
     }
 

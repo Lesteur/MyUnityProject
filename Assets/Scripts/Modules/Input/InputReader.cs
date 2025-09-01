@@ -14,7 +14,7 @@ namespace Game.Input
         public static InputReader Instance { get; private set; }
 
         // Input Actions asset (auto-generated class)
-        private InputActions inputActions;
+        public InputActions inputActions;
 
         // Event callbacks
         public event Action<int> horizontalEvent;
