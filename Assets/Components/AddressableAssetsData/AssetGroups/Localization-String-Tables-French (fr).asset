@@ -15,8 +15,8 @@ MonoBehaviour:
   m_GroupName: Localization-String-Tables-French (fr)
   m_GUID: 92433cd2871988841bf505b41eca54f9
   m_SerializeEntries:
-  - m_GUID: 1a5aec3310145d24b8fcc50c4912c162
-    m_Address: PlayableCharactersData_fr
+  - m_GUID: a7d635d04d9448c4c9b2efb5159b3073
+    m_Address: CharacterName_fr
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-fr

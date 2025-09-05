@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5be51871efa6c3e4eae1703925c8f5ac, type: 3}
-  m_Name: PlayableCharactersData
+  m_Name: CharacterName
   m_EditorClassIdentifier: 
-  m_SharedTableData: {fileID: 11400000, guid: b2e85f3525c21a742842f8671c5eedea, type: 2}
+  m_SharedTableData: {fileID: 11400000, guid: d0bf8a3abb594a144a39a1c090fe275d, type: 2}
   m_Tables:
-  - {fileID: 11400000, guid: 1690574e31dcb4b48ad6eabb19bcf5fb, type: 2}
-  - {fileID: 11400000, guid: 1a5aec3310145d24b8fcc50c4912c162, type: 2}
+  - {fileID: 11400000, guid: 6ab95157a1f977749af77dd7da17d55e, type: 2}
+  - {fileID: 11400000, guid: a7d635d04d9448c4c9b2efb5159b3073, type: 2}
   m_Extensions: []
   m_Group: String Table
   references:

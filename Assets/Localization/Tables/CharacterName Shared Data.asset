@@ -10,27 +10,35 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
-  m_Name: PlayableCharactersData Shared Data
+  m_Name: CharacterName Shared Data
   m_EditorClassIdentifier: 
-  m_TableCollectionName: PlayableCharactersData
-  m_TableCollectionNameGuidString: b2e85f3525c21a742842f8671c5eedea
+  m_TableCollectionName: CharacterName
+  m_TableCollectionNameGuidString: d0bf8a3abb594a144a39a1c090fe275d
   m_Entries:
-  - m_Id: 413232967680
-    m_Key: zoeName
+  - m_Id: 382396444672
+    m_Key: lucas
     m_Metadata:
       m_Items: []
-  - m_Id: 622470017024
-    m_Key: liamName
+  - m_Id: 2267400548352
+    m_Key: caleb
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7986904477696
+    m_Key: malt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8551856254976
+    m_Key: phoebos
     m_Metadata:
       m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
-    rid: 9180491411273548133
+    rid: 4434762535037304950
   references:
     version: 2
     RefIds:
-    - rid: 9180491411273548133
+    - rid: 4434762535037304950
       type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
       data:
-        m_CustomEpoch: 1749922998895
+        m_CustomEpoch: 1756832946528

@@ -19,22 +19,25 @@ public class TacticalController : MonoBehaviour
     public Pathfinding pathfinding { get; private set; }
     public List<PathResult> paths { get; private set; }
     public PathResult currentPath { get; private set; }
+
     public Vector2Int currentPosition = Vector2Int.zero;
     public Vector2Int newPosition = Vector2Int.zero;
-    public bool isActive = true;
+
+    private bool isActive = true;
 
     private TacticalStateMachine stateMachine;
 
-    private InputAction horizontalAction => InputReader.Instance.inputActions.Global.Horizontal;
-    private InputAction verticalAction => InputReader.Instance.inputActions.Global.Vertical;
-    private InputAction confirmAction => InputReader.Instance.inputActions.Global.Confirm;
-    private InputAction backAction => InputReader.Instance.inputActions.Global.Back;
+    private InputAction horizontalAction    => InputReader.Instance.inputActions.Global.Horizontal;
+    private InputAction verticalAction      => InputReader.Instance.inputActions.Global.Vertical;
+    private InputAction confirmAction       => InputReader.Instance.inputActions.Global.Confirm;
+    private InputAction backAction          => InputReader.Instance.inputActions.Global.Back;
 
     private void Awake()
     {
+        Debug.Log("TacticalController Start called.");
+
         pathfinding = GetComponent<Pathfinding>();
 
-        Debug.Log("TacticalController Start called.");
         GenerateGrid();
 
         if (grid == null || grid.Length == 0)
@@ -62,9 +65,6 @@ public class TacticalController : MonoBehaviour
         {
             Debug.LogWarning("No paths found from the current position.");
         }
-
-        // Update the rendering of the grid
-        UpdateRendering();
     }
 
     private void OnEnable()
@@ -123,6 +123,11 @@ public class TacticalController : MonoBehaviour
     private void cancelEvent()
     {
         stateMachine.currentState.CancelKey();
+    }
+
+    public void OnClickButton(int buttonIndex)
+    {
+        stateMachine.currentState.OnClickButton(buttonIndex);
     }
 
     public Tile GetTileAt(Vector2Int position)
@@ -199,9 +204,6 @@ public class TacticalController : MonoBehaviour
         currentPath = null; // Reset current path
         currentPosition = newPosition; // Update current position to the new position
 
-        // Update the rendering of the grid
-        UpdateRendering();
-
         isActive = true; // Reactivate the grid manager after the unit finishes moving
     }
 
@@ -227,8 +229,6 @@ public class TacticalController : MonoBehaviour
 
         if (!pathFound)
             currentPath = null; // Reset current path if no valid path found
-
-        UpdateRendering();
     }
 
     public void MoveUnitPath()
@@ -246,40 +246,6 @@ public class TacticalController : MonoBehaviour
         else
         {
             Debug.LogWarning("No valid path selected for confirmation.");
-        }
-    }
-
-    public void UpdateRendering()
-    {
-        foreach (Tile tile in grid)
-        {
-            if (tile != null)
-            {
-                if (currentPosition == tile.gridPosition)
-                {
-                    tile.Illuminate(Color.yellow); // Highlight current position
-                }
-                else if (newPosition == tile.gridPosition)
-                {
-                    tile.Illuminate(Color.green); // Highlight new position
-                }
-                else if (currentPath != null && currentPath.path.Contains(tile))
-                {
-                    tile.Illuminate(Color.blue); // Highlight path tiles
-                }
-                else if (paths != null && paths.Count > 0 && paths.Exists(p => p.destination.gridPosition == tile.gridPosition))
-                {
-                    tile.Illuminate(Color.red); // Highlight destination tiles
-                }
-                else if (tile.terrainType == TerrainType.Void)
-                {
-                    tile.Illuminate(Color.grey); // Highlight occupied tiles
-                }
-                else
-                {
-                    tile.ResetIllumination(); // Reset other tiles
-                }
-            }
         }
     }
 

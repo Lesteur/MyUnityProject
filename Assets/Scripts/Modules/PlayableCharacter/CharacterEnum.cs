@@ -8,7 +8,8 @@ public enum Affiliation
 {
     TwilightHeroes,
     TaranisCrew,
-    BladePrinces
+    BladePrinces,
+    TrueTailHeroes
 }
 
 public enum PersonalityTrait
@@ -44,7 +45,9 @@ public enum PersonalityTrait
     Understanding,
     Shy,
     Stubborn,
-    Snobbish
+    Snobbish,
+    Thoughtful,
+    Perceptive
 }
 
 public enum FoodType

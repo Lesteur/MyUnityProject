@@ -10,20 +10,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
-  m_Name: PlayableCharactersData_en
+  m_Name: CharacterName_fr
   m_EditorClassIdentifier: 
   m_LocaleId:
-    m_Code: en
-  m_SharedData: {fileID: 11400000, guid: b2e85f3525c21a742842f8671c5eedea, type: 2}
+    m_Code: fr
+  m_SharedData: {fileID: 11400000, guid: d0bf8a3abb594a144a39a1c090fe275d, type: 2}
   m_Metadata:
     m_Items: []
   m_TableData:
-  - m_Id: 413232967680
-    m_Localized: Zoe
+  - m_Id: 382396444672
+    m_Localized: Lucas
     m_Metadata:
       m_Items: []
-  - m_Id: 622470017024
-    m_Localized: Liam
+  - m_Id: 2267400548352
+    m_Localized: Caleb
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7986904477696
+    m_Localized: Malt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8551856254976
+    m_Localized: Phoebos
     m_Metadata:
       m_Items: []
   references:

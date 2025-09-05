@@ -1,0 +1,92 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b3998e5228357d459ef75708c1d5729, type: 3}
+  m_Name: Caleb
+  m_EditorClassIdentifier: 
+  general:
+    id: ID_CALEB
+    name:
+      m_TableReference:
+        m_TableCollectionName: GUID:d0bf8a3abb594a144a39a1c090fe275d
+      m_TableEntryReference:
+        m_KeyId: 2267400548352
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    fullName:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    race:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    charClass:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    description:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    age: 13
+    color: {r: 0, g: 0.83396226, b: 0.15615955, a: 0}
+    gender: 0
+    affiliation: 3
+  personality:
+    personalityTraits: 000000000d000000040000001a0000001e0000001f000000
+    foodTastes: 
+    interests: 
+    giftTastes: 
+    bookTastes: 
+    alignment: 0
+  fight:
+    baseHP: 0
+    baseSP: 0
+    baseAttack: 0
+    baseDefense: 0
+    baseSpecialAttack: 0
+    baseSpecialDefense: 0
+    baseSpeed: 0
+    gainAttack: 0
+    gainDefense: 0
+    gainSpecialAttack: 0
+    gainSpecialDefense: 0
+    gainSpeed: 0
+    criticalRate: 0
+    criticalDamage: 1
+    movementRange: 0
+    heightJump: 0
+  references:
+    version: 2
+    RefIds: []

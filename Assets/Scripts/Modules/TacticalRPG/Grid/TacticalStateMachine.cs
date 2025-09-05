@@ -19,7 +19,7 @@ public class TacticalStateMachine
         unitActionState     = new TacticalUnitActionState(this);
         unitTargetingState  = new TacticalUnitTargetingState(this);
 
-        EnterState(unitMovementState);
+        EnterDefaultState();
     }
 
     public void Update()

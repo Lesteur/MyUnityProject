@@ -40,14 +40,6 @@ MonoBehaviour:
   pattern:
     width: 0
     height: 0
-    center: {x: 1, y: 1}
-    cells:
-      gridSize: {x: 3, y: 3}
-      cellSize: {x: 16, y: 16}
-      cells:
-      - row: 000100
-      - row: 010001
-      - row: 000100
   canTargetSelf: 0
   requiresLineOfSight: 1
   effectPrefab: {fileID: 0}
