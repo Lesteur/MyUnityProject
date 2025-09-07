@@ -23,6 +23,8 @@ public class TacticalController : MonoBehaviour
     public Vector2Int currentPosition = Vector2Int.zero;
     public Vector2Int newPosition = Vector2Int.zero;
 
+    public BaseMenu actionMenu;
+
     private bool isActive = true;
 
     private TacticalStateMachine stateMachine;
@@ -65,6 +67,8 @@ public class TacticalController : MonoBehaviour
         {
             Debug.LogWarning("No paths found from the current position.");
         }
+
+        actionMenu.Hide();
     }
 
     private void OnEnable()
@@ -127,6 +131,7 @@ public class TacticalController : MonoBehaviour
 
     public void OnClickButton(int buttonIndex)
     {
+        Debug.Log($"Button {buttonIndex} clicked.");
         stateMachine.currentState.OnClickButton(buttonIndex);
     }
 
@@ -203,6 +208,8 @@ public class TacticalController : MonoBehaviour
         paths = pathfinding.GetAllPathsFrom(newPosition, currentUnit);
         currentPath = null; // Reset current path
         currentPosition = newPosition; // Update current position to the new position
+
+        stateMachine.EnterState(stateMachine.unitsState);
 
         isActive = true; // Reactivate the grid manager after the unit finishes moving
     }

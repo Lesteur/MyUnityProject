@@ -34,6 +34,14 @@ MonoBehaviour:
     m_Localized: Phoebos
     m_Metadata:
       m_Items: []
+  - m_Id: 1131051851886592
+    m_Localized: "Zo\xE9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1131211424182272
+    m_Localized: Liam
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

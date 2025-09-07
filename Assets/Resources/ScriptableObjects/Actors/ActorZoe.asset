@@ -15,9 +15,9 @@ MonoBehaviour:
   id: zoe
   displayName:
     m_TableReference:
-      m_TableCollectionName: GUID:b2e85f3525c21a742842f8671c5eedea
+      m_TableCollectionName: GUID:d0bf8a3abb594a144a39a1c090fe275d
     m_TableEntryReference:
-      m_KeyId: 413232967680
+      m_KeyId: 1131051851886592
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0

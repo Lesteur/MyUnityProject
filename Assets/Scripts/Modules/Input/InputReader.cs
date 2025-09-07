@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 using System;
 
 namespace Game.Input
@@ -13,6 +14,9 @@ namespace Game.Input
         // Singleton instance
         public static InputReader Instance { get; private set; }
 
+        public float moveRepeatDelay = 0.5f;
+        public float moveRepeatRate = 0.1f;
+
         // Input Actions asset (auto-generated class)
         public InputActions inputActions;
 
@@ -21,6 +25,8 @@ namespace Game.Input
         public event Action<int> verticalEvent;
         public event Action confirmEvent;
         public event Action backEvent;
+
+        private Coroutine moveCoroutine;
 
         private void Awake()
         {
@@ -66,19 +72,69 @@ namespace Game.Input
 
         public void OnHorizontal(InputAction.CallbackContext context)
         {
+            int horizontalValue = (int)context.ReadValue<float>();
+
             if (context.performed)
             {
-                int horizontalValue = (int)context.ReadValue<float>();
-                horizontalEvent?.Invoke(horizontalValue);
+                if (horizontalValue != 0)
+                {
+                    horizontalEvent?.Invoke(horizontalValue);
+
+                    if (moveCoroutine != null)
+                        StopCoroutine(moveCoroutine);
+                }
+
+                moveCoroutine = StartCoroutine(RepeatMove(horizontalValue, 0));
+            }
+            else if (context.canceled)
+            {
+                if (moveCoroutine != null)
+                {
+                    StopCoroutine(moveCoroutine);
+                    moveCoroutine = null;
+                }
             }
         }
 
         public void OnVertical(InputAction.CallbackContext context)
         {
+            int verticalValue = (int)context.ReadValue<float>();
+
             if (context.performed)
             {
-                int verticalValue = (int)context.ReadValue<float>();
-                verticalEvent?.Invoke(verticalValue);
+                if (verticalValue != 0)
+                {
+                    verticalEvent?.Invoke(verticalValue);
+
+                    if (moveCoroutine != null)
+                        StopCoroutine(moveCoroutine);
+                }
+
+                moveCoroutine = StartCoroutine(RepeatMove(0, verticalValue));
+            }
+            else if (context.canceled)
+            {
+                if (moveCoroutine != null)
+                {
+                    StopCoroutine(moveCoroutine);
+                    moveCoroutine = null;
+                }
+            }
+        }
+
+        private IEnumerator RepeatMove(int horizontal, int vertical)
+        {
+            yield return new WaitForSeconds(moveRepeatDelay);
+
+            while (horizontal != 0 || vertical != 0)
+            {
+                if (horizontal != 0)
+                    horizontalEvent?.Invoke(horizontal);
+                
+                if (vertical != 0)
+                    verticalEvent?.Invoke(vertical);
+
+                yield return new WaitForSeconds(moveRepeatRate);
             }
         }
     }

@@ -41,4 +41,10 @@ public class Tile : MonoBehaviour
         // Reset the tile's color to its original state
         GetComponent<SpriteRenderer>().color = Color.white;
     }
+
+    public void OnMouseEnter()
+    {
+        // Example hover effect
+        Illuminate(Color.yellow);
+    }
 }
