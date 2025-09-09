@@ -284,18 +284,18 @@ public class Pathfinding : MonoBehaviour
                 {
                     if (heightDelta < -unit.maxFallHeight)
                     {
-                        moveSteps++;
-                        jumpCount++;
+                        moveSteps ++;
+                        jumpCount ++;
                         currentPos += dir;
 
                         jumpTile = tacticalController.GetTileAt(currentPos);
 
-                        if (jumpTile == null)
-                            break; // Stop if we go out of bounds or hit an invalid tile
-
                         continue; // Skip if we can't fall that far
                     }
                 }
+
+                //if (jumpTile.occupyingUnit != null)
+                //    break; // Stop if occupied by another unit
 
                 int totalMoveCost = current.G + moveSteps;
 
@@ -317,8 +317,8 @@ public class Pathfinding : MonoBehaviour
                 if (paths != null)
                     paths[currentPos] = jumpNode;
 
-                moveSteps++;
-                jumpCount++;
+                moveSteps ++;
+                jumpCount ++;
                 currentPos += dir;
 
                 jumpTile = tacticalController.GetTileAt(currentPos);
@@ -344,6 +344,9 @@ public class Pathfinding : MonoBehaviour
     {
         if (to == null)
             return false;
+
+        if (to.occupyingUnit != null)
+            return false; // Skip if occupied by another unit
 
         int heightDelta = to.height - from.height;
 

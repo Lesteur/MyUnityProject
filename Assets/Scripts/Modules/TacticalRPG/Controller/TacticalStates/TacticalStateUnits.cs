@@ -7,7 +7,7 @@ using Game.Input;
 
 public class TacticalStateUnits : TacticalStateBase
 {
-    Vector2Int positionCursor;
+    private Vector2Int positionCursor;
 
     public TacticalStateUnits(TacticalStateMachine stateMachine) : base(stateMachine)
     {
@@ -16,10 +16,8 @@ public class TacticalStateUnits : TacticalStateBase
 
     public override void Enter(TacticalStateBase previousState)
     {
-        // Logic for entering the main menu state
-        Debug.Log("Entering Main Menu State");
-
-        positionCursor = controller.currentPosition;
+        // Logic for entering the units state
+        Debug.Log("Entering Units State");
 
         UpdateRendering();
     }
@@ -45,8 +43,15 @@ public class TacticalStateUnits : TacticalStateBase
 
     public override void ConfirmKey()
     {
-        if (positionCursor == controller.currentPosition)
-            stateMachine.EnterState(stateMachine.unitActionState);
+        foreach (Unit unit in controller.units)
+        {
+            if (unit.gridPosition == positionCursor)
+            {
+                controller.SelectUnit(unit);
+                stateMachine.EnterState(stateMachine.unitActionState);
+                return;
+            }
+        }
     }
 
     public override void UpdateRendering()

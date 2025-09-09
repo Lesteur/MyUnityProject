@@ -7,19 +7,25 @@ using Game.Input;
 
 public class TacticalStateUnitMovement : TacticalStateBase
 {
-    public Vector2Int currentPosition;
-    public Vector2Int newPosition;
+    private Unit selectedUnit => controller.selectedUnit;
+    private Vector2Int positionCursor;
+    private PathResult selectedPath;
+    private bool pathFound;
 
     public TacticalStateUnitMovement(TacticalStateMachine stateMachine) : base(stateMachine)
     {
-        currentPosition = Vector2Int.zero;
-        newPosition     = Vector2Int.zero;
+        positionCursor = Vector2Int.zero;
+        selectedPath = null;
     }
 
     public override void Enter(TacticalStateBase previousState)
     {
         // Logic for entering the unit movement state
         Debug.Log("Entering Unit Movement State");
+
+        positionCursor = selectedUnit.gridPosition;
+        selectedPath = null;
+        pathFound = false;
 
         UpdateRendering();
     }
@@ -31,21 +37,42 @@ public class TacticalStateUnitMovement : TacticalStateBase
 
     public override void HorizontalKey(int direction)
     {
-        controller.MoveCursorTile(direction, 0);
+        positionCursor.x = Mathf.Clamp(positionCursor.x + direction, 0, controller.width - 1);
+
+        if (selectedUnit != null && selectedUnit.availablePaths != null)
+        {
+            selectedPath = selectedUnit.availablePaths.Find(p => p.destination.gridPosition == positionCursor);
+            pathFound = selectedPath != null;
+        }
 
         UpdateRendering();
     }
 
     public override void VerticalKey(int direction)
     {
-        controller.MoveCursorTile(0, -direction);
+        positionCursor.y = Mathf.Clamp(positionCursor.y - direction, 0, controller.height - 1);
+
+        if (selectedUnit != null && selectedUnit.availablePaths != null)
+        {
+            selectedPath = selectedUnit.availablePaths.Find(p => p.destination.gridPosition == positionCursor);
+            pathFound = selectedPath != null;
+        }
 
         UpdateRendering();
     }
 
     public override void ConfirmKey()
     {
-        controller.MoveUnitPath();
+        if (pathFound)
+        {
+            Debug.Log($"Path confirmed to {selectedPath.destination.gridPosition}.");
+
+            controller.MoveUnitPath(selectedUnit, selectedPath);
+        }
+        else
+        {
+            Debug.Log("No valid path found to the selected position.");
+        }
     }
 
     public override void CancelKey()
@@ -53,7 +80,7 @@ public class TacticalStateUnitMovement : TacticalStateBase
         // Handle back event logic here
         Debug.Log("Back event triggered.");
 
-        stateMachine.EnterState(stateMachine.unitsState);
+        stateMachine.EnterState(stateMachine.unitActionState);
     }
 
     public override void UpdateRendering()
@@ -62,19 +89,19 @@ public class TacticalStateUnitMovement : TacticalStateBase
         {
             if (tile != null)
             {
-                if (controller.currentPosition == tile.gridPosition)
+                if (selectedUnit != null && selectedUnit.gridPosition == tile.gridPosition)
                 {
                     tile.Illuminate(Color.yellow); // Highlight current position
                 }
-                else if (controller.newPosition == tile.gridPosition)
+                else if (positionCursor == tile.gridPosition)
                 {
                     tile.Illuminate(Color.green); // Highlight new position
                 }
-                else if (controller.currentPath != null && controller.currentPath.path.Contains(tile))
+                else if (selectedPath != null && selectedPath.path.Exists(t => t.gridPosition == tile.gridPosition))
                 {
                     tile.Illuminate(Color.blue); // Highlight path tiles
                 }
-                else if (controller.paths != null && controller.paths.Count > 0 && controller.paths.Exists(p => p.destination.gridPosition == tile.gridPosition))
+                else if (selectedUnit != null && selectedUnit.availablePaths != null && selectedUnit.availablePaths.Exists(p => p.destination.gridPosition == tile.gridPosition))
                 {
                     tile.Illuminate(Color.red); // Highlight destination tiles
                 }

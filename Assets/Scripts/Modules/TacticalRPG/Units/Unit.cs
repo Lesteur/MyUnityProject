@@ -10,22 +10,21 @@ public class Unit : MonoBehaviour
     public int maxFallHeight = 10; // The maximum height the unit can fall
 
     private SpriteRenderer spriteRenderer; // Reference to the SpriteRenderer component
-    private Pathfinding pathfinding; // Reference to the Pathfinding component
     private TacticalController tacticalController; // Reference to the TacticalController component
-    private bool isMoving = false; // Flag to indicate if the unit is currently moving
-    private PathResult path;
+    public List<PathResult> availablePaths { get; private set; } // List of available paths for the unit
+    private bool pathsCalculated = false; // Flag to check if paths have been calculated
+    private PathResult pathToFollow; // The path the unit will follow
     private Tile currentTile;
 
     private void Awake()
     {
-        // Get the Pathfinding component from the TacticalController
-        pathfinding = GetComponent<Pathfinding>();
         // Get the SpriteRenderer component from the GameObject
         spriteRenderer = GetComponent<SpriteRenderer>();
         // Get the TacticalController component from the scene
         tacticalController = FindFirstObjectByType<TacticalController>();
 
         currentTile = tacticalController.GetTileAt(gridPosition);
+        currentTile.occupyingUnit = this;
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -43,7 +42,7 @@ public class Unit : MonoBehaviour
     {
 
     }
-    
+
     public void GetPath(PathResult pathResult)
     {
         if (pathResult == null || pathResult.path == null || pathResult.path.Count == 0)
@@ -53,21 +52,16 @@ public class Unit : MonoBehaviour
         }
 
         // Set the path and start moving
-        path = pathResult;
+        pathToFollow = pathResult;
         StartCoroutine(MoveAlongPath());
-    }
-
-    public bool isUnitMoving()
-    {
-        return isMoving;
     }
 
     private IEnumerator MoveAlongPath()
     {
-        isMoving = true;
+        currentTile.occupyingUnit = null;
 
         // Iterate through each tile in the path
-        foreach (Tile tile in path.path)
+        foreach (Tile tile in pathToFollow.path)
         {
             // Calculate the target position based on the tile's position
             Vector3 targetPosition = new Vector3(tile.transform.position.x, tile.transform.position.y + 0.4f, 0);
@@ -82,22 +76,31 @@ public class Unit : MonoBehaviour
             // Update the unit's grid position to the current tile's grid position
             transform.position = new Vector3(tile.transform.position.x, tile.transform.position.y + 0.4f, 0);
             spriteRenderer.sortingOrder = tile.GetComponent<SpriteRenderer>().sortingOrder + 1; // Update sorting order based on tile
+
             gridPosition = tile.gridPosition;
         }
 
-        isMoving = false;
+        currentTile = tacticalController.GetTileAt(gridPosition);
+        currentTile.occupyingUnit = this;
 
         // Notify the TacticalController that the unit has finished moving
-        if (tacticalController != null)
+        tacticalController.OnUnitFinishedAction(this);
+    }
+
+    public void SetAvailablePaths(List<PathResult> paths)
+    {
+        if (paths != null && paths.Count > 0)
         {
-            tacticalController.OnUnitFinishedAction(this);
+            availablePaths = paths;
+            Debug.Log($"Unit {name} has {availablePaths.Count} available paths.");
         }
         else
         {
-            Debug.LogError("TacticalController reference is null.");
+            Debug.LogWarning($"No available paths provided for unit {name}.");
+            availablePaths = new List<PathResult>();
         }
     }
-
+    
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;

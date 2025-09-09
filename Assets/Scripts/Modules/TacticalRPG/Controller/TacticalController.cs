@@ -13,15 +13,11 @@ public class TacticalController : MonoBehaviour
     public int tileSize = 1; // Size of each tile in world units
     public GameObject tilePrefab;
     public TileData defaultTileData;
-    public Unit currentUnit;
+    public List<Unit> units;
+    public Unit selectedUnit;
 
     public Tile[,] grid { get; private set; }
     public Pathfinding pathfinding { get; private set; }
-    public List<PathResult> paths { get; private set; }
-    public PathResult currentPath { get; private set; }
-
-    public Vector2Int currentPosition = Vector2Int.zero;
-    public Vector2Int newPosition = Vector2Int.zero;
 
     public BaseMenu actionMenu;
 
@@ -52,21 +48,14 @@ public class TacticalController : MonoBehaviour
 
     private void Start()
     {
-        currentPosition = currentUnit != null ? currentUnit.gridPosition : Vector2Int.zero;
-        newPosition = currentPosition; // Initialize new position to current position
-
-        // Get all paths from the current position
-        paths = pathfinding.GetAllPathsFrom(currentPosition, currentUnit);
-
-        // Initialize the current path if available
-        if (paths.Count > 0)
+        // Get all available paths for each unit
+        foreach (Unit unit in units)
         {
-            currentPath = null;
+            List<PathResult> unitPaths = pathfinding.GetAllPathsFrom(unit.gridPosition, unit);
+            unit.SetAvailablePaths(unitPaths);
         }
-        else
-        {
-            Debug.LogWarning("No paths found from the current position.");
-        }
+
+        selectedUnit = null;
 
         actionMenu.Hide();
     }
@@ -199,61 +188,42 @@ public class TacticalController : MonoBehaviour
         }
     }
 
-    public void OnUnitFinishedAction(Unit currentUnit)
+    public void OnUnitFinishedAction(Unit finishedUnit)
     {
-        // Reset the new position to the current position after the unit finishes moving
-        newPosition = currentUnit.gridPosition;
-        Debug.Log($"Unit {currentUnit.name} finished moving. Resetting new position to {newPosition}.");
+        // Get all available paths for each unit
+        foreach (Unit unit in units)
+        {
+            List<PathResult> unitPaths = pathfinding.GetAllPathsFrom(unit.gridPosition, unit);
+            unit.SetAvailablePaths(unitPaths);
+        }
 
-        paths = pathfinding.GetAllPathsFrom(newPosition, currentUnit);
-        currentPath = null; // Reset current path
-        currentPosition = newPosition; // Update current position to the new position
-
-        stateMachine.EnterState(stateMachine.unitsState);
+        stateMachine.EnterState(stateMachine.unitActionState);
 
         isActive = true; // Reactivate the grid manager after the unit finishes moving
     }
 
-    public void MoveCursorTile(int x, int y)
+    public void MoveUnitPath(Unit unit, PathResult path)
     {
         if (!isActive)
             return;
 
-        newPosition.x = Mathf.Clamp(newPosition.x + x, 0, width - 1);
-        newPosition.y = Mathf.Clamp(newPosition.y + y, 0, height - 1);
-
-        bool pathFound = false;
-
-        foreach (var path in paths)
-        {
-            if (path.destination.gridPosition == newPosition)
-            {
-                pathFound = true;
-                currentPath = path;
-                break;
-            }
-        }
-
-        if (!pathFound)
-            currentPath = null; // Reset current path if no valid path found
-    }
-
-    public void MoveUnitPath()
-    {
-        if (!isActive)
-            return;
-
-        if (currentPath != null)
+        if (path != null)
         {
             isActive = false; // Deactivate the grid manager after confirming the path
 
-            currentUnit.GetPath(currentPath);
-            Debug.Log($"Unit {currentUnit.name} is moving to {currentPath.destination.gridPosition} along the path.");
+            unit.GetPath(path);
+            Debug.Log($"Unit {unit.name} is moving to {path.destination.gridPosition} along the path.");
         }
         else
         {
             Debug.LogWarning("No valid path selected for confirmation.");
         }
+    }
+
+    public void SelectUnit(Unit unit)
+    {
+        selectedUnit = unit;
+        Debug.Log($"Unit {unit.name} selected at position {unit.gridPosition}.");
     }
 
     private void OnDrawGizmos()
