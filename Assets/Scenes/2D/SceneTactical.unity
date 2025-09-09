@@ -411,15 +411,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: maxFallHeight
-      value: 1
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: gridPosition.x
-      value: 9
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: gridPosition.y
-      value: 9
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5734348783090883360, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2865,15 +2865,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: maxFallHeight
-      value: 1
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: gridPosition.x
-      value: 8
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: gridPosition.y
-      value: 9
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: movementPoints

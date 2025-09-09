@@ -250,20 +250,19 @@ public class Pathfinding : MonoBehaviour
     /// <param name="closedSet">Optional set of closed tiles to avoid revisiting.</
     private void ExpandJumpPaths(TileNode current, Unit unit, Dictionary<Vector2Int, int> visited, PriorityQueue<TileNode> queue, Dictionary<Vector2Int, TileNode> paths, Vector2Int? target = null, HashSet<Vector2Int> closedSet = null)
     {
-        Tile startTile = current.Tile;
-        int initialHeight = startTile.height;
-        int maxMovementPoints = unit.movementPoints;
+        Tile startTile          = current.Tile;
+        int initialHeight       = startTile.height;
+        int maxMovementPoints   = unit.movementPoints;
         Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
 
         Vector2Int unitPos = unit.gridPosition;
 
         foreach (var dir in directions)
         {
-            int moveSteps = 1;
-            int jumpCount = 0;
-            Vector2Int currentPos = startTile.gridPosition + dir;
-
-            Tile jumpTile = tacticalController.GetTileAt(currentPos);
+            int moveSteps           = 1;
+            int jumpCount           = 0;
+            Vector2Int currentPos   = startTile.gridPosition + dir;
+            Tile jumpTile           = tacticalController.GetTileAt(currentPos);
 
             if (closedSet != null && closedSet.Contains(currentPos))
                 continue; // Skip if already visited
@@ -275,47 +274,38 @@ public class Pathfinding : MonoBehaviour
             {
                 int heightDelta = jumpTile.height - initialHeight;
 
-                if (heightDelta >= 0)
+                if (unit.maxFallHeight >= heightDelta * -1)
                 {
-                    if (heightDelta > unit.jumpHeight)
-                        break;
-                }
-                else
-                {
-                    if (heightDelta < -unit.maxFallHeight)
+                    // If the player can land here, we allow it
+                    int totalMoveCost = current.G + moveSteps;
+
+                    if (!jumpTile.IsWalkable() || (visited.TryGetValue(currentPos, out int existingCost) && totalMoveCost >= existingCost))
                     {
+                        // If we found a more expensive path, we skip it
                         moveSteps ++;
                         jumpCount ++;
                         currentPos += dir;
 
                         jumpTile = tacticalController.GetTileAt(currentPos);
 
-                        continue; // Skip if we can't fall that far
+                        continue;
                     }
+                    
+                    if (target != null)
+                            visited[currentPos] = totalMoveCost;
+
+                    int heuristic = target.HasValue ? GetHeuristic(unitPos, target.Value) : 0;
+
+                    TileNode jumpNode = new TileNode(jumpTile, totalMoveCost, heuristic, current);
+
+                    if (target != null)
+                        queue.EnqueueOrUpdate(jumpNode);
+                    else
+                        queue.Enqueue(jumpNode);
+
+                    if (paths != null)
+                        paths[currentPos] = jumpNode;
                 }
-
-                //if (jumpTile.occupyingUnit != null)
-                //    break; // Stop if occupied by another unit
-
-                int totalMoveCost = current.G + moveSteps;
-
-                if (visited.TryGetValue(currentPos, out int existingCost) && totalMoveCost >= existingCost)
-                    break;
-                
-                if (target != null)
-                    visited[currentPos] = totalMoveCost;
-
-                int heuristic = target.HasValue ? GetHeuristic(unitPos, target.Value) : 0;
-
-                TileNode jumpNode = new TileNode(jumpTile, totalMoveCost, heuristic, current);
-
-                if (target != null)
-                    queue.EnqueueOrUpdate(jumpNode);
-                else
-                    queue.Enqueue(jumpNode);
-
-                if (paths != null)
-                    paths[currentPos] = jumpNode;
 
                 moveSteps ++;
                 jumpCount ++;
