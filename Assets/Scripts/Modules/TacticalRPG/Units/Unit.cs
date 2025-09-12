@@ -8,10 +8,11 @@ public class Unit : MonoBehaviour
     public int movementPoints; // The number of movement points the unit has
     public int jumpHeight = 1; // The maximum height the unit can jump
     public int maxFallHeight = 10; // The maximum height the unit can fall
+    public List<SkillData> skills; // List of skills the unit possesses
 
     private SpriteRenderer spriteRenderer; // Reference to the SpriteRenderer component
     private TacticalController tacticalController; // Reference to the TacticalController component
-    public List<PathResult> availablePaths { get; private set; } // List of available paths for the unit
+    public List<PathResult> availablePaths { get; private set; } // List of available paths for movement
     private bool pathsCalculated = false; // Flag to check if paths have been calculated
     private PathResult pathToFollow; // The path the unit will follow
     private Tile currentTile;

@@ -6,7 +6,7 @@ public class SkillData : ScriptableObject
 {
     [Header("Meta")]
     public LocalizedString skillName;
-    [TextArea] public LocalizedString description;
+    public LocalizedString description;
     public Sprite icon;
 
     [Header("Type & Cost")]
@@ -14,11 +14,12 @@ public class SkillData : ScriptableObject
     public TargetType targetType;
     public int spCost;
     public int power;
-    public int accuracy = 100;
-    public int criticalRate = 0;
+    [Range(0, 5)] public int cooldownTurns;
+    [Range(0f, 1f)] public float accuracy = 1f;
+    [Range(0f, 1f)] public float criticalRate = 0f;
 
     [Header("Range")]
-    public AttackPattern pattern;
+    public SkillArea areaOfEffect;
 
     [Header("Behavior Flags")]
     public bool canTargetSelf = false;

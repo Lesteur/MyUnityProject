@@ -20,6 +20,7 @@ public class TacticalController : MonoBehaviour
     public Pathfinding pathfinding { get; private set; }
 
     public BaseMenu actionMenu;
+    public BaseMenu skillMenu;
 
     private bool isActive = true;
 

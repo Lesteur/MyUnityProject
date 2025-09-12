@@ -15,8 +15,20 @@ MonoBehaviour:
   m_GroupName: Localization-String-Tables-French (fr)
   m_GUID: 92433cd2871988841bf505b41eca54f9
   m_SerializeEntries:
+  - m_GUID: 637ac57bdc67b944985281dec5f298bc
+    m_Address: TacticalMenu_fr
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-fr
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a7d635d04d9448c4c9b2efb5159b3073
     m_Address: CharacterName_fr
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-fr
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c2bb83d249a0bb94a81e58a62d0f0ca5
+    m_Address: SkillName_fr
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-fr

@@ -15,6 +15,16 @@ MonoBehaviour:
   m_GroupName: Localization-Assets-Shared
   m_GUID: 9709fb3095013a741b95be0a9d96afce
   m_SerializeEntries:
+  - m_GUID: abf27c91b12696648a2978e9f9c80a9c
+    m_Address: Assets/Localization/Tables/SkillName Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b4d586d88887f0b43aabc521af887390
+    m_Address: Assets/Localization/Tables/TacticalMenu Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d0bf8a3abb594a144a39a1c090fe275d
     m_Address: Assets/Localization/Tables/CharacterName Shared Data.asset
     m_ReadOnly: 1

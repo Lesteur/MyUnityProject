@@ -1,0 +1,107 @@
+:root {
+    flex-shrink: 1;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    border-left-color: rgba(255, 255, 255, 0);
+    border-right-color: rgba(255, 255, 255, 0);
+    border-top-color: rgba(255, 255, 255, 0);
+    border-bottom-color: rgba(255, 255, 255, 0);
+    background-color: rgba(51, 99, 243, 0);
+}
+
+.button {
+    font-size: 40px;
+    -unity-font-style: bold;
+    white-space: nowrap;
+    -unity-text-align: middle-center;
+    background-color: rgb(0, 96, 122);
+    -unity-text-outline-color: rgb(128, 128, 128);
+    color: rgb(255, 255, 255);
+    -unity-text-outline-width: 0;
+    border-left-color: rgb(46, 67, 86);
+    border-right-color: rgb(46, 67, 86);
+    border-top-color: rgb(46, 67, 86);
+    border-bottom-color: rgb(46, 67, 86);
+    border-top-right-radius: 100px;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    border-top-left-radius: 20px;
+    border-top-width: 5px;
+    border-right-width: 5px;
+    border-bottom-width: 5px;
+    border-left-width: 5px;
+    text-shadow: 3px 3px 0 rgb(0, 0, 0);
+    transition-duration: 0.35s;
+}
+
+.button:hover {
+    font-size: 40px;
+    -unity-font-style: bold;
+    white-space: nowrap;
+    -unity-text-align: middle-center;
+    background-color: rgb(3, 48, 97);
+    -unity-text-outline-color: rgb(128, 128, 128);
+    color: rgb(255, 255, 255);
+    -unity-text-outline-width: 0;
+    border-left-color: rgb(46, 67, 86);
+    border-right-color: rgb(46, 67, 86);
+    border-top-color: rgb(46, 67, 86);
+    border-bottom-color: rgb(46, 67, 86);
+    border-top-right-radius: 100px;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    border-top-left-radius: 20px;
+    border-top-width: 5px;
+    border-right-width: 5px;
+    border-bottom-width: 5px;
+    border-left-width: 5px;
+    text-shadow: 3px 3px 0 rgb(0, 0, 0);
+}
+
+.button:focus {
+    font-size: 40px;
+    -unity-font-style: bold;
+    white-space: nowrap;
+    -unity-text-align: middle-center;
+    background-color: rgb(3, 48, 97);
+    -unity-text-outline-color: rgb(128, 128, 128);
+    color: rgb(255, 255, 255);
+    -unity-text-outline-width: 0;
+    border-left-color: rgb(46, 67, 86);
+    border-right-color: rgb(46, 67, 86);
+    border-top-color: rgb(46, 67, 86);
+    border-bottom-color: rgb(46, 67, 86);
+    border-top-right-radius: 100px;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    border-top-left-radius: 20px;
+    border-top-width: 5px;
+    border-right-width: 5px;
+    border-bottom-width: 5px;
+    border-left-width: 5px;
+    text-shadow: 3px 3px 0 rgb(0, 0, 0);
+}
+
+.container {
+    border-left-color: rgb(0, 54, 93);
+    border-right-color: rgb(0, 54, 93);
+    border-top-color: rgb(0, 54, 93);
+    border-bottom-color: rgb(0, 54, 93);
+    background-color: rgb(0, 64, 107);
+    flex-shrink: 1;
+    flex-basis: auto;
+    width: 100px;
+    height: 300px;
+    -unity-text-outline-width: 3px;
+    -unity-text-outline-color: rgba(0, 39, 72, 0);
+    border-top-width: 5px;
+    border-right-width: 5px;
+    border-bottom-width: 5px;
+    border-left-width: 5px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+}

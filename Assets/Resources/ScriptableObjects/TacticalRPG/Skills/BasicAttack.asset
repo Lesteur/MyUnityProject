@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e8c18875bb48364c84c2280ff3139d9, type: 3}
-  m_Name: DefaultSkill
+  m_Name: BasicAttack
   m_EditorClassIdentifier: 
   skillName:
     m_TableReference:
-      m_TableCollectionName: 
+      m_TableCollectionName: GUID:abf27c91b12696648a2978e9f9c80a9c
     m_TableEntryReference:
-      m_KeyId: 0
+      m_KeyId: 127504396288
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -34,14 +34,16 @@ MonoBehaviour:
   skillType: 0
   targetType: 0
   spCost: 0
-  power: 10
-  accuracy: 100
-  criticalRate: 0
-  pattern:
-    width: 0
-    height: 0
+  power: 50
+  cooldownTurns: 0
+  accuracy: 1
+  criticalRate: 0.05
+  areaOfEffect:
+    minRange: 0
+    maxRange: 3
+    areaType: 0
   canTargetSelf: 0
-  requiresLineOfSight: 1
+  requiresLineOfSight: 0
   effectPrefab: {fileID: 0}
   soundEffect: {fileID: 0}
   references:
