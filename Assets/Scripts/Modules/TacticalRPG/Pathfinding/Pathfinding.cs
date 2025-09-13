@@ -26,8 +26,8 @@ public class Pathfinding : MonoBehaviour
     /// <returns>List of tiles representing the path, or null if no path found.</returns>
     public List<Tile> FindPath(Vector2Int start, Vector2Int target, Unit unit)
     {
-        int maxJumpHeight = unit.jumpHeight;
-        int maxFallHeight = unit.maxFallHeight;
+        int maxJumpHeight = unit.JumpHeight;
+        int maxFallHeight = unit.MaxFallHeight;
 
         Tile startTile  = tacticalController.GetTileAt(start);
         Tile targetTile = tacticalController.GetTileAt(target);
@@ -67,7 +67,7 @@ public class Pathfinding : MonoBehaviour
     /// <returns>List of reachable tiles.</returns>
     public List<Tile> GetReachableTiles(Vector2Int start, Unit unit)
     {
-        int maxMovementPoints   = unit.movementPoints;
+        int maxMovementPoints   = unit.MovementPoints;
         Tile startTile          = tacticalController.GetTileAt(start);
 
         var reachableTiles  = new List<Tile>();
@@ -121,7 +121,7 @@ public class Pathfinding : MonoBehaviour
     /// <returns>List of reachable paths to each tile.</returns>
     public List<PathResult> GetAllPathsFrom(Vector2Int start, Unit unit)
     {
-        int maxMovementPoints = unit.movementPoints;
+        int maxMovementPoints = unit.MovementPoints;
         Tile startTile = tacticalController.GetTileAt(start);
 
         var results     = new List<PathResult>();
@@ -201,8 +201,8 @@ public class Pathfinding : MonoBehaviour
     /// <param name="closedSet">Optional set of closed positions to avoid revisiting.</param>
     private void ExpandStandardNeighbors(TileNode current, Unit unit, Dictionary<Vector2Int, int> visited, PriorityQueue<TileNode> queue, Dictionary<Vector2Int, TileNode> paths, Vector2Int? target = null, HashSet<Vector2Int> closedSet = null)
     {
-        int maxMovementPoints = unit.movementPoints;
-        Vector2Int unitPos = unit.gridPosition;
+        int maxMovementPoints = unit.MovementPoints;
+        Vector2Int unitPos = unit.GridPosition;
 
         foreach (Tile neighbor in GetNeighbors(current.Tile))
         {
@@ -252,10 +252,10 @@ public class Pathfinding : MonoBehaviour
     {
         Tile startTile          = current.Tile;
         int initialHeight       = startTile.height;
-        int maxMovementPoints   = unit.movementPoints;
+        int maxMovementPoints   = unit.MovementPoints;
         Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
 
-        Vector2Int unitPos = unit.gridPosition;
+        Vector2Int unitPos = unit.GridPosition;
 
         foreach (var dir in directions)
         {
@@ -270,7 +270,7 @@ public class Pathfinding : MonoBehaviour
             if (jumpTile == null || jumpTile.height >= initialHeight || 1 == initialHeight - jumpTile.height)
                 continue; // Skip if the first jump tile is invalid or at the same height or one step lower
 
-            while (current.G + moveSteps <= maxMovementPoints && jumpCount <= unit.jumpHeight)
+            while (current.G + moveSteps <= maxMovementPoints && jumpCount <= unit.JumpHeight)
             {
                 if (jumpTile == null)
                 {
@@ -280,7 +280,7 @@ public class Pathfinding : MonoBehaviour
 
                 int heightDelta = jumpTile.height - initialHeight;
 
-                if (unit.maxFallHeight >= heightDelta * -1)
+                if (unit.MaxFallHeight >= heightDelta * -1)
                 {
                     // If the player can land here, we allow it
                     int totalMoveCost = current.G + moveSteps;
@@ -343,7 +343,7 @@ public class Pathfinding : MonoBehaviour
 
         int heightDelta = to.height - from.height;
 
-        if (heightDelta > unit.jumpHeight || heightDelta < -unit.maxFallHeight)
+        if (heightDelta > unit.JumpHeight || heightDelta < -unit.MaxFallHeight)
             return false;
 
         return true;

@@ -1,81 +1,84 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Collections;
-using UnityEngine.Events;
-using UnityEngine.InputSystem;
-using Game.Input;
 
+/// <summary>
+/// State responsible for displaying the skill menu and handling skill selection.
+/// </summary>
 public class TacticalStateSkillMenu : TacticalStateBase
 {
     private SkillData selectedSkill;
 
+    /// <summary>
+    /// Initializes a new instance of the skill menu state.
+    /// </summary>
     public TacticalStateSkillMenu(TacticalStateMachine stateMachine) : base(stateMachine) { }
 
+    /// <inheritdoc/>
     public override void Enter(TacticalStateBase previousState)
     {
-        // Logic for entering the skill menu state
         Debug.Log("Entering Skill Menu State");
 
         selectedSkill = null;
-
-        controller.tacticalMenu.ShowSkillMenu();
-
+        Controller.TacticalMenu.ShowSkillMenu();
         UpdateRendering();
     }
 
+    /// <inheritdoc/>
     public override void CancelKey()
     {
-        // Handle back event logic here
         Debug.Log("Back event triggered.");
-
-        stateMachine.EnterState(stateMachine.unitActionState);
+        stateMachine.EnterState(stateMachine.MainMenuState);
     }
 
+    /// <inheritdoc/>
     public override void OnClickButton(int buttonIndex)
     {
-        if (buttonIndex >= 0 && buttonIndex < controller.selectedUnit.skills.Count)
+        if (Controller.SelectedUnit == null)
         {
-            selectedSkill = controller.selectedUnit.GetSkillByIndex(buttonIndex);
-            Debug.Log("Selected Skill: " + selectedSkill.skillName);
+            Debug.LogWarning("No unit is currently selected.");
+            return;
+        }
+
+        if (buttonIndex >= 0 && buttonIndex < Controller.SelectedUnit.Skills.Count)
+        {
+            selectedSkill = Controller.SelectedUnit.GetSkillByIndex(buttonIndex);
+            Debug.Log($"Selected Skill: {selectedSkill.skillName}");
         }
         else
         {
-            Debug.LogWarning("Invalid skill button index: " + buttonIndex);
+            Debug.LogWarning($"Invalid skill button index: {buttonIndex}");
             selectedSkill = null;
         }
 
         UpdateRendering();
     }
 
+    /// <inheritdoc/>
     public override void Exit()
     {
-        // Logic for exiting the skill menu state
         Debug.Log("Exiting Skill Menu State");
-        controller.tacticalMenu.Hide();
+        Controller.TacticalMenu.Hide();
     }
 
+    /// <inheritdoc/>
     public override void UpdateRendering()
     {
-        // Reset tile illumination if no skill is selected
-        foreach (Tile tile in controller.grid)
+        // Reset all tiles first
+        foreach (Tile tile in Controller.Grid)
         {
-            if (tile != null)
-            {
-                tile.ResetIllumination();
-            }
+            tile?.ResetIllumination();
         }
 
-        if (selectedSkill != null)
+        if (selectedSkill == null || Controller.SelectedUnit == null) return;
+
+        // Highlight tiles affected by the selected skill
+        List<Tile> affectedTiles = selectedSkill.areaOfEffect.GetAffectedTiles(
+            Controller.SelectedUnit.CurrentTile,
+            Controller);
+
+        foreach (Tile tile in affectedTiles)
         {
-            // Highlight tiles based on the selected skill's range
-            List<Tile> affectedTiles = selectedSkill.areaOfEffect.GetAffectedTiles(controller.selectedUnit.currentTile, controller);
-            foreach (Tile tile in affectedTiles)
-            {
-                if (tile != null)
-                {
-                    tile.Illuminate(Color.blue); // Example color for skill range
-                }
-            }
+            tile?.Illuminate(Color.blue); // Example: highlight affected area
         }
     }
 }

@@ -1,61 +1,83 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Collections;
-using UnityEngine.Events;
 using UnityEngine.InputSystem;
-
 using Game.Input;
 
+/// <summary>
+/// Manages the tactical grid, units, and state machine. Handles input and unit interactions.
+/// </summary>
 public class TacticalController : MonoBehaviour
 {
-    public int width;
-    public int height;
-    public int tileSize = 1; // Size of each tile in world units
-    public GameObject tilePrefab;
-    public TileData defaultTileData;
-    public List<Unit> units;
-    public Unit selectedUnit;
+    [Header("Grid Settings")]
+    [SerializeField] private int width;
+    [SerializeField] private int height;
+    [SerializeField] private int tileSize = 1;
+    [SerializeField] private GameObject tilePrefab;
+    [SerializeField] private TileData defaultTileData;
 
-    public Tile[,] grid { get; private set; }
-    public Pathfinding pathfinding { get; private set; }
+    [Header("Units & UI")]
+    [SerializeField] private List<Unit> units = new();
+    [SerializeField] private TacticalMenu tacticalMenu;
 
-    public TacticalMenu tacticalMenu;
-
+    private Tile[,] grid;
+    private Pathfinding pathfinding;
+    private TacticalStateMachine stateMachine;
     private bool isActive = true;
 
-    private TacticalStateMachine stateMachine;
+    /// <summary>
+    /// Currently selected unit on the grid.
+    /// </summary>
+    public Unit SelectedUnit { get; private set; }
 
-    private InputAction horizontalAction    => InputReader.Instance.inputActions.Global.Horizontal;
-    private InputAction verticalAction      => InputReader.Instance.inputActions.Global.Vertical;
-    private InputAction confirmAction       => InputReader.Instance.inputActions.Global.Confirm;
-    private InputAction backAction          => InputReader.Instance.inputActions.Global.Back;
+    /// <summary>
+    /// Provides access to the tactical grid.
+    /// </summary>
+    public Tile[,] Grid => grid;
+
+    /// <summary>
+    /// List of all units on the battlefield.
+    /// </summary>
+    public List<Unit> Units => units;
+
+    /// <summary>
+    /// Reference to the tactical menu UI.
+    /// </summary>
+    public TacticalMenu TacticalMenu => tacticalMenu;
+
+    /// <summary>
+    /// Reference to the pathfinding system.
+    /// </summary>
+    public Pathfinding Pathfinding => pathfinding;
+
+    #region Input Actions
+    private InputAction HorizontalAction => InputReader.Instance.inputActions.Global.Horizontal;
+    private InputAction VerticalAction   => InputReader.Instance.inputActions.Global.Vertical;
+    private InputAction ConfirmAction    => InputReader.Instance.inputActions.Global.Confirm;
+    private InputAction BackAction       => InputReader.Instance.inputActions.Global.Back;
+    #endregion
 
     private void Awake()
     {
-        Debug.Log("TacticalController Start called.");
+        Debug.Log("TacticalController Awake called.");
 
         pathfinding = GetComponent<Pathfinding>();
-
         GenerateGrid();
 
         if (grid == null || grid.Length == 0)
-        {
             Debug.LogError("Grid has not been initialized properly.");
-        }
 
         stateMachine = new TacticalStateMachine(this);
     }
 
     private void Start()
     {
-        // Get all available paths for each unit
         foreach (Unit unit in units)
         {
-            List<PathResult> unitPaths = pathfinding.GetAllPathsFrom(unit.gridPosition, unit);
+            List<PathResult> unitPaths = pathfinding.GetAllPathsFrom(unit.GridPosition, unit);
             unit.SetAvailablePaths(unitPaths);
         }
 
-        selectedUnit = null;
+        SelectedUnit = null;
     }
 
     private void OnEnable()
@@ -66,84 +88,126 @@ public class TacticalController : MonoBehaviour
             return;
         }
 
-        InputReader.Instance.horizontalEvent    += horizontalEvent;
-        InputReader.Instance.verticalEvent      += verticalEvent;
-        InputReader.Instance.confirmEvent       += confirmEvent;
-        InputReader.Instance.backEvent          += cancelEvent;
+        InputReader.Instance.horizontalEvent += HorizontalEvent;
+        InputReader.Instance.verticalEvent   += VerticalEvent;
+        InputReader.Instance.confirmEvent    += ConfirmEvent;
+        InputReader.Instance.backEvent       += CancelEvent;
     }
 
     private void OnDisable()
     {
-        InputReader.Instance.horizontalEvent    -= horizontalEvent;
-        InputReader.Instance.verticalEvent      -= verticalEvent;
-        InputReader.Instance.confirmEvent       -= confirmEvent;
-        InputReader.Instance.backEvent          -= cancelEvent;
+        if (InputReader.Instance == null) return;
+
+        InputReader.Instance.horizontalEvent -= HorizontalEvent;
+        InputReader.Instance.verticalEvent   -= VerticalEvent;
+        InputReader.Instance.confirmEvent    -= ConfirmEvent;
+        InputReader.Instance.backEvent       -= CancelEvent;
     }
 
     private void Update()
     {
-        if (InputReader.Instance == null || stateMachine == null)
-            return;
-
+        if (stateMachine == null || InputReader.Instance == null) return;
         stateMachine.Update();
     }
 
     private void FixedUpdate()
     {
-        if (InputReader.Instance == null || stateMachine == null)
-            return;
-
+        if (stateMachine == null || InputReader.Instance == null) return;
         stateMachine.PhysicsUpdate();
     }
 
-    private void horizontalEvent(int direction)
-    {
-        stateMachine.currentState.HorizontalKey(direction);
-    }
+    #region Input Events
+    private void HorizontalEvent(int direction) => stateMachine.CurrentState.HorizontalKey(direction);
+    private void VerticalEvent(int direction)   => stateMachine.CurrentState.VerticalKey(direction);
+    private void ConfirmEvent()                 => stateMachine.CurrentState.ConfirmKey();
+    private void CancelEvent()                  => stateMachine.CurrentState.CancelKey();
+    #endregion
 
-    private void verticalEvent(int direction)
-    {
-        stateMachine.currentState.VerticalKey(direction);
-    }
-
-    private void confirmEvent()
-    {
-        stateMachine.currentState.ConfirmKey();
-    }
-
-    private void cancelEvent()
-    {
-        stateMachine.currentState.CancelKey();
-    }
-
+    /// <summary>
+    /// Handles button clicks from the tactical menu.
+    /// </summary>
+    /// <param name="buttonIndex">The index of the clicked button.</param>
     public void OnClickButton(int buttonIndex)
     {
         Debug.Log($"Button {buttonIndex} clicked.");
-        stateMachine.currentState.OnClickButton(buttonIndex);
+        stateMachine.CurrentState.OnClickButton(buttonIndex);
     }
 
+    /// <summary>
+    /// Retrieves the tile at the given grid position.
+    /// </summary>
+    /// <param name="position">Grid coordinates.</param>
+    /// <returns>The tile at the position, or null if invalid.</returns>
     public Tile GetTileAt(Vector2Int position)
     {
         if (position.x < 0 || position.y < 0 || position.x >= width || position.y >= height)
             return null;
 
         if (grid == null || grid.Length == 0)
-        {
             Debug.LogError("Grid has not been initialized.");
-        }
 
         return grid[position.x, position.y];
     }
 
-    public Tile GetTileAt(int x, int y)
+    /// <summary>
+    /// Retrieves the tile at the given coordinates.
+    /// </summary>
+    public Tile GetTileAt(int x, int y) => GetTileAt(new Vector2Int(x, y));
+
+    /// <summary>
+    /// Called when a unit finishes its movement or action.
+    /// Updates available paths and state machine.
+    /// </summary>
+    public void OnUnitFinishedAction(Unit finishedUnit)
     {
-        return GetTileAt(new Vector2Int(x, y));
+        foreach (Unit unit in units)
+        {
+            List<PathResult> unitPaths = pathfinding.GetAllPathsFrom(unit.GridPosition, unit);
+            unit.SetAvailablePaths(unitPaths);
+        }
+
+        stateMachine.EnterState(stateMachine.MainMenuState);
+        isActive = true;
     }
 
+    /// <summary>
+    /// Moves a unit along the given path, if valid.
+    /// </summary>
+    /// <param name="unit">The unit to move.</param>
+    /// <param name="path">The path result.</param>
+    public void MoveUnitPath(Unit unit, PathResult path)
+    {
+        if (!isActive) return;
+
+        if (path != null)
+        {
+            isActive = false;
+            unit.GetPath(path);
+            Debug.Log($"Unit {unit.name} is moving to {path.destination.gridPosition}.");
+        }
+        else
+        {
+            Debug.LogWarning("No valid path selected for confirmation.");
+        }
+    }
+
+    /// <summary>
+    /// Selects a unit on the battlefield.
+    /// </summary>
+    /// <param name="unit">The unit to select.</param>
+    public void SelectUnit(Unit unit)
+    {
+        SelectedUnit = unit;
+        Debug.Log($"Unit {unit.name} selected at position {unit.GridPosition}.");
+    }
+
+    /// <summary>
+    /// Generates the isometric grid and initializes tiles.
+    /// </summary>
     private void GenerateGrid()
     {
         int index = 0;
-        int orderOffset = 150; // Offset to ensure tiles are rendered in the correct order
+        int orderOffset = 150;
 
         grid = new Tile[width, height];
 
@@ -151,18 +215,18 @@ public class TacticalController : MonoBehaviour
         {
             for (int x = 0; x < width; x++)
             {
-                int trueHeight = 0; //Random.Range(0, 2); // Random height for demonstration, can be replaced with actual logic
-
-                if (y == 0)
-                    trueHeight = x; // Set height based on x for the first row
+                int trueHeight = (y == 0) ? x : 0;
 
                 GameObject tileObject = null;
 
                 for (int z = 0; z < trueHeight + 1; z++)
                 {
-                    Vector3 position = new Vector3(transform.position.x + 0.5f * (x - y), transform.position.y - 0.25f * (x + y) + z * 0.25f, 0);
-                    tileObject = Instantiate(tilePrefab, position, Quaternion.identity, transform);
+                    Vector3 position = new(
+                        transform.position.x + 0.5f * (x - y),
+                        transform.position.y - 0.25f * (x + y) + z * 0.25f,
+                        0);
 
+                    tileObject = Instantiate(tilePrefab, position, Quaternion.identity, transform);
                     tileObject.name = $"Tile_{x}_{y}_H{z}";
                     tileObject.GetComponent<SpriteRenderer>().sortingOrder = (x + y) * orderOffset + z * 15;
                 }
@@ -175,63 +239,23 @@ public class TacticalController : MonoBehaviour
                 }
 
                 tile.Initialize(defaultTileData, new Vector2Int(x, y), trueHeight, index);
-
                 grid[x, y] = tile;
             }
         }
-    }
-
-    public void OnUnitFinishedAction(Unit finishedUnit)
-    {
-        // Get all available paths for each unit
-        foreach (Unit unit in units)
-        {
-            List<PathResult> unitPaths = pathfinding.GetAllPathsFrom(unit.gridPosition, unit);
-            unit.SetAvailablePaths(unitPaths);
-        }
-
-        stateMachine.EnterState(stateMachine.unitActionState);
-
-        isActive = true; // Reactivate the grid manager after the unit finishes moving
-    }
-
-    public void MoveUnitPath(Unit unit, PathResult path)
-    {
-        if (!isActive)
-            return;
-
-        if (path != null)
-        {
-            isActive = false; // Deactivate the grid manager after confirming the path
-
-            unit.GetPath(path);
-            Debug.Log($"Unit {unit.name} is moving to {path.destination.gridPosition} along the path.");
-        }
-        else
-        {
-            Debug.LogWarning("No valid path selected for confirmation.");
-        }
-    }
-
-    public void SelectUnit(Unit unit)
-    {
-        selectedUnit = unit;
-        Debug.Log($"Unit {unit.name} selected at position {unit.gridPosition}.");
     }
 
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.green;
 
-        // Draw grid lines for visualization
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
-                // Draw isometric grid lines
-                Vector3 start = new Vector3(transform.position.x + 0.5f * (x - y), transform.position.y - 0.25f * (x + y) + 0.5f, 0);
-                Vector3 endX = new Vector3(transform.position.x + 0.5f * (x + 1 - y), transform.position.y - 0.25f * (x + 1 + y) + 0.5f, 0);
-                Vector3 endY = new Vector3(transform.position.x + 0.5f * (x - (y + 1)), transform.position.y - 0.25f * (x + (y + 1)) + 0.5f, 0);
+                Vector3 start = new(transform.position.x + 0.5f * (x - y), transform.position.y - 0.25f * (x + y) + 0.5f, 0);
+                Vector3 endX = new(transform.position.x + 0.5f * (x + 1 - y), transform.position.y - 0.25f * (x + 1 + y) + 0.5f, 0);
+                Vector3 endY = new(transform.position.x + 0.5f * (x - (y + 1)), transform.position.y - 0.25f * (x + (y + 1)) + 0.5f, 0);
+
                 Gizmos.DrawLine(start, endX);
                 Gizmos.DrawLine(start, endY);
             }

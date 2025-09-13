@@ -2,75 +2,112 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 
+/// <summary>
+/// Represents a unit in the tactical grid, capable of moving across tiles and using skills.
+/// </summary>
 public class Unit : MonoBehaviour
 {
-    public Vector2Int gridPosition; // The position of the unit in the grid
-    public int movementPoints; // The number of movement points the unit has
-    public int jumpHeight = 1; // The maximum height the unit can jump
-    public int maxFallHeight = 10; // The maximum height the unit can fall
-    public List<SkillData> skills; // List of skills the unit possesses
+    [Header("Unit Settings")]
+    [SerializeField] private Vector2Int gridPosition;
+    [SerializeField] private int movementPoints;
+    [SerializeField] private int jumpHeight = 1;
+    [SerializeField] private int maxFallHeight = 10;
+    [SerializeField] private List<SkillData> skills = new();
 
-    private SpriteRenderer spriteRenderer; // Reference to the SpriteRenderer component
-    private TacticalController tacticalController; // Reference to the TacticalController component
-    public List<PathResult> availablePaths { get; private set; } // List of available paths for movement
-    private bool pathsCalculated = false; // Flag to check if paths have been calculated
-    private PathResult pathToFollow; // The path the unit will follow
-    public Tile currentTile;
+    [Header("Runtime References")]
+    [SerializeField] private Tile currentTile;
+
+    private SpriteRenderer spriteRenderer;
+    private TacticalController tacticalController;
+    private PathResult pathToFollow;
+
+    /// <summary>
+    /// List of available movement paths for this unit.
+    /// </summary>
+    public List<PathResult> AvailablePaths { get; private set; } = new();
+
+    /// <summary>
+    /// The current grid position of the unit.
+    /// </summary>
+    public Vector2Int GridPosition => gridPosition;
+
+    /// <summary>
+    /// The tile the unit is currently occupying.
+    /// </summary>
+    public Tile CurrentTile => currentTile;
+
+    /// <summary>
+    /// Remaining movement points.
+    /// </summary>
+    public int MovementPoints => movementPoints;
+
+    /// <summary>
+    /// Maximum height the unit can jump.
+    /// </summary>
+    public int JumpHeight => jumpHeight;
+
+    /// <summary>
+    /// Maximum height the unit can fall without penalty.
+    /// </summary>
+    public int MaxFallHeight => maxFallHeight;
+
+    /// <summary>
+    /// List of skills the unit possesses.
+    /// </summary>
+    public List<SkillData> Skills => skills;
 
     private void Awake()
     {
-        // Get the SpriteRenderer component from the GameObject
         spriteRenderer = GetComponent<SpriteRenderer>();
-        // Get the TacticalController component from the scene
         tacticalController = FindFirstObjectByType<TacticalController>();
 
         currentTile = tacticalController.GetTileAt(gridPosition);
         currentTile.occupyingUnit = this;
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Start()
     {
-        float x = currentTile.transform.position.x;
-        float y = currentTile.transform.position.y; // Adjust height based on tile height
-        transform.position = new Vector3(x, y + 0.4f, 0);
+        Vector3 tilePosition = currentTile.transform.position;
+        transform.position = new Vector3(tilePosition.x, tilePosition.y + 0.4f, 0);
 
-        spriteRenderer.sortingOrder = currentTile.GetComponent<SpriteRenderer>().sortingOrder + 1; // Set sorting order based on tile
+        spriteRenderer.sortingOrder = currentTile.GetComponent<SpriteRenderer>().sortingOrder + 1;
     }
 
+    /// <summary>
+    /// Starts moving the unit along a given path.
+    /// </summary>
+    /// <param name="pathResult">The path the unit should follow.</param>
     public void GetPath(PathResult pathResult)
     {
         if (pathResult == null || pathResult.path == null || pathResult.path.Count == 0)
         {
-            Debug.LogError("Path is empty or null.");
+            Debug.LogError($"Path is empty or null for unit {name}.");
             return;
         }
 
-        // Set the path and start moving
         pathToFollow = pathResult;
         StartCoroutine(MoveAlongPath());
     }
 
+    /// <summary>
+    /// Moves the unit step by step along the assigned path.
+    /// </summary>
     private IEnumerator MoveAlongPath()
     {
         currentTile.occupyingUnit = null;
 
-        // Iterate through each tile in the path
         foreach (Tile tile in pathToFollow.path)
         {
-            // Calculate the target position based on the tile's position
-            Vector3 targetPosition = new Vector3(tile.transform.position.x, tile.transform.position.y + 0.4f, 0);
+            Vector3 targetPosition = new(tile.transform.position.x, tile.transform.position.y + 0.4f, 0);
 
-            // Move towards the target position
             while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
             {
                 transform.position = Vector3.MoveTowards(transform.position, targetPosition, Time.deltaTime * 3f);
-                yield return null; // Wait for the next frame
+                yield return null;
             }
 
-            // Update the unit's grid position to the current tile's grid position
-            transform.position = new Vector3(tile.transform.position.x, tile.transform.position.y + 0.4f, 0);
-            spriteRenderer.sortingOrder = tile.GetComponent<SpriteRenderer>().sortingOrder + 1; // Update sorting order based on tile
+            transform.position = targetPosition;
+            spriteRenderer.sortingOrder = tile.GetComponent<SpriteRenderer>().sortingOrder + 1;
 
             gridPosition = tile.gridPosition;
         }
@@ -78,43 +115,40 @@ public class Unit : MonoBehaviour
         currentTile = tacticalController.GetTileAt(gridPosition);
         currentTile.occupyingUnit = this;
 
-        // Notify the TacticalController that the unit has finished moving
         tacticalController.OnUnitFinishedAction(this);
     }
 
+    /// <summary>
+    /// Assigns available movement paths to this unit.
+    /// </summary>
+    /// <param name="paths">List of possible paths.</param>
     public void SetAvailablePaths(List<PathResult> paths)
     {
         if (paths != null && paths.Count > 0)
         {
-            availablePaths = paths;
-            Debug.Log($"Unit {name} has {availablePaths.Count} available paths.");
+            AvailablePaths = paths;
+            Debug.Log($"Unit {name} has {AvailablePaths.Count} available paths.");
         }
         else
         {
             Debug.LogWarning($"No available paths provided for unit {name}.");
-            availablePaths = new List<PathResult>();
+            AvailablePaths = new List<PathResult>();
         }
     }
 
-    public List<SkillData> GetAllSkills()
-    {
-        return skills;
-    }
-
+    /// <summary>
+    /// Gets a skill by its index.
+    /// </summary>
+    /// <param name="index">The index of the skill.</param>
+    /// <returns>The skill at the given index, or null if invalid.</returns>
     public SkillData GetSkillByIndex(int index)
     {
         if (skills != null && index >= 0 && index < skills.Count)
         {
             return skills[index];
         }
+
         Debug.LogWarning($"Skill index {index} is out of range for unit {name}.");
         return null;
-    }
-    
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-
-        Gizmos.DrawWireSphere(new Vector3(gridPosition.x, -gridPosition.y, 0), 0.25f);
     }
 }

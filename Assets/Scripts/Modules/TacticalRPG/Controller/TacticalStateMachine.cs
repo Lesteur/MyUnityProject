@@ -1,55 +1,94 @@
 using UnityEngine;
 
+/// <summary>
+/// Manages tactical gameplay states, handling transitions between unit selection,
+/// movement, menus, and skill actions.
+/// </summary>
 public class TacticalStateMachine
 {
-    public TacticalController controller;
-    public TacticalStateBase currentState { get; private set; }
+    /// <summary>
+    /// The tactical controller that owns this state machine.
+    /// </summary>
+    public TacticalController Controller { get; }
 
-    public TacticalStateUnits unitsState;
-    public TacticalStateUnitMovement unitMovementState;
-    public TacticalStateUnitActions unitActionState;
-    public TacticalStateSkillMenu unitSkillMenuState;
-    //public TacticalUnitTargetingState unitTargetingState;
+    /// <summary>
+    /// The currently active tactical state.
+    /// </summary>
+    public TacticalStateBase CurrentState { get; private set; }
 
+    /// <summary>
+    /// State for choosing a unit.
+    /// </summary>
+    public TacticalStateUnitChoice UnitChoiceState { get; }
+
+    /// <summary>
+    /// State for moving a unit.
+    /// </summary>
+    public TacticalStateUnitMovement UnitMovementState { get; }
+
+    /// <summary>
+    /// State for opening and interacting with the main menu.
+    /// </summary>
+    public TacticalStateMainMenu MainMenuState { get; }
+
+    /// <summary>
+    /// State for selecting and executing skills.
+    /// </summary>
+    public TacticalStateSkillMenu SkillMenuState { get; }
+
+    /// <summary>
+    /// Initializes the tactical state machine and its states.
+    /// </summary>
+    /// <param name="controller">The tactical controller that owns this state machine.</param>
     public TacticalStateMachine(TacticalController controller)
     {
-        this.controller = controller;
+        Controller = controller;
 
-        unitsState = new TacticalStateUnits(this);
-        unitMovementState = new TacticalStateUnitMovement(this);
-        unitActionState = new TacticalStateUnitActions(this);
-        unitSkillMenuState = new TacticalStateSkillMenu(this);
-        //unitTargetingState  = new TacticalStateUnitTargeting(this);
+        UnitChoiceState = new TacticalStateUnitChoice(this);
+        UnitMovementState = new TacticalStateUnitMovement(this);
+        MainMenuState = new TacticalStateMainMenu(this);
+        SkillMenuState = new TacticalStateSkillMenu(this);
 
         EnterDefaultState();
     }
 
+    /// <summary>
+    /// Updates the current state and processes transitions.
+    /// Should be called once per frame.
+    /// </summary>
     public void Update()
     {
-        currentState.Update();
-        currentState.Transition();
+        CurrentState.Update();
+        CurrentState.Transition();
     }
 
+    /// <summary>
+    /// Updates the current state with physics-related logic.
+    /// Should be called in FixedUpdate.
+    /// </summary>
     public void PhysicsUpdate()
     {
-        currentState.PhysicsUpdate();
+        CurrentState.PhysicsUpdate();
     }
 
+    /// <summary>
+    /// Transitions to a new tactical state.
+    /// </summary>
+    /// <param name="newState">The state to enter.</param>
     public void EnterState(TacticalStateBase newState)
     {
-        TacticalStateBase previousState = currentState;
+        TacticalStateBase previousState = CurrentState;
 
-        if (currentState != null)
-        {
-            currentState.Exit();
-        }
-
-        currentState = newState;
-        currentState.Enter(previousState);
+        CurrentState?.Exit();
+        CurrentState = newState;
+        CurrentState.Enter(previousState);
     }
 
+    /// <summary>
+    /// Transitions to the default tactical state (unit selection).
+    /// </summary>
     public void EnterDefaultState()
     {
-        EnterState(unitsState);
+        EnterState(UnitChoiceState);
     }
 }

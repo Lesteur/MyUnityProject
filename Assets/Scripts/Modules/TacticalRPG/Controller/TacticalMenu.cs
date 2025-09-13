@@ -1,12 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+/// <summary>
+/// Handles displaying and managing the tactical menu UI, including main actions and skill selections.
+/// </summary>
 public class TacticalMenu : MonoBehaviour
 {
-    [SerializeField] UIDocument tacticalMenuDocument;
-    [SerializeField] TacticalController controller;
+    [Header("References")]
+    [SerializeField] private UIDocument tacticalMenuDocument;
+    [SerializeField] private TacticalController controller;
+
     private VisualElement root;
     private VisualElement mainMenu;
     private VisualElement skillMenu;
@@ -17,177 +20,152 @@ public class TacticalMenu : MonoBehaviour
     private Button statusButton;
     private Button endTurnButton;
 
-    private Button skill0Button;
-    private Button skill1Button;
-    private Button skill2Button;
-    private Button skill3Button;
-    private Button skill4Button;
+    private readonly Button[] skillButtons = new Button[5];
+
+    #region Unity Lifecycle
 
     private void Awake()
     {
         if (tacticalMenuDocument == null)
         {
-            Debug.LogError("TacticalMenu: UIDocument reference is missing.");
+            Debug.LogError($"{nameof(TacticalMenu)}: UIDocument reference is missing.");
             return;
         }
 
         root = tacticalMenuDocument.rootVisualElement;
-        mainMenu = root.Q<VisualElement>("MainMenu");
-        skillMenu = root.Q<VisualElement>("SkillMenu");
-
         if (root == null)
         {
-            Debug.LogError("TacticalMenu: Root VisualElement is null.");
+            Debug.LogError($"{nameof(TacticalMenu)}: Root VisualElement is null.");
             return;
         }
 
-        moveButton = root.Q<Button>("Move");
+        mainMenu = root.Q<VisualElement>("MainMenu");
+        skillMenu = root.Q<VisualElement>("SkillMenu");
+
+        moveButton   = root.Q<Button>("Move");
         skillsButton = root.Q<Button>("Skills");
-        itemsButton = root.Q<Button>("Items");
+        itemsButton  = root.Q<Button>("Items");
         statusButton = root.Q<Button>("Status");
         endTurnButton = root.Q<Button>("EndTurn");
-        skill0Button = root.Q<Button>("Skill0");
-        skill1Button = root.Q<Button>("Skill1");
-        skill2Button = root.Q<Button>("Skill2");
-        skill3Button = root.Q<Button>("Skill3");
-        skill4Button = root.Q<Button>("Skill4");
 
-        // Initially hide the menu
+        for (int i = 0; i < skillButtons.Length; i++)
+        {
+            skillButtons[i] = root.Q<Button>($"Skill{i}");
+        }
+
+        // Hide the menu on startup
         root.style.display = DisplayStyle.None;
     }
 
     private void OnEnable()
     {
-        moveButton.clicked += OnMoveClicked;
-        skillsButton.clicked += OnSkillsClicked;
-        itemsButton.clicked += OnItemsClicked;
+        moveButton.clicked   += () => OnMainMenuClicked(0);
+        skillsButton.clicked += () => OnMainMenuClicked(1);
+        itemsButton.clicked  += OnItemsClicked;
         statusButton.clicked += OnStatusClicked;
         endTurnButton.clicked += OnEndTurnClicked;
-        skill0Button.clicked += OnSkill0Clicked;
-        skill1Button.clicked += OnSkill1Clicked;
-        skill2Button.clicked += OnSkill2Clicked;
-        skill3Button.clicked += OnSkill3Clicked;
-        skill4Button.clicked += OnSkill4Clicked;
+
+        for (int i = 0; i < skillButtons.Length; i++)
+        {
+            int index = i; // Capture loop variable
+            if (skillButtons[i] != null)
+            {
+                skillButtons[i].clicked += () => OnSkillClicked(index);
+            }
+        }
     }
 
     private void OnDisable()
     {
-        moveButton.clicked -= OnMoveClicked;
-        skillsButton.clicked -= OnSkillsClicked;
-        itemsButton.clicked -= OnItemsClicked;
+        moveButton.clicked   -= () => OnMainMenuClicked(0);
+        skillsButton.clicked -= () => OnMainMenuClicked(1);
+        itemsButton.clicked  -= OnItemsClicked;
         statusButton.clicked -= OnStatusClicked;
         endTurnButton.clicked -= OnEndTurnClicked;
-        skill0Button.clicked -= OnSkill0Clicked;
-        skill1Button.clicked -= OnSkill1Clicked;
-        skill2Button.clicked -= OnSkill2Clicked;
-        skill3Button.clicked -= OnSkill3Clicked;
-        skill4Button.clicked -= OnSkill4Clicked;
+
+        for (int i = 0; i < skillButtons.Length; i++)
+        {
+            if (skillButtons[i] != null)
+            {
+                skillButtons[i].clicked -= () => OnSkillClicked(i);
+            }
+        }
     }
 
-    private void OnMoveClicked()
+    #endregion
+
+    #region Event Handlers
+
+    private void OnMainMenuClicked(int buttonIndex)
     {
-        Debug.Log("Move button clicked.");
-        // Implement move action
-
-        controller.OnClickButton(0); // Assuming 0 is the index for Move
-    }
-
-    private void OnSkillsClicked()
-    {
-        Debug.Log("Skills button clicked.");
-        // Implement skills action
-
-        controller.OnClickButton(1); // Assuming 1 is the index for Skills
+        Debug.Log($"Main menu button {buttonIndex} clicked.");
+        controller.OnClickButton(buttonIndex);
     }
 
     private void OnItemsClicked()
     {
-        Debug.Log("Items button clicked.");
-        // Implement items action
+        Debug.Log("Items button clicked. (Not yet implemented)");
     }
 
     private void OnStatusClicked()
     {
-        Debug.Log("Status button clicked.");
-        // Implement status action
+        Debug.Log("Status button clicked. (Not yet implemented)");
     }
 
     private void OnEndTurnClicked()
     {
-        Debug.Log("End Turn button clicked.");
-        // Implement end turn action
+        Debug.Log("End Turn button clicked. (Not yet implemented)");
     }
 
-    public void OnSkill0Clicked()
+    private void OnSkillClicked(int skillIndex)
     {
-        Debug.Log("Skill 0 button clicked.");
-        controller.OnClickButton(0); // Assuming 0 is the index for Skill 0
+        Debug.Log($"Skill {skillIndex} button clicked.");
+        controller.OnClickButton(skillIndex);
     }
 
-    public void OnSkill1Clicked()
-    {
-        Debug.Log("Skill 1 button clicked.");
-        controller.OnClickButton(1); // Assuming 1 is the index for Skill 1
-    }
+    #endregion
 
-    public void OnSkill2Clicked()
-    {
-        Debug.Log("Skill 2 button clicked.");
-        controller.OnClickButton(2); // Assuming 2 is the index for Skill 2
-    }
+    #region Public API
 
-    public void OnSkill3Clicked()
-    {
-        Debug.Log("Skill 3 button clicked.");
-        controller.OnClickButton(3); // Assuming 3 is the index for Skill 3
-    }
-
-    public void OnSkill4Clicked()
-    {
-        Debug.Log("Skill 4 button clicked.");
-        controller.OnClickButton(4); // Assuming 4 is the index for Skill 4
-    }
-
+    /// <summary>
+    /// Displays the main action menu.
+    /// </summary>
     public void ShowMainMenu()
     {
-        if (root != null)
-        {
-            root.style.display = DisplayStyle.Flex;
-            mainMenu.style.display = DisplayStyle.Flex;
-            skillMenu.style.display = DisplayStyle.None;
+        if (root == null) return;
 
-            // Set focus to the move button when showing the menu
-            if (moveButton != null)
-            {
-                moveButton.Focus();
-            }
-        }
+        root.style.display = DisplayStyle.Flex;
+        mainMenu.style.display = DisplayStyle.Flex;
+        skillMenu.style.display = DisplayStyle.None;
+
+        moveButton?.Focus();
     }
 
+    /// <summary>
+    /// Displays the skill selection menu.
+    /// </summary>
     public void ShowSkillMenu()
     {
-        if (root != null)
-        {
-            root.style.display = DisplayStyle.Flex;
-            mainMenu.style.display = DisplayStyle.None;
-            skillMenu.style.display = DisplayStyle.Flex;
+        if (root == null) return;
 
-            // Set focus to the first skill button when showing the skill menu
-            Button firstSkillButton = skillMenu.Q<Button>("Skill0"); // Assuming buttons are named Skill0, Skill1, etc.
-            if (firstSkillButton != null)
-            {
-                firstSkillButton.Focus();
-            }
-        }
+        root.style.display = DisplayStyle.Flex;
+        mainMenu.style.display = DisplayStyle.None;
+        skillMenu.style.display = DisplayStyle.Flex;
+
+        skillButtons[0]?.Focus();
     }
-    
+
+    /// <summary>
+    /// Hides all tactical menus.
+    /// </summary>
     public void Hide()
     {
-        if (root != null)
-        {
-            root.style.display = DisplayStyle.None;
-            mainMenu.style.display = DisplayStyle.None;
-            skillMenu.style.display = DisplayStyle.None;
-        }
+        if (root == null) return;
+
+        root.style.display = DisplayStyle.None;
+        mainMenu.style.display = DisplayStyle.None;
+        skillMenu.style.display = DisplayStyle.None;
     }
+
+    #endregion
 }
