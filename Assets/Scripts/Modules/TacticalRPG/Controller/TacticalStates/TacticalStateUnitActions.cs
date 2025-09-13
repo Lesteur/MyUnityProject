@@ -13,8 +13,7 @@ public class TacticalStateUnitActions : TacticalStateBase
     {
         // Logic for entering the unit action state
         Debug.Log("Entering Unit Action State");
-
-        controller.actionMenu.Show(0);
+        controller.tacticalMenu.ShowMainMenu();
 
         UpdateRendering();
     }
@@ -37,10 +36,12 @@ public class TacticalStateUnitActions : TacticalStateBase
         switch (buttonIndex)
         {
             case 0: // Move
+                Debug.Log("Switching to Unit Movement State");
                 stateMachine.EnterState(stateMachine.unitMovementState);
                 break;
-            case 1: // Attack
-                // Implement attack logic here
+            case 1: // Skills
+                Debug.Log("Switching to Skill Menu State");
+                stateMachine.EnterState(stateMachine.unitSkillMenuState);
                 break;
             case 2: // End Turn
                 // Implement end turn logic here
@@ -53,8 +54,9 @@ public class TacticalStateUnitActions : TacticalStateBase
 
     public override void Exit()
     {
-        base.Exit();
-        controller.actionMenu.Hide();
+        // Logic for exiting the unit action state
+        Debug.Log("Exiting Unit Action State");
+        controller.tacticalMenu.Hide();
     }
 
     public override void UpdateRendering()

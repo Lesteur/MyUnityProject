@@ -8,15 +8,17 @@ public class TacticalStateMachine
     public TacticalStateUnits unitsState;
     public TacticalStateUnitMovement unitMovementState;
     public TacticalStateUnitActions unitActionState;
+    public TacticalStateSkillMenu unitSkillMenuState;
     //public TacticalUnitTargetingState unitTargetingState;
 
     public TacticalStateMachine(TacticalController controller)
     {
         this.controller = controller;
 
-        unitsState          = new TacticalStateUnits(this);
-        unitMovementState   = new TacticalStateUnitMovement(this);
-        unitActionState     = new TacticalStateUnitActions(this);
+        unitsState = new TacticalStateUnits(this);
+        unitMovementState = new TacticalStateUnitMovement(this);
+        unitActionState = new TacticalStateUnitActions(this);
+        unitSkillMenuState = new TacticalStateSkillMenu(this);
         //unitTargetingState  = new TacticalStateUnitTargeting(this);
 
         EnterDefaultState();

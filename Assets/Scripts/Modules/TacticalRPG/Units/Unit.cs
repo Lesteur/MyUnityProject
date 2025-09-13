@@ -15,7 +15,7 @@ public class Unit : MonoBehaviour
     public List<PathResult> availablePaths { get; private set; } // List of available paths for movement
     private bool pathsCalculated = false; // Flag to check if paths have been calculated
     private PathResult pathToFollow; // The path the unit will follow
-    private Tile currentTile;
+    public Tile currentTile;
 
     private void Awake()
     {
@@ -36,12 +36,6 @@ public class Unit : MonoBehaviour
         transform.position = new Vector3(x, y + 0.4f, 0);
 
         spriteRenderer.sortingOrder = currentTile.GetComponent<SpriteRenderer>().sortingOrder + 1; // Set sorting order based on tile
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     public void GetPath(PathResult pathResult)
@@ -100,6 +94,21 @@ public class Unit : MonoBehaviour
             Debug.LogWarning($"No available paths provided for unit {name}.");
             availablePaths = new List<PathResult>();
         }
+    }
+
+    public List<SkillData> GetAllSkills()
+    {
+        return skills;
+    }
+
+    public SkillData GetSkillByIndex(int index)
+    {
+        if (skills != null && index >= 0 && index < skills.Count)
+        {
+            return skills[index];
+        }
+        Debug.LogWarning($"Skill index {index} is out of range for unit {name}.");
+        return null;
     }
     
     private void OnDrawGizmos()

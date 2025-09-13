@@ -24,11 +24,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 603272687616
-    m_Key: State
+    m_Key: Status
     m_Metadata:
       m_Items: []
   - m_Id: 926934544384
     m_Key: EndTurn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9438754418688
+    m_Key: Items
     m_Metadata:
       m_Items: []
   m_Metadata:

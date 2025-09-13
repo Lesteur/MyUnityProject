@@ -19,8 +19,7 @@ public class TacticalController : MonoBehaviour
     public Tile[,] grid { get; private set; }
     public Pathfinding pathfinding { get; private set; }
 
-    public BaseMenu actionMenu;
-    public BaseMenu skillMenu;
+    public TacticalMenu tacticalMenu;
 
     private bool isActive = true;
 
@@ -57,8 +56,6 @@ public class TacticalController : MonoBehaviour
         }
 
         selectedUnit = null;
-
-        actionMenu.Hide();
     }
 
     private void OnEnable()
@@ -158,11 +155,6 @@ public class TacticalController : MonoBehaviour
 
                 if (y == 0)
                     trueHeight = x; // Set height based on x for the first row
-                else
-                {
-                    if (x % 2 == 0 && y % 4 == 0)
-                        trueHeight = 7;
-                }
 
                 GameObject tileObject = null;
 

@@ -272,6 +272,12 @@ public class Pathfinding : MonoBehaviour
 
             while (current.G + moveSteps <= maxMovementPoints && jumpCount <= unit.jumpHeight)
             {
+                if (jumpTile == null)
+                {
+                    Debug.LogWarning("Jump path went out of bounds.");
+                    break; // Out of bounds
+                }
+
                 int heightDelta = jumpTile.height - initialHeight;
 
                 if (unit.maxFallHeight >= heightDelta * -1)
@@ -312,9 +318,6 @@ public class Pathfinding : MonoBehaviour
                 currentPos += dir;
 
                 jumpTile = tacticalController.GetTileAt(currentPos);
-
-                if (jumpTile == null)
-                    break; // Stop if we go out of bounds or hit an invalid tile
             }
         }
     }

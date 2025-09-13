@@ -27,11 +27,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 603272687616
-    m_Localized: State
+    m_Localized: Status
     m_Metadata:
       m_Items: []
   - m_Id: 926934544384
     m_Localized: End Turn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9438754418688
+    m_Localized: Items
     m_Metadata:
       m_Items: []
   references:
