@@ -181,7 +181,7 @@ public class TacticalController : MonoBehaviour
     {
         if (!isActive) return;
 
-        if (path != null)
+        if (path.IsValid)
         {
             isActive = false;
             unit.GetPath(path);

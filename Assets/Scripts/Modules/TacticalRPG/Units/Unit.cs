@@ -79,7 +79,7 @@ public class Unit : MonoBehaviour
     /// <param name="pathResult">The path the unit should follow.</param>
     public void GetPath(PathResult pathResult)
     {
-        if (pathResult == null || pathResult.Path == null || pathResult.Path.Count == 0)
+        if (!pathResult.IsValid)
         {
             Debug.LogError($"Path is empty or null for unit {name}.");
             return;

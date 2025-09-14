@@ -9,7 +9,6 @@ public class TacticalStateUnitMovement : TacticalStateBase
     private Unit SelectedUnit => stateMachine.Controller.SelectedUnit;
     private Vector2Int positionCursor;
     private PathResult selectedPath;
-    private bool pathFound;
 
     /// <summary>
     /// Initializes a new instance of the unit movement state.
@@ -17,7 +16,7 @@ public class TacticalStateUnitMovement : TacticalStateBase
     public TacticalStateUnitMovement(TacticalStateMachine stateMachine) : base(stateMachine)
     {
         positionCursor = Vector2Int.zero;
-        selectedPath = null;
+        selectedPath = default; // struct default (invalid state)
     }
 
     /// <inheritdoc/>
@@ -26,8 +25,7 @@ public class TacticalStateUnitMovement : TacticalStateBase
         Debug.Log("Entering Unit Movement State");
 
         positionCursor = SelectedUnit.GridPosition;
-        selectedPath = null;
-        pathFound = false;
+        selectedPath = default;
 
         UpdateRendering();
     }
@@ -35,7 +33,12 @@ public class TacticalStateUnitMovement : TacticalStateBase
     /// <inheritdoc/>
     public override void HorizontalKey(int direction)
     {
-        positionCursor.x = Mathf.Clamp(positionCursor.x + direction, 0, stateMachine.Controller.Grid.GetLength(0) - 1);
+        positionCursor.x = Mathf.Clamp(
+            positionCursor.x + direction,
+            0,
+            stateMachine.Controller.Grid.GetLength(0) - 1
+        );
+
         UpdatePathSelection();
         UpdateRendering();
     }
@@ -43,7 +46,12 @@ public class TacticalStateUnitMovement : TacticalStateBase
     /// <inheritdoc/>
     public override void VerticalKey(int direction)
     {
-        positionCursor.y = Mathf.Clamp(positionCursor.y - direction, 0, stateMachine.Controller.Grid.GetLength(1) - 1);
+        positionCursor.y = Mathf.Clamp(
+            positionCursor.y - direction,
+            0,
+            stateMachine.Controller.Grid.GetLength(1) - 1
+        );
+
         UpdatePathSelection();
         UpdateRendering();
     }
@@ -51,7 +59,7 @@ public class TacticalStateUnitMovement : TacticalStateBase
     /// <inheritdoc/>
     public override void ConfirmKey()
     {
-        if (pathFound)
+        if (selectedPath.IsValid)
         {
             Debug.Log($"Path confirmed to {selectedPath.Destination.GridPosition}.");
             stateMachine.Controller.MoveUnitPath(SelectedUnit, selectedPath);
@@ -78,17 +86,18 @@ public class TacticalStateUnitMovement : TacticalStateBase
 
             if (SelectedUnit != null && SelectedUnit.GridPosition == tile.GridPosition)
             {
-                tile.Illuminate(Color.yellow); // Current position
+                tile.Illuminate(Color.yellow); // Current unit position
             }
             else if (positionCursor == tile.GridPosition)
             {
                 tile.Illuminate(Color.green); // Cursor position
             }
-            else if (selectedPath != null && selectedPath.Path.Exists(t => t.GridPosition == tile.GridPosition))
+            else if (selectedPath.IsValid && ContainsTile(selectedPath.Path, tile))
             {
                 tile.Illuminate(Color.blue); // Path tiles
             }
-            else if (SelectedUnit?.AvailablePaths != null && SelectedUnit.AvailablePaths.Exists(p => p.Destination.GridPosition == tile.GridPosition))
+            else if (SelectedUnit?.AvailablePaths != null &&
+                     ContainsDestination(SelectedUnit.AvailablePaths, tile))
             {
                 tile.Illuminate(Color.red); // Reachable destinations
             }
@@ -110,12 +119,45 @@ public class TacticalStateUnitMovement : TacticalStateBase
     {
         if (SelectedUnit?.AvailablePaths == null)
         {
-            selectedPath = null;
-            pathFound = false;
+            selectedPath = default;
             return;
         }
 
-        selectedPath = SelectedUnit.AvailablePaths.Find(p => p.Destination.GridPosition == positionCursor);
-        pathFound = selectedPath != null;
+        foreach (var path in SelectedUnit.AvailablePaths)
+        {
+            if (path.Destination.GridPosition == positionCursor)
+            {
+                selectedPath = path;
+                return;
+            }
+        }
+
+        selectedPath = default; // No match found
+    }
+
+    /// <summary>
+    /// Checks if a tile exists in a given path.
+    /// </summary>
+    private static bool ContainsTile(IReadOnlyList<Tile> path, Tile tile)
+    {
+        for (int i = 0; i < path.Count; i++)
+        {
+            if (path[i].GridPosition == tile.GridPosition)
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Checks if any available path leads to the specified tile.
+    /// </summary>
+    private static bool ContainsDestination(List<PathResult> paths, Tile tile)
+    {
+        for (int i = 0; i < paths.Count; i++)
+        {
+            if (paths[i].Destination.GridPosition == tile.GridPosition)
+                return true;
+        }
+        return false;
     }
 }

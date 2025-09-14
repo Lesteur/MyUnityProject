@@ -274,7 +274,6 @@ public class Pathfinding : MonoBehaviour
             {
                 if (jumpTile == null)
                 {
-                    Debug.LogWarning("Jump path went out of bounds.");
                     break; // Out of bounds
                 }
 
@@ -374,12 +373,12 @@ public class Pathfinding : MonoBehaviour
     /// </summary>
     private class TileNode : System.IComparable<TileNode>
     {
-        public Tile Tile;
+        public Tile Tile { get; }
         public Vector2Int Position => Tile.GridPosition;
-        public int G; // Cost from start
-        public int H; // Heuristic to target
+        public int G { get; } // Cost from start
+        public int H { get; } // Heuristic to target
         public int F => G + H; // Total estimated cost
-        public TileNode Parent;
+        public TileNode Parent { get; }
 
         public TileNode(Tile tile, int g, int h, TileNode parent = null)
         {
