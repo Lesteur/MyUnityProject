@@ -148,6 +148,32 @@ public class TacticalMenu : MonoBehaviour
     {
         if (root == null) return;
 
+        Unit selectedUnit = controller.SelectedUnit;
+
+        if (selectedUnit == null)
+        {
+            Debug.LogWarning("No unit is currently selected. Cannot show skill menu.");
+            return;
+        }
+
+        // Update skill buttons based on the selected unit's skills
+        for (int i = 0; i < skillButtons.Length; i++)
+        {
+            if (i < selectedUnit.Skills.Count)
+            {
+                SkillData skill = selectedUnit.GetSkillByIndex(i);
+                string localizedSkillName = skill.SkillName.GetLocalizedString();
+
+                skillButtons[i].text = skill != null ? localizedSkillName : "N/A";
+                skillButtons[i].SetEnabled(skill != null);
+                skillButtons[i].style.display = DisplayStyle.Flex;
+            }
+            else
+            {
+                skillButtons[i].style.display = DisplayStyle.None;
+            }
+        }
+
         root.style.display = DisplayStyle.Flex;
         mainMenu.style.display = DisplayStyle.None;
         skillMenu.style.display = DisplayStyle.Flex;

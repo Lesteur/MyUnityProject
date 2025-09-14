@@ -53,7 +53,7 @@ public class TacticalStateUnitMovement : TacticalStateBase
     {
         if (pathFound)
         {
-            Debug.Log($"Path confirmed to {selectedPath.destination.gridPosition}.");
+            Debug.Log($"Path confirmed to {selectedPath.Destination.GridPosition}.");
             stateMachine.Controller.MoveUnitPath(SelectedUnit, selectedPath);
         }
         else
@@ -76,23 +76,23 @@ public class TacticalStateUnitMovement : TacticalStateBase
         {
             if (tile == null) continue;
 
-            if (SelectedUnit != null && SelectedUnit.GridPosition == tile.gridPosition)
+            if (SelectedUnit != null && SelectedUnit.GridPosition == tile.GridPosition)
             {
                 tile.Illuminate(Color.yellow); // Current position
             }
-            else if (positionCursor == tile.gridPosition)
+            else if (positionCursor == tile.GridPosition)
             {
                 tile.Illuminate(Color.green); // Cursor position
             }
-            else if (selectedPath != null && selectedPath.path.Exists(t => t.gridPosition == tile.gridPosition))
+            else if (selectedPath != null && selectedPath.Path.Exists(t => t.GridPosition == tile.GridPosition))
             {
                 tile.Illuminate(Color.blue); // Path tiles
             }
-            else if (SelectedUnit?.AvailablePaths != null && SelectedUnit.AvailablePaths.Exists(p => p.destination.gridPosition == tile.gridPosition))
+            else if (SelectedUnit?.AvailablePaths != null && SelectedUnit.AvailablePaths.Exists(p => p.Destination.GridPosition == tile.GridPosition))
             {
                 tile.Illuminate(Color.red); // Reachable destinations
             }
-            else if (tile.terrainType == TerrainType.Void)
+            else if (tile.TerrainType == TerrainType.Void)
             {
                 tile.Illuminate(Color.gray); // Void tiles
             }
@@ -115,7 +115,7 @@ public class TacticalStateUnitMovement : TacticalStateBase
             return;
         }
 
-        selectedPath = SelectedUnit.AvailablePaths.Find(p => p.destination.gridPosition == positionCursor);
+        selectedPath = SelectedUnit.AvailablePaths.Find(p => p.Destination.GridPosition == positionCursor);
         pathFound = selectedPath != null;
     }
 }

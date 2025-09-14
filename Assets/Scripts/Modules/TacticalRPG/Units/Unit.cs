@@ -62,7 +62,7 @@ public class Unit : MonoBehaviour
         tacticalController = FindFirstObjectByType<TacticalController>();
 
         currentTile = tacticalController.GetTileAt(gridPosition);
-        currentTile.occupyingUnit = this;
+        currentTile.OccupyingUnit = this;
     }
 
     private void Start()
@@ -79,7 +79,7 @@ public class Unit : MonoBehaviour
     /// <param name="pathResult">The path the unit should follow.</param>
     public void GetPath(PathResult pathResult)
     {
-        if (pathResult == null || pathResult.path == null || pathResult.path.Count == 0)
+        if (pathResult == null || pathResult.Path == null || pathResult.Path.Count == 0)
         {
             Debug.LogError($"Path is empty or null for unit {name}.");
             return;
@@ -94,9 +94,9 @@ public class Unit : MonoBehaviour
     /// </summary>
     private IEnumerator MoveAlongPath()
     {
-        currentTile.occupyingUnit = null;
+        currentTile.OccupyingUnit = null;
 
-        foreach (Tile tile in pathToFollow.path)
+        foreach (Tile tile in pathToFollow.Path)
         {
             Vector3 targetPosition = new(tile.transform.position.x, tile.transform.position.y + 0.4f, 0);
 
@@ -109,11 +109,11 @@ public class Unit : MonoBehaviour
             transform.position = targetPosition;
             spriteRenderer.sortingOrder = tile.GetComponent<SpriteRenderer>().sortingOrder + 1;
 
-            gridPosition = tile.gridPosition;
+            gridPosition = tile.GridPosition;
         }
 
         currentTile = tacticalController.GetTileAt(gridPosition);
-        currentTile.occupyingUnit = this;
+        currentTile.OccupyingUnit = this;
 
         tacticalController.OnUnitFinishedAction(this);
     }

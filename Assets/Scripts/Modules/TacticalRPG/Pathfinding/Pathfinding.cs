@@ -103,7 +103,7 @@ public class Pathfinding : MonoBehaviour
 
         foreach (var tile in allTiles)
         {
-            var path = FindPath(start, tile.gridPosition, unit);
+            var path = FindPath(start, tile.GridPosition, unit);
             if (path != null && path.Count > 0)
             {
                 results.Add(new PathResult(tile, path));
@@ -206,7 +206,7 @@ public class Pathfinding : MonoBehaviour
 
         foreach (Tile neighbor in GetNeighbors(current.Tile))
         {
-            if (closedSet != null && closedSet.Contains(neighbor.gridPosition))
+            if (closedSet != null && closedSet.Contains(neighbor.GridPosition))
                 continue; // Skip if already visited
 
             if (!CanTraverse(current.Tile, neighbor, unit, false))
@@ -217,11 +217,11 @@ public class Pathfinding : MonoBehaviour
             if (moveCost > maxMovementPoints)
                 continue;
 
-            if (visited.TryGetValue(neighbor.gridPosition, out int existingCost) && moveCost >= existingCost)
+            if (visited.TryGetValue(neighbor.GridPosition, out int existingCost) && moveCost >= existingCost)
                 continue;
 
             if (target != null)
-                visited[neighbor.gridPosition] = moveCost;
+                visited[neighbor.GridPosition] = moveCost;
 
             int heuristic = target.HasValue ? GetHeuristic(unitPos, target.Value) : 0;
 
@@ -233,7 +233,7 @@ public class Pathfinding : MonoBehaviour
                 queue.Enqueue(neighborNode);
 
             if (paths != null)
-                paths[neighbor.gridPosition] = neighborNode;
+                paths[neighbor.GridPosition] = neighborNode;
         }
     }
 
@@ -251,7 +251,7 @@ public class Pathfinding : MonoBehaviour
     private void ExpandJumpPaths(TileNode current, Unit unit, Dictionary<Vector2Int, int> visited, PriorityQueue<TileNode> queue, Dictionary<Vector2Int, TileNode> paths, Vector2Int? target = null, HashSet<Vector2Int> closedSet = null)
     {
         Tile startTile          = current.Tile;
-        int initialHeight       = startTile.height;
+        int initialHeight       = startTile.Height;
         int maxMovementPoints   = unit.MovementPoints;
         Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
 
@@ -261,13 +261,13 @@ public class Pathfinding : MonoBehaviour
         {
             int moveSteps           = 1;
             int jumpCount           = 0;
-            Vector2Int currentPos   = startTile.gridPosition + dir;
+            Vector2Int currentPos   = startTile.GridPosition + dir;
             Tile jumpTile           = tacticalController.GetTileAt(currentPos);
 
             if (closedSet != null && closedSet.Contains(currentPos))
                 continue; // Skip if already visited
 
-            if (jumpTile == null || jumpTile.height >= initialHeight || 1 == initialHeight - jumpTile.height)
+            if (jumpTile == null || jumpTile.Height >= initialHeight || 1 == initialHeight - jumpTile.Height)
                 continue; // Skip if the first jump tile is invalid or at the same height or one step lower
 
             while (current.G + moveSteps <= maxMovementPoints && jumpCount <= unit.JumpHeight)
@@ -278,7 +278,7 @@ public class Pathfinding : MonoBehaviour
                     break; // Out of bounds
                 }
 
-                int heightDelta = jumpTile.height - initialHeight;
+                int heightDelta = jumpTile.Height - initialHeight;
 
                 if (unit.MaxFallHeight >= heightDelta * -1)
                 {
@@ -338,10 +338,10 @@ public class Pathfinding : MonoBehaviour
         if (to == null)
             return false;
 
-        if (to.occupyingUnit != null)
+        if (to.OccupyingUnit != null)
             return false; // Skip if occupied by another unit
 
-        int heightDelta = to.height - from.height;
+        int heightDelta = to.Height - from.Height;
 
         if (heightDelta > unit.JumpHeight || heightDelta < -unit.MaxFallHeight)
             return false;
@@ -361,7 +361,7 @@ public class Pathfinding : MonoBehaviour
 
         foreach (var dir in directions)
         {
-            Tile neighbor = tacticalController.GetTileAt(tile.gridPosition + dir);
+            Tile neighbor = tacticalController.GetTileAt(tile.GridPosition + dir);
             if (neighbor != null)
                 neighbors.Add(neighbor);
         }
@@ -375,7 +375,7 @@ public class Pathfinding : MonoBehaviour
     private class TileNode : System.IComparable<TileNode>
     {
         public Tile Tile;
-        public Vector2Int Position => Tile.gridPosition;
+        public Vector2Int Position => Tile.GridPosition;
         public int G; // Cost from start
         public int H; // Heuristic to target
         public int F => G + H; // Total estimated cost

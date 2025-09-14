@@ -42,7 +42,7 @@ public class TacticalStateSkillMenu : TacticalStateBase
         if (buttonIndex >= 0 && buttonIndex < Controller.SelectedUnit.Skills.Count)
         {
             selectedSkill = Controller.SelectedUnit.GetSkillByIndex(buttonIndex);
-            Debug.Log($"Selected Skill: {selectedSkill.skillName}");
+            Debug.Log($"Selected Skill: {selectedSkill.SkillName}");
         }
         else
         {
@@ -72,7 +72,7 @@ public class TacticalStateSkillMenu : TacticalStateBase
         if (selectedSkill == null || Controller.SelectedUnit == null) return;
 
         // Highlight tiles affected by the selected skill
-        List<Tile> affectedTiles = selectedSkill.areaOfEffect.GetAffectedTiles(
+        List<Tile> affectedTiles = selectedSkill.AreaOfEffect.GetAffectedTiles(
             Controller.SelectedUnit.CurrentTile,
             Controller);
 

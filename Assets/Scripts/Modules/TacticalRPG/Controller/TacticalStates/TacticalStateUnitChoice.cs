@@ -67,7 +67,7 @@ public class TacticalStateUnitChoice : TacticalStateBase
         {
             if (tile == null) continue;
 
-            if (positionCursor == tile.gridPosition)
+            if (positionCursor == tile.GridPosition)
             {
                 tile.Illuminate(Color.blue); // Cursor highlight
             }

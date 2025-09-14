@@ -1,47 +1,55 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Collections;
 
+/// <summary>
+/// Defines the area of effect pattern for a skill, including range and shape.
+/// </summary>
 [System.Serializable]
 public class SkillArea
 {
-    public enum AreaType
+    /// <summary>
+    /// The geometric pattern used to calculate affected tiles.
+    /// </summary>
+    private enum AreaType
     {
         Circle,
         Square,
         Cross
     }
 
-    public int minRange;
-    public int maxRange;
-    public AreaType areaType;
+    [SerializeField, Min(0)] private int minRange = 0;
+    [SerializeField, Min(1)] private int maxRange = 1;
+    [SerializeField] private AreaType areaType = AreaType.Circle;
 
+    /// <summary> Minimum distance from the origin tile that tiles can be affected. </summary>
+    public int MinRange => minRange;
+
+    /// <summary> Maximum distance from the origin tile that tiles can be affected. </summary>
+    public int MaxRange => maxRange;
+
+    /// <summary> The shape of the skill's area of effect. </summary>
+    //public AreaType Shape => areaType;
+
+    /// <summary>
+    /// Returns a list of tiles affected by this area pattern.
+    /// </summary>
+    /// <param name="originTile">The tile where the effect originates (usually the caster's position).</param>
+    /// <param name="controller">Reference to the tactical controller for grid access.</param>
     public List<Tile> GetAffectedTiles(Tile originTile, TacticalController controller)
     {
         List<Tile> affectedTiles = new List<Tile>();
-        Vector2Int originPos = originTile.gridPosition;
+        Vector2Int originPos = originTile.GridPosition;
 
         for (int x = -maxRange; x <= maxRange; x++)
         {
             for (int y = -maxRange; y <= maxRange; y++)
             {
                 int distance = Mathf.Abs(x) + Mathf.Abs(y);
+                Vector2Int testPos = new Vector2Int(originPos.x + x, originPos.y + y);
 
-                if (areaType == AreaType.Circle && distance > minRange && distance <= maxRange)
+                if (IsTileInArea(x, y, distance))
                 {
-                    Tile tile = controller.GetTileAt(new Vector2Int(originPos.x + x, originPos.y + y));
-                    if (tile != null)
-                        affectedTiles.Add(tile);
-                }
-                else if (areaType == AreaType.Square && Mathf.Max(Mathf.Abs(x), Mathf.Abs(y)) > minRange)
-                {
-                    Tile tile = controller.GetTileAt(new Vector2Int(originPos.x + x, originPos.y + y));
-                    if (tile != null)
-                        affectedTiles.Add(tile);
-                }
-                else if (areaType == AreaType.Cross && (x == 0 || y == 0) && distance > minRange)
-                {
-                    Tile tile = controller.GetTileAt(new Vector2Int(originPos.x + x, originPos.y + y));
+                    Tile tile = controller.GetTileAt(testPos);
                     if (tile != null)
                         affectedTiles.Add(tile);
                 }
@@ -49,5 +57,24 @@ public class SkillArea
         }
 
         return affectedTiles;
+    }
+
+    /// <summary>
+    /// Checks whether a given offset is included in the current area type.
+    /// </summary>
+    private bool IsTileInArea(int x, int y, int distance)
+    {
+        switch (areaType)
+        {
+            case AreaType.Circle:
+                return distance > minRange && distance <= maxRange;
+            case AreaType.Square:
+                return Mathf.Max(Mathf.Abs(x), Mathf.Abs(y)) > minRange && 
+                       Mathf.Max(Mathf.Abs(x), Mathf.Abs(y)) <= maxRange;
+            case AreaType.Cross:
+                return (x == 0 || y == 0) && distance > minRange && distance <= maxRange;
+            default:
+                return false;
+        }
     }
 }

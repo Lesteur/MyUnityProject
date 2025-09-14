@@ -226,13 +226,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   width: 10
   height: 10
-  tileSize: 1
   tilePrefab: {fileID: 1800878482449061111, guid: a8aa14e112d695b4d9098e8c68e90cf2, type: 3}
   defaultTileData: {fileID: 11400000, guid: 6996dbc35b0a5004591ec03c0a4e3869, type: 2}
   units:
   - {fileID: 684959799}
   - {fileID: 1092169552}
-  selectedUnit: {fileID: 0}
   tacticalMenu: {fileID: 1906852633}
 --- !u!114 &525679878
 MonoBehaviour:
@@ -286,6 +284,10 @@ PrefabInstance:
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: gridPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
+      propertyPath: movementPoints
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: skills.Array.size
@@ -1947,7 +1949,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: movementPoints
-      value: 5
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: skills.Array.size

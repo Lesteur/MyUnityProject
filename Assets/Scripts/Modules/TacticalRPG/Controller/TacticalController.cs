@@ -11,7 +11,6 @@ public class TacticalController : MonoBehaviour
     [Header("Grid Settings")]
     [SerializeField] private int width;
     [SerializeField] private int height;
-    [SerializeField] private int tileSize = 1;
     [SerializeField] private GameObject tilePrefab;
     [SerializeField] private TileData defaultTileData;
 
@@ -152,12 +151,15 @@ public class TacticalController : MonoBehaviour
     /// <summary>
     /// Retrieves the tile at the given coordinates.
     /// </summary>
+    /// <param name="x">X coordinate.</param>
+    /// <param name="y">Y coordinate.</param>
     public Tile GetTileAt(int x, int y) => GetTileAt(new Vector2Int(x, y));
 
     /// <summary>
     /// Called when a unit finishes its movement or action.
     /// Updates available paths and state machine.
     /// </summary>
+    /// <param name="finishedUnit">The unit that finished its action.</param>
     public void OnUnitFinishedAction(Unit finishedUnit)
     {
         foreach (Unit unit in units)
@@ -183,7 +185,7 @@ public class TacticalController : MonoBehaviour
         {
             isActive = false;
             unit.GetPath(path);
-            Debug.Log($"Unit {unit.name} is moving to {path.destination.gridPosition}.");
+            Debug.Log($"Unit {unit.name} is moving to {path.Destination.GridPosition}.");
         }
         else
         {
@@ -216,6 +218,9 @@ public class TacticalController : MonoBehaviour
             for (int x = 0; x < width; x++)
             {
                 int trueHeight = (y == 0) ? x : 0;
+
+                if (x % 3 == 0 && y % 3 == 0)
+                    trueHeight = 5;
 
                 GameObject tileObject = null;
 
