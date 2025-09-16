@@ -23,12 +23,35 @@ public class TacticalStateUnitChoice : TacticalStateBase
     }
 
     /// <inheritdoc/>
+    public override void Update()
+    {
+        var hit = GetFocusedOnTile();
+
+        if (hit.HasValue && hit.Value.collider != null)
+        {
+            var tile = hit.Value.collider.gameObject.GetComponent<Tile>();
+            if (tile != null)
+            {
+                positionCursor = tile.GridPosition;
+
+                Controller.Cursor.transform.position = Controller.Grid[positionCursor.x, positionCursor.y].transform.position + new Vector3(0, 0.25f, 0);
+                Controller.Cursor.GetComponent<SpriteRenderer>().sortingOrder = Controller.Grid[positionCursor.x, positionCursor.y].GetComponent<SpriteRenderer>().sortingOrder;
+
+                UpdateRendering();
+            }
+        }
+    }
+
+    /// <inheritdoc/>
     public override void HorizontalKey(int direction)
     {
         positionCursor.x = Mathf.Clamp(
             positionCursor.x + direction,
             0,
             Controller.Grid.GetLength(0) - 1);
+
+        Controller.Cursor.transform.position = Controller.Grid[positionCursor.x, positionCursor.y].transform.position + new Vector3(0, 0.25f, 0);
+        Controller.Cursor.GetComponent<SpriteRenderer>().sortingOrder = Controller.Grid[positionCursor.x, positionCursor.y].GetComponent<SpriteRenderer>().sortingOrder;
 
         UpdateRendering();
     }
@@ -40,6 +63,9 @@ public class TacticalStateUnitChoice : TacticalStateBase
             positionCursor.y - direction,
             0,
             Controller.Grid.GetLength(1) - 1);
+        
+        Controller.Cursor.transform.position = Controller.Grid[positionCursor.x, positionCursor.y].transform.position + new Vector3(0, 0.25f, 0);
+        Controller.Cursor.GetComponent<SpriteRenderer>().sortingOrder = Controller.Grid[positionCursor.x, positionCursor.y].GetComponent<SpriteRenderer>().sortingOrder;
 
         UpdateRendering();
     }
@@ -76,5 +102,15 @@ public class TacticalStateUnitChoice : TacticalStateBase
                 tile.ResetIllumination();
             }
         }
+    }
+
+    /// <summary>
+    /// Gets the tile currently focused on by the mouse cursor.
+    /// </summary>
+    private RaycastHit2D? GetFocusedOnTile()
+    {
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 mousePos2D = new Vector2(mouseWorldPos.x, mouseWorldPos.y);
+        return Physics2D.Raycast(mousePos2D, Vector2.zero);
     }
 }

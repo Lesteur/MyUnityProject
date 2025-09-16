@@ -177,6 +177,28 @@
                 },
                 {
                     "name": "",
+                    "id": "f50431ab-44c1-4635-a2cd-c6b1eb6be9f3",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Confirm",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "27deb3b3-aed5-469f-846d-89e41c4f9790",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Confirm",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "96d2ab45-87a7-47d1-b32e-aa66952d0bac",
                     "path": "<Gamepad>/buttonSouth",
                     "interactions": "",

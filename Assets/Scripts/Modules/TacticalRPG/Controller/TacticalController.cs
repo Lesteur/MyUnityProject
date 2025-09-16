@@ -13,6 +13,7 @@ public class TacticalController : MonoBehaviour
     [SerializeField] private int height;
     [SerializeField] private GameObject tilePrefab;
     [SerializeField] private TileData defaultTileData;
+    [SerializeField] private GameObject cursor;
 
     [Header("Units & UI")]
     [SerializeField] private List<Unit> units = new();
@@ -32,6 +33,11 @@ public class TacticalController : MonoBehaviour
     /// Provides access to the tactical grid.
     /// </summary>
     public Tile[,] Grid => grid;
+
+    /// <summary>
+    /// Cursor GameObject for indicating selection.
+    /// </summary>
+    public GameObject Cursor => cursor;
 
     /// <summary>
     /// List of all units on the battlefield.
@@ -234,6 +240,14 @@ public class TacticalController : MonoBehaviour
                     tileObject = Instantiate(tilePrefab, position, Quaternion.identity, transform);
                     tileObject.name = $"Tile_{x}_{y}_H{z}";
                     tileObject.GetComponent<SpriteRenderer>().sortingOrder = (x + y) * orderOffset + z * 15;
+
+                    if (z < trueHeight)
+                    {
+                        var polygonCollider = tileObject.GetComponent<PolygonCollider2D>();
+
+                        if (polygonCollider != null)
+                            Destroy(polygonCollider);
+                    }
                 }
 
                 Tile tile = tileObject.GetComponent<Tile>();

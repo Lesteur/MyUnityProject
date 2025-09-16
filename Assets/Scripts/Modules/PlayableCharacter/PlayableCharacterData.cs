@@ -10,5 +10,5 @@ public class PlayableCharacterData : ScriptableObject
     public CharacterPersonalityData personality;
 
     [Header("Fight Settings")]
-    public CharacterFightData fight;
+    public UnitData fight;
 }
