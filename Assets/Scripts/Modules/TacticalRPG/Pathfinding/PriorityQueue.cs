@@ -1,21 +1,28 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine.Pool;
 
 /// <summary>
-/// A generic min-priority queue based on a binary heap.
-/// Supports fast insertions, deletions, and updates.
-/// Requires items to implement <see cref="IComparable{T}"/>.
+/// A generic minimum-priority queue based on a binary heap.
+/// Supports efficient insertions, deletions, and priority updates,
+/// with pooled collections to minimize GC allocations.
 /// </summary>
-/// <typeparam name="T">The type of elements stored in the queue.</typeparam>
-public class PriorityQueue<T> where T : IComparable<T>
+/// <typeparam name="T">The type of elements stored in the queue. Must implement <see cref="IComparable{T}"/>.</typeparam>
+public class PriorityQueue<T> : IDisposable where T : IComparable<T>
 {
-    private List<T> heap = new List<T>();
-    private Dictionary<T, int> indexMap = new Dictionary<T, int>(); // Maps item to its index in the heap
+    private readonly List<T> _heap;
+    private readonly Dictionary<T, int> _indexMap;
 
     /// <summary>
     /// Gets the number of elements in the queue.
     /// </summary>
-    public int Count => heap.Count;
+    public int Count => _heap.Count;
+
+    public PriorityQueue()
+    {
+        _heap = ListPool<T>.Get();
+        _indexMap = DictionaryPool<T, int>.Get();
+    }
 
     /// <summary>
     /// Adds an item to the queue.
@@ -23,47 +30,47 @@ public class PriorityQueue<T> where T : IComparable<T>
     /// <param name="item">The item to enqueue.</param>
     public void Enqueue(T item)
     {
-        heap.Add(item);
-        int index = heap.Count - 1;
-        indexMap[item] = index;
-        HeapifyUp(index); // Restore heap property upwards
+        _heap.Add(item);
+        int index = _heap.Count - 1;
+        _indexMap[item] = index;
+        HeapifyUp(index);
     }
 
     /// <summary>
-    /// Removes and returns the item with the highest priority (minimum value).
+    /// Removes and returns the item with the smallest priority value.
     /// </summary>
-    /// <returns>The item with the highest priority.</returns>
+    /// <returns>The item with the highest priority (minimum value).</returns>
     /// <exception cref="InvalidOperationException">Thrown when the queue is empty.</exception>
     public T Dequeue()
     {
-        if (heap.Count == 0)
-            throw new InvalidOperationException("Queue is empty");
+        if (_heap.Count == 0)
+            throw new InvalidOperationException("Queue is empty.");
 
-        T root = heap[0];
-        T last = heap[heap.Count - 1];
+        T root = _heap[0];
+        T last = _heap[_heap.Count - 1];
 
-        heap[0] = last;
-        indexMap[last] = 0;
+        _heap[0] = last;
+        _indexMap[last] = 0;
 
-        heap.RemoveAt(heap.Count - 1);
-        indexMap.Remove(root);
+        _heap.RemoveAt(_heap.Count - 1);
+        _indexMap.Remove(root);
 
-        if (heap.Count > 0)
-            HeapifyDown(0); // Restore heap property downwards
+        if (_heap.Count > 0)
+            HeapifyDown(0);
 
         return root;
     }
 
     /// <summary>
-    /// Inserts a new item or updates an existing item if already present.
-    /// Adjusts its position in the heap to maintain priority order.
+    /// Inserts a new item or updates an existing item if already present,
+    /// adjusting its position in the heap to maintain priority order.
     /// </summary>
     /// <param name="item">The item to enqueue or update.</param>
     public void EnqueueOrUpdate(T item)
     {
-        if (indexMap.TryGetValue(item, out int index))
+        if (_indexMap.TryGetValue(item, out int index))
         {
-            heap[index] = item;
+            _heap[index] = item;
             HeapifyUp(index);
             HeapifyDown(index);
         }
@@ -74,22 +81,22 @@ public class PriorityQueue<T> where T : IComparable<T>
     }
 
     /// <summary>
-    /// Checks if the queue contains a specific item.
+    /// Checks whether the queue contains the specified item.
     /// </summary>
-    /// <param name="item">The item to check for.</param>
-    /// <returns>True if the item exists in the queue; otherwise, false.</returns>
-    public bool Contains(T item) => indexMap.ContainsKey(item);
+    /// <param name="item">The item to check.</param>
+    /// <returns><c>true</c> if the item exists in the queue; otherwise, <c>false</c>.</returns>
+    public bool Contains(T item) => _indexMap.ContainsKey(item);
 
     /// <summary>
-    /// Restores the heap property by moving an item up.
+    /// Restores the heap property by moving an item up the binary heap.
     /// </summary>
-    /// <param name="index">Index of the item to move.</param>
+    /// <param name="index">The index of the item to move.</param>
     private void HeapifyUp(int index)
     {
         while (index > 0)
         {
             int parent = (index - 1) / 2;
-            if (heap[index].CompareTo(heap[parent]) >= 0)
+            if (_heap[index].CompareTo(_heap[parent]) >= 0)
                 break;
 
             Swap(index, parent);
@@ -98,21 +105,23 @@ public class PriorityQueue<T> where T : IComparable<T>
     }
 
     /// <summary>
-    /// Restores the heap property by moving an item down.
+    /// Restores the heap property by moving an item down the binary heap.
     /// </summary>
-    /// <param name="index">Index of the item to move.</param>
+    /// <param name="index">The index of the item to move.</param>
     private void HeapifyDown(int index)
     {
-        int lastIndex = heap.Count - 1;
+        int lastIndex = _heap.Count - 1;
+
         while (true)
         {
             int left = 2 * index + 1;
             int right = 2 * index + 2;
             int smallest = index;
 
-            if (left <= lastIndex && heap[left].CompareTo(heap[smallest]) < 0)
+            if (left <= lastIndex && _heap[left].CompareTo(_heap[smallest]) < 0)
                 smallest = left;
-            if (right <= lastIndex && heap[right].CompareTo(heap[smallest]) < 0)
+
+            if (right <= lastIndex && _heap[right].CompareTo(_heap[smallest]) < 0)
                 smallest = right;
 
             if (smallest == index)
@@ -124,17 +133,26 @@ public class PriorityQueue<T> where T : IComparable<T>
     }
 
     /// <summary>
-    /// Swaps two items in the heap and updates their indices in the map.
+    /// Swaps two items in the heap and updates their indices in the index map.
     /// </summary>
-    /// <param name="i">First index.</param>
-    /// <param name="j">Second index.</param>
+    /// <param name="i">The first index.</param>
+    /// <param name="j">The second index.</param>
     private void Swap(int i, int j)
     {
-        T temp = heap[i];
-        heap[i] = heap[j];
-        heap[j] = temp;
+        T temp = _heap[i];
+        _heap[i] = _heap[j];
+        _heap[j] = temp;
 
-        indexMap[heap[i]] = i;
-        indexMap[heap[j]] = j;
+        _indexMap[_heap[i]] = i;
+        _indexMap[_heap[j]] = j;
+    }
+
+    /// <summary>
+    /// Clears the queue and releases pooled resources.
+    /// </summary>
+    public void Dispose()
+    {
+        ListPool<T>.Release(_heap);
+        DictionaryPool<T, int>.Release(_indexMap);
     }
 }

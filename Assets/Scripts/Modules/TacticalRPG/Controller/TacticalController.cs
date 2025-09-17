@@ -22,7 +22,6 @@ public class TacticalController : MonoBehaviour
     private Tile[,] grid;
     private Pathfinding pathfinding;
     private TacticalStateMachine stateMachine;
-    private bool isActive = true;
 
     /// <summary>
     /// Currently selected unit on the grid.
@@ -175,7 +174,6 @@ public class TacticalController : MonoBehaviour
         }
 
         stateMachine.EnterState(stateMachine.MainMenuState);
-        isActive = true;
     }
 
     /// <summary>
@@ -185,11 +183,11 @@ public class TacticalController : MonoBehaviour
     /// <param name="path">The path result.</param>
     public void MoveUnitPath(Unit unit, PathResult path)
     {
-        if (!isActive) return;
+        //if (!isActive) return;
 
         if (path.IsValid)
         {
-            isActive = false;
+            stateMachine.EnterState(stateMachine.ActingUnitState);
             unit.GetPath(path);
             Debug.Log($"Unit {unit.name} is moving to {path.Destination.GridPosition}.");
         }

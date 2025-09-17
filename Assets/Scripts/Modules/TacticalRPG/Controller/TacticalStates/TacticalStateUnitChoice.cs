@@ -32,12 +32,7 @@ public class TacticalStateUnitChoice : TacticalStateBase
             var tile = hit.Value.collider.gameObject.GetComponent<Tile>();
             if (tile != null)
             {
-                positionCursor = tile.GridPosition;
-
-                Controller.Cursor.transform.position = Controller.Grid[positionCursor.x, positionCursor.y].transform.position + new Vector3(0, 0.25f, 0);
-                Controller.Cursor.GetComponent<SpriteRenderer>().sortingOrder = Controller.Grid[positionCursor.x, positionCursor.y].GetComponent<SpriteRenderer>().sortingOrder;
-
-                UpdateRendering();
+                UpdateCursorPosition(tile.GridPosition);
             }
         }
     }
@@ -45,25 +40,29 @@ public class TacticalStateUnitChoice : TacticalStateBase
     /// <inheritdoc/>
     public override void HorizontalKey(int direction)
     {
-        positionCursor.x = Mathf.Clamp(
+        UpdateCursorPosition(new Vector2Int(Mathf.Clamp(
             positionCursor.x + direction,
             0,
-            Controller.Grid.GetLength(0) - 1);
-
-        Controller.Cursor.transform.position = Controller.Grid[positionCursor.x, positionCursor.y].transform.position + new Vector3(0, 0.25f, 0);
-        Controller.Cursor.GetComponent<SpriteRenderer>().sortingOrder = Controller.Grid[positionCursor.x, positionCursor.y].GetComponent<SpriteRenderer>().sortingOrder;
-
-        UpdateRendering();
+            Controller.Grid.GetLength(0) - 1), positionCursor.y));
     }
 
     /// <inheritdoc/>
     public override void VerticalKey(int direction)
     {
-        positionCursor.y = Mathf.Clamp(
+        UpdateCursorPosition(new Vector2Int(positionCursor.x, Mathf.Clamp(
             positionCursor.y - direction,
             0,
-            Controller.Grid.GetLength(1) - 1);
-        
+            Controller.Grid.GetLength(1) - 1)));
+    }
+
+    /// <summary>
+    /// Updates the cursor position to the specified grid coordinates.
+    /// </summary>
+    /// <param name="newPosition">The new grid coordinates for the cursor.</param>
+    public void UpdateCursorPosition(Vector2Int newPosition)
+    {
+        positionCursor = newPosition;
+
         Controller.Cursor.transform.position = Controller.Grid[positionCursor.x, positionCursor.y].transform.position + new Vector3(0, 0.25f, 0);
         Controller.Cursor.GetComponent<SpriteRenderer>().sortingOrder = Controller.Grid[positionCursor.x, positionCursor.y].GetComponent<SpriteRenderer>().sortingOrder;
 

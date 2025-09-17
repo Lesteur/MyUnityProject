@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using System.Collections;
-using System.Linq;
+using UnityEngine.Pool;
 
 /// <summary>
 /// Handles tile-based pathfinding using the A* algorithm and reachability checks,
@@ -9,7 +8,7 @@ using System.Linq;
 /// </summary>
 public class Pathfinding : MonoBehaviour
 {
-    public TacticalController tacticalController;
+    [SerializeField] private TacticalController tacticalController;
 
     private void Start()
     {
@@ -26,37 +25,45 @@ public class Pathfinding : MonoBehaviour
     /// <returns>List of tiles representing the path, or null if no path found.</returns>
     public List<Tile> FindPath(Vector2Int start, Vector2Int target, Unit unit)
     {
-        int maxJumpHeight = unit.JumpHeight;
-        int maxFallHeight = unit.MaxFallHeight;
-
         Tile startTile  = tacticalController.GetTileAt(start);
-        Tile targetTile = tacticalController.GetTileAt(target);
+        //Tile targetTile = tacticalController.GetTileAt(target);
 
         var queue       = new PriorityQueue<TileNode>();
-        var closedSet   = new HashSet<Vector2Int>();
-        var visited     = new Dictionary<Vector2Int, int>();
+        var closedSet   = ListPool<Vector2Int>.Get();
+        var visited     = DictionaryPool<Vector2Int, int>.Get();
         var startNode   = new TileNode(startTile, 0, GetHeuristic(start, target));
 
         queue.Enqueue(startNode);
         visited[start] = 0;
+
+        List<Tile> finalPath = null; 
 
         while (queue.Count > 0)
         {
             TileNode current = queue.Dequeue();
 
             if (current.Position == target)
-                return ReconstructPath(current); // Path found
+            {
+                var path = ReconstructPath(current); // Path found
+                finalPath = new List<Tile>(path);
+
+                ListPool<Tile>.Release(path);
+                break;
+            }
 
             closedSet.Add(current.Position);
 
             // Expand jump paths
             ExpandJumpPaths(current, unit, visited, queue, null, target, closedSet);
-
             // Expand standard neighbors
             ExpandStandardNeighbors(current, unit, visited, queue, null, target, closedSet);
         }
 
-        return null; // No path found
+        ListPool<Vector2Int>.Release(closedSet);
+        DictionaryPool<Vector2Int, int>.Release(visited);
+        queue.Dispose();
+
+        return finalPath;
     }
 
     /// <summary>
@@ -70,8 +77,8 @@ public class Pathfinding : MonoBehaviour
         int maxMovementPoints   = unit.MovementPoints;
         Tile startTile          = tacticalController.GetTileAt(start);
 
-        var reachableTiles  = new List<Tile>();
-        var visited         = new Dictionary<Vector2Int, int>();
+        var reachableTiles  = ListPool<Tile>.Get();
+        var visited         = DictionaryPool<Vector2Int, int>.Get();
         var queue           = new PriorityQueue<TileNode>();
         
         queue.Enqueue(new TileNode(startTile, 0, 0));
@@ -93,24 +100,14 @@ public class Pathfinding : MonoBehaviour
             ExpandStandardNeighbors(current, unit, visited, queue, null);
         }
 
-        return reachableTiles;
-    }
+        // Copy to safe list before releasing pools
+        List<Tile> result = new List<Tile>(reachableTiles);
 
-    public List<PathResult> GetAllPathsDebug(Vector2Int start, Unit unit)
-    {
-        var allTiles = GetReachableTiles(start, unit);
-        var results = new List<PathResult>();
+        ListPool<Tile>.Release(reachableTiles);
+        DictionaryPool<Vector2Int, int>.Release(visited);
+        queue.Dispose();
 
-        foreach (var tile in allTiles)
-        {
-            var path = FindPath(start, tile.GridPosition, unit);
-            if (path != null && path.Count > 0)
-            {
-                results.Add(new PathResult(tile, path));
-            }
-        }
-
-        return results;
+        return result;
     }
 
     /// <summary>
@@ -124,10 +121,11 @@ public class Pathfinding : MonoBehaviour
         int maxMovementPoints = unit.MovementPoints;
         Tile startTile = tacticalController.GetTileAt(start);
 
-        var results     = new List<PathResult>();
-        var visited     = new Dictionary<Vector2Int, int>();
-        var paths       = new Dictionary<Vector2Int, TileNode>();
+        var results     = ListPool<PathResult>.Get();
+        var visited     = DictionaryPool<Vector2Int, int>.Get();
+        var paths       = DictionaryPool<Vector2Int, TileNode>.Get();
         var queue       = new PriorityQueue<TileNode>();
+
         var startNode   = new TileNode(startTile, 0, 0);
 
         queue.Enqueue(startNode);
@@ -154,20 +152,24 @@ public class Pathfinding : MonoBehaviour
         {
             if (kvp.Key == start)
                 continue; // Skip start tile
+            
+            var path = ReconstructPath(kvp.Value);
+            var finalPath = new List<Tile>(path);
 
-            var node = kvp.Value;
-            var path = new List<Tile>();
-            while (node != null)
-            {
-                path.Add(node.Tile);
-                node = node.Parent;
-            }
+            results.Add(new PathResult(path[^1], finalPath));
 
-            path.Reverse();
-            results.Add(new PathResult(path[^1], path));
+            ListPool<Tile>.Release(path);
         }
 
-        return results;
+        // Copy to safe list before releasing pools
+        List<PathResult> finalResults = new List<PathResult>(results);
+
+        ListPool<PathResult>.Release(results);
+        DictionaryPool<Vector2Int, int>.Release(visited);
+        DictionaryPool<Vector2Int, TileNode>.Release(paths);
+        queue.Dispose();
+
+        return finalResults;
     }
 
     /// <summary>
@@ -175,7 +177,8 @@ public class Pathfinding : MonoBehaviour
     /// </summary>
     private List<Tile> ReconstructPath(TileNode endNode)
     {
-        var path = new List<Tile>();
+        //var path = new List<Tile>();
+        var path = ListPool<Tile>.Get();
         TileNode current = endNode;
 
         while (current != null)
@@ -199,12 +202,14 @@ public class Pathfinding : MonoBehaviour
     /// <param name="paths">Dictionary mapping grid positions to their corresponding tile nodes.</param>
     /// <param name="target">Optional target position for heuristic calculation.</param>
     /// <param name="closedSet">Optional set of closed positions to avoid revisiting.</param>
-    private void ExpandStandardNeighbors(TileNode current, Unit unit, Dictionary<Vector2Int, int> visited, PriorityQueue<TileNode> queue, Dictionary<Vector2Int, TileNode> paths, Vector2Int? target = null, HashSet<Vector2Int> closedSet = null)
+    private void ExpandStandardNeighbors(TileNode current, Unit unit, Dictionary<Vector2Int, int> visited, PriorityQueue<TileNode> queue, Dictionary<Vector2Int, TileNode> paths, Vector2Int? target = null, List<Vector2Int> closedSet = null)
     {
         int maxMovementPoints = unit.MovementPoints;
         Vector2Int unitPos = unit.GridPosition;
 
-        foreach (Tile neighbor in GetNeighbors(current.Tile))
+        var neighbors = GetNeighbors(current.Tile);
+
+        foreach (Tile neighbor in neighbors)
         {
             if (closedSet != null && closedSet.Contains(neighbor.GridPosition))
                 continue; // Skip if already visited
@@ -235,6 +240,8 @@ public class Pathfinding : MonoBehaviour
             if (paths != null)
                 paths[neighbor.GridPosition] = neighborNode;
         }
+
+        ListPool<Tile>.Release(neighbors);
     }
 
     /// <summary>
@@ -247,8 +254,8 @@ public class Pathfinding : MonoBehaviour
     /// <param name="queue">Priority queue for processing tile nodes.</param>
     /// <param name="paths">Dictionary mapping grid positions to their corresponding tile nodes.</param>
     /// <param name="target">Optional target tile grid position for heuristic calculation.</param>
-    /// <param name="closedSet">Optional set of closed tiles to avoid revisiting.</
-    private void ExpandJumpPaths(TileNode current, Unit unit, Dictionary<Vector2Int, int> visited, PriorityQueue<TileNode> queue, Dictionary<Vector2Int, TileNode> paths, Vector2Int? target = null, HashSet<Vector2Int> closedSet = null)
+    /// <param name="closedSet">Optional set of closed tiles to avoid revisiting.</param>
+    private void ExpandJumpPaths(TileNode current, Unit unit, Dictionary<Vector2Int, int> visited, PriorityQueue<TileNode> queue, Dictionary<Vector2Int, TileNode> paths, Vector2Int? target = null, List<Vector2Int> closedSet = null)
     {
         Tile startTile          = current.Tile;
         int initialHeight       = startTile.Height;
@@ -273,9 +280,7 @@ public class Pathfinding : MonoBehaviour
             while (current.G + moveSteps <= maxMovementPoints && jumpCount <= unit.JumpHeight)
             {
                 if (jumpTile == null)
-                {
                     break; // Out of bounds
-                }
 
                 int heightDelta = jumpTile.Height - initialHeight;
 
@@ -353,7 +358,8 @@ public class Pathfinding : MonoBehaviour
     /// </summary>
     private List<Tile> GetNeighbors(Tile tile)
     {
-        var neighbors = new List<Tile>();
+        //var neighbors = new List<Tile>();
+        var neighbors = ListPool<Tile>.Get();
         Vector2Int[] directions = {
             Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right
         };

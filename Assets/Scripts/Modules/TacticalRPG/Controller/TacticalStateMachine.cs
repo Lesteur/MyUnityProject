@@ -37,6 +37,11 @@ public class TacticalStateMachine
     public TacticalStateSkillMenu SkillMenuState { get; }
 
     /// <summary>
+    /// State for acting with a unit.
+    /// </summary>
+    public TacticalStateActingUnit ActingUnitState { get; }
+
+    /// <summary>
     /// Initializes the tactical state machine and its states.
     /// </summary>
     /// <param name="controller">The tactical controller that owns this state machine.</param>
@@ -48,6 +53,7 @@ public class TacticalStateMachine
         UnitMovementState = new TacticalStateUnitMovement(this);
         MainMenuState = new TacticalStateMainMenu(this);
         SkillMenuState = new TacticalStateSkillMenu(this);
+        ActingUnitState = new TacticalStateActingUnit(this);
 
         EnterDefaultState();
     }
