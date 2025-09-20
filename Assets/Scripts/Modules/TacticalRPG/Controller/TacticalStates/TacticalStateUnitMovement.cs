@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// State responsible for handling unit movement input and rendering path highlights.
@@ -26,6 +27,8 @@ public class TacticalStateUnitMovement : TacticalStateBase
 
         positionCursor = SelectedUnit.GridPosition;
         selectedPath = default;
+
+        EventSystem.current.SetSelectedGameObject(Controller.gameObject);
 
         UpdateRendering();
     }
@@ -71,22 +74,20 @@ public class TacticalStateUnitMovement : TacticalStateBase
             Debug.Log($"Path confirmed to {selectedPath.Destination.GridPosition}.");
             stateMachine.Controller.MoveUnitPath(SelectedUnit, selectedPath);
         }
-        else
-        {
-            Debug.Log("No valid path found to the selected position.");
-        }
     }
 
     /// <inheritdoc/>
     public override void CancelKey()
     {
-        Debug.Log("Back event triggered.");
         stateMachine.EnterState(stateMachine.MainMenuState);
     }
 
     /// <inheritdoc/>
     public override void UpdateRendering()
     {
+        Controller.Cursor.transform.position = Controller.Grid[positionCursor.x, positionCursor.y].transform.position + new Vector3(0, 0.25f, 0);
+        Controller.Cursor.GetComponent<SpriteRenderer>().sortingOrder = Controller.Grid[positionCursor.x, positionCursor.y].GetComponent<SpriteRenderer>().sortingOrder;
+
         foreach (Tile tile in stateMachine.Controller.Grid)
         {
             if (tile == null) continue;
@@ -126,9 +127,6 @@ public class TacticalStateUnitMovement : TacticalStateBase
     private void UpdatePathSelection(Vector2Int newPosition)
     {
         positionCursor = newPosition;
-
-        Controller.Cursor.transform.position = Controller.Grid[positionCursor.x, positionCursor.y].transform.position + new Vector3(0, 0.25f, 0);
-        Controller.Cursor.GetComponent<SpriteRenderer>().sortingOrder = Controller.Grid[positionCursor.x, positionCursor.y].GetComponent<SpriteRenderer>().sortingOrder;
 
         if (SelectedUnit?.AvailablePaths == null)
         {

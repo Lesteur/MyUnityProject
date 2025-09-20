@@ -1,12 +1,13 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 using Game.Input;
 
 /// <summary>
 /// Manages the tactical grid, units, and state machine. Handles input and unit interactions.
 /// </summary>
-public class TacticalController : MonoBehaviour
+public class TacticalController : MonoBehaviour, IMoveHandler, ISubmitHandler, ICancelHandler
 {
     [Header("Grid Settings")]
     [SerializeField] private int width;
@@ -53,13 +54,6 @@ public class TacticalController : MonoBehaviour
     /// </summary>
     public Pathfinding Pathfinding => pathfinding;
 
-    #region Input Actions
-    private InputAction HorizontalAction => InputReader.Instance.inputActions.Global.Horizontal;
-    private InputAction VerticalAction   => InputReader.Instance.inputActions.Global.Vertical;
-    private InputAction ConfirmAction    => InputReader.Instance.inputActions.Global.Confirm;
-    private InputAction BackAction       => InputReader.Instance.inputActions.Global.Back;
-    #endregion
-
     private void Awake()
     {
         Debug.Log("TacticalController Awake called.");
@@ -91,21 +85,11 @@ public class TacticalController : MonoBehaviour
             Debug.LogError("InputReader instance is null. Ensure InputReader is initialized before TacticalController.");
             return;
         }
-
-        InputReader.Instance.horizontalEvent += HorizontalEvent;
-        InputReader.Instance.verticalEvent   += VerticalEvent;
-        InputReader.Instance.confirmEvent    += ConfirmEvent;
-        InputReader.Instance.backEvent       += CancelEvent;
     }
 
     private void OnDisable()
     {
         if (InputReader.Instance == null) return;
-
-        InputReader.Instance.horizontalEvent -= HorizontalEvent;
-        InputReader.Instance.verticalEvent   -= VerticalEvent;
-        InputReader.Instance.confirmEvent    -= ConfirmEvent;
-        InputReader.Instance.backEvent       -= CancelEvent;
     }
 
     private void Update()
@@ -120,12 +104,37 @@ public class TacticalController : MonoBehaviour
         stateMachine.PhysicsUpdate();
     }
 
-    #region Input Events
-    private void HorizontalEvent(int direction) => stateMachine.CurrentState.HorizontalKey(direction);
-    private void VerticalEvent(int direction)   => stateMachine.CurrentState.VerticalKey(direction);
-    private void ConfirmEvent()                 => stateMachine.CurrentState.ConfirmKey();
-    private void CancelEvent()                  => stateMachine.CurrentState.CancelKey();
-    #endregion
+    public void OnMove(AxisEventData eventData)
+    {
+        Debug.Log("OnMove event received.");
+
+        Vector2 move = eventData.moveVector;
+
+        if (Mathf.Abs(move.x) > Mathf.Abs(move.y))
+        {
+            int direction = (move.x > 0) ? 1 : -1;
+            stateMachine.CurrentState.HorizontalKey(direction);
+        }
+        else if (Mathf.Abs(move.y) > Mathf.Abs(move.x))
+        {
+            int direction = (move.y > 0) ? 1 : -1;
+            stateMachine.CurrentState.VerticalKey(direction);
+        }
+    }
+
+    public void OnSubmit(BaseEventData eventData)
+    {
+        Debug.Log("OnSubmit event received.");
+
+        stateMachine.CurrentState.ConfirmKey();
+    }
+
+    public void OnCancel(BaseEventData eventData)
+    {
+        Debug.Log("OnCancel event received.");
+
+        stateMachine.CurrentState.CancelKey();
+    }
 
     /// <summary>
     /// Handles button clicks from the tactical menu.
@@ -183,8 +192,6 @@ public class TacticalController : MonoBehaviour
     /// <param name="path">The path result.</param>
     public void MoveUnitPath(Unit unit, PathResult path)
     {
-        //if (!isActive) return;
-
         if (path.IsValid)
         {
             stateMachine.EnterState(stateMachine.ActingUnitState);

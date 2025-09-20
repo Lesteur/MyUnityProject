@@ -26,7 +26,6 @@ public class TacticalStateSkillMenu : TacticalStateBase
     /// <inheritdoc/>
     public override void CancelKey()
     {
-        Debug.Log("Back event triggered.");
         stateMachine.EnterState(stateMachine.MainMenuState);
     }
 

@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections.Generic;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// State responsible for selecting a unit on the tactical grid.
@@ -19,6 +21,8 @@ public class TacticalStateUnitChoice : TacticalStateBase
     public override void Enter(TacticalStateBase previousState)
     {
         Debug.Log("Entering Unit Choice State");
+
+        EventSystem.current.SetSelectedGameObject(Controller.gameObject);
         UpdateRendering();
     }
 
@@ -63,9 +67,6 @@ public class TacticalStateUnitChoice : TacticalStateBase
     {
         positionCursor = newPosition;
 
-        Controller.Cursor.transform.position = Controller.Grid[positionCursor.x, positionCursor.y].transform.position + new Vector3(0, 0.25f, 0);
-        Controller.Cursor.GetComponent<SpriteRenderer>().sortingOrder = Controller.Grid[positionCursor.x, positionCursor.y].GetComponent<SpriteRenderer>().sortingOrder;
-
         UpdateRendering();
     }
 
@@ -81,13 +82,14 @@ public class TacticalStateUnitChoice : TacticalStateBase
                 return;
             }
         }
-
-        Debug.Log("No unit found at cursor position.");
     }
 
     /// <inheritdoc/>
     public override void UpdateRendering()
     {
+        Controller.Cursor.transform.position = Controller.Grid[positionCursor.x, positionCursor.y].transform.position + new Vector3(0, 0.25f, 0);
+        Controller.Cursor.GetComponent<SpriteRenderer>().sortingOrder = Controller.Grid[positionCursor.x, positionCursor.y].GetComponent<SpriteRenderer>().sortingOrder;
+
         foreach (Tile tile in Controller.Grid)
         {
             if (tile == null) continue;

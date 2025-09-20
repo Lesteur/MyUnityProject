@@ -5,6 +5,9 @@ using UnityEngine;
 /// </summary>
 public class TacticalStateMainMenu : TacticalStateBase
 {
+    private Unit SelectedUnit => stateMachine.Controller.SelectedUnit;
+    private bool startInput = true;
+
     /// <summary>
     /// Initializes a new instance of the main menu state.
     /// </summary>
@@ -14,6 +17,7 @@ public class TacticalStateMainMenu : TacticalStateBase
     public override void Enter(TacticalStateBase previousState)
     {
         Debug.Log("Entering Main Menu State");
+
         Controller.TacticalMenu.ShowMainMenu();
         UpdateRendering();
     }
@@ -21,13 +25,18 @@ public class TacticalStateMainMenu : TacticalStateBase
     /// <inheritdoc/>
     public override void CancelKey()
     {
-        Debug.Log("Back event triggered.");
         stateMachine.EnterState(stateMachine.UnitChoiceState);
     }
 
     /// <inheritdoc/>
     public override void OnClickButton(int buttonIndex)
     {
+        if (startInput == false)
+        {
+            startInput = true;
+            return; // Ignore the first input to prevent accidental selections
+        }
+
         switch (buttonIndex)
         {
             case 0: // Move
@@ -54,7 +63,6 @@ public class TacticalStateMainMenu : TacticalStateBase
     /// <inheritdoc/>
     public override void Exit()
     {
-        Debug.Log("Exiting Main Menu State");
         Controller.TacticalMenu.Hide();
     }
 

@@ -1,10 +1,11 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// Handles displaying and managing the tactical menu UI, including main actions and skill selections.
 /// </summary>
-public class TacticalMenu : MonoBehaviour
+public class TacticalMenu : MonoBehaviour, ICancelHandler
 {
     [Header("References")]
     [SerializeField] private UIDocument tacticalMenuDocument;
@@ -121,6 +122,12 @@ public class TacticalMenu : MonoBehaviour
     {
         Debug.Log($"Skill {skillIndex} button clicked.");
         controller.OnClickButton(skillIndex);
+    }
+
+    public void OnCancel(BaseEventData eventData)
+    {
+        Debug.Log("Cancel event received in TacticalMenu.");
+        controller.OnCancel(eventData);
     }
 
     #endregion

@@ -9,7 +9,7 @@ namespace Game.Input
     /// Singleton class responsible for reading player input and broadcasting input events.
     /// Uses the Unity Input System and a custom PlayerInputActions asset.
     /// </summary>
-    public class InputReader : MonoBehaviour, InputActions.IGlobalActions
+    public class InputReader : MonoBehaviour, InputActions.IUIActions
     {
         // Singleton instance
         public static InputReader Instance { get; private set; }
@@ -41,62 +41,26 @@ namespace Game.Input
             DontDestroyOnLoad(this.gameObject); // Optional: persist across scenes
 
             inputActions = new InputActions();
-            inputActions.Global.SetCallbacks(this);
+            inputActions.UI.SetCallbacks(this);
         }
 
         private void OnEnable()
         {
             Debug.Log("InputReader enabled.");
 
-            inputActions.Global.Enable();
+            inputActions.UI.Enable();
         }
 
         private void OnDisable()
         {
-            inputActions.Global.Disable();
+            inputActions.UI.Disable();
         }
 
         // --- Actions interface methods ---
 
-        public void OnConfirm(InputAction.CallbackContext context)
-        {
-            if (context.started)
-                confirmEvent?.Invoke();
-        }
+        public void OnNavigate(InputAction.CallbackContext context) { }
 
-        public void OnBack(InputAction.CallbackContext context)
-        {
-            if (context.started)
-                backEvent?.Invoke();
-        }
-
-        public void OnHorizontal(InputAction.CallbackContext context)
-        {
-            int horizontalValue = (int)context.ReadValue<float>();
-
-            if (context.performed)
-            {
-                if (horizontalValue != 0)
-                {
-                    horizontalEvent?.Invoke(horizontalValue);
-
-                    if (moveCoroutine != null)
-                        StopCoroutine(moveCoroutine);
-                }
-
-                moveCoroutine = StartCoroutine(RepeatMove(horizontalValue, 0));
-            }
-            else if (context.canceled)
-            {
-                if (moveCoroutine != null)
-                {
-                    StopCoroutine(moveCoroutine);
-                    moveCoroutine = null;
-                }
-            }
-        }
-
-        public void OnVertical(InputAction.CallbackContext context)
+        public void OnNavigateVertical(InputAction.CallbackContext context)
         {
             int verticalValue = (int)context.ReadValue<float>();
 
@@ -122,6 +86,66 @@ namespace Game.Input
             }
         }
 
+        public void OnNavigateHorizontal(InputAction.CallbackContext context)
+        {
+            int horizontalValue = (int)context.ReadValue<float>();
+
+            if (context.performed)
+            {
+                if (horizontalValue != 0)
+                {
+                    horizontalEvent?.Invoke(horizontalValue);
+
+                    if (moveCoroutine != null)
+                        StopCoroutine(moveCoroutine);
+                }
+
+                moveCoroutine = StartCoroutine(RepeatMove(horizontalValue, 0));
+            }
+            else if (context.canceled)
+            {
+                if (moveCoroutine != null)
+                {
+                    StopCoroutine(moveCoroutine);
+                    moveCoroutine = null;
+                }
+            }
+        }
+
+        public void OnSubmit(InputAction.CallbackContext context)
+        {
+            if (context.started)
+                confirmEvent?.Invoke();
+        }
+
+        public void OnCancel(InputAction.CallbackContext context)
+        {
+            if (context.started)
+                backEvent?.Invoke();
+        }
+
+        public void OnPoint(InputAction.CallbackContext context) { }
+        
+        public void OnClick(InputAction.CallbackContext context)
+        {
+            if (context.started)
+                confirmEvent?.Invoke();
+        }
+
+        public void OnScrollWheel(InputAction.CallbackContext context) { }
+
+        public void OnMiddleClick(InputAction.CallbackContext context) { }
+
+        public void OnRightClick(InputAction.CallbackContext context)
+        {
+            if (context.started)
+                backEvent?.Invoke();
+        }
+
+        public void OnTrackedDevicePosition(InputAction.CallbackContext context) { }
+
+        public void OnTrackedDeviceOrientation(InputAction.CallbackContext context) { }
+
         private IEnumerator RepeatMove(int horizontal, int vertical)
         {
             yield return new WaitForSeconds(moveRepeatDelay);
@@ -130,7 +154,7 @@ namespace Game.Input
             {
                 if (horizontal != 0)
                     horizontalEvent?.Invoke(horizontal);
-                
+
                 if (vertical != 0)
                     verticalEvent?.Invoke(vertical);
 
