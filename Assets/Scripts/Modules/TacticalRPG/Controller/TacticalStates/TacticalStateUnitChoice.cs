@@ -34,11 +34,12 @@ public class TacticalStateUnitChoice : TacticalStateBase
         if (hit.HasValue && hit.Value.collider != null)
         {
             var tile = hit.Value.collider.gameObject.GetComponent<Tile>();
+
             if (tile != null)
-            {
                 UpdateCursorPosition(tile.GridPosition);
-            }
         }
+        
+        EventSystem.current.SetSelectedGameObject(Controller.gameObject);
     }
 
     /// <inheritdoc/>

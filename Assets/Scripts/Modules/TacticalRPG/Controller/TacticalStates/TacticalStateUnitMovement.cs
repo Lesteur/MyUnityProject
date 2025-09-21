@@ -41,10 +41,13 @@ public class TacticalStateUnitMovement : TacticalStateBase
         if (hit.HasValue && hit.Value.collider != null)
         {
             var tile = hit.Value.collider.gameObject.GetComponent<Tile>();
+
             if (tile != null)
-            {
                 UpdatePathSelection(tile.GridPosition);
-            }
+        }
+        else
+        {
+            EventSystem.current.SetSelectedGameObject(Controller.gameObject);
         }
     }
 
@@ -71,7 +74,6 @@ public class TacticalStateUnitMovement : TacticalStateBase
     {
         if (selectedPath.IsValid)
         {
-            Debug.Log($"Path confirmed to {selectedPath.Destination.GridPosition}.");
             stateMachine.Controller.MoveUnitPath(SelectedUnit, selectedPath);
         }
     }

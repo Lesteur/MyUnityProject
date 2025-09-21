@@ -58,18 +58,17 @@ public class Unit : MonoBehaviour
 
     private void Awake()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        tacticalController = FindFirstObjectByType<TacticalController>();
+        spriteRenderer      = GetComponent<SpriteRenderer>();
+        tacticalController  = FindFirstObjectByType<TacticalController>();
+        currentTile         = tacticalController.GetTileAt(gridPosition);
 
-        currentTile = tacticalController.GetTileAt(gridPosition);
         currentTile.OccupyingUnit = this;
     }
 
     private void Start()
     {
-        Vector3 tilePosition = currentTile.transform.position;
-        transform.position = new Vector3(tilePosition.x, tilePosition.y + 0.4f, 0);
-
+        Vector3 tilePosition        = currentTile.transform.position;
+        transform.position          = new Vector3(tilePosition.x, tilePosition.y + 0.4f, 0);
         spriteRenderer.sortingOrder = currentTile.GetComponent<SpriteRenderer>().sortingOrder + 1;
     }
 
@@ -106,10 +105,9 @@ public class Unit : MonoBehaviour
                 yield return null;
             }
 
-            transform.position = targetPosition;
+            transform.position          = targetPosition;
             spriteRenderer.sortingOrder = tile.GetComponent<SpriteRenderer>().sortingOrder + 1;
-
-            gridPosition = tile.GridPosition;
+            gridPosition                = tile.GridPosition;
         }
 
         currentTile = tacticalController.GetTileAt(gridPosition);
@@ -125,15 +123,9 @@ public class Unit : MonoBehaviour
     public void SetAvailablePaths(List<PathResult> paths)
     {
         if (paths != null && paths.Count > 0)
-        {
             AvailablePaths = paths;
-            Debug.Log($"Unit {name} has {AvailablePaths.Count} available paths.");
-        }
         else
-        {
-            Debug.LogWarning($"No available paths provided for unit {name}.");
             AvailablePaths = new List<PathResult>();
-        }
     }
 
     /// <summary>
@@ -144,11 +136,8 @@ public class Unit : MonoBehaviour
     public SkillData GetSkillByIndex(int index)
     {
         if (skills != null && index >= 0 && index < skills.Count)
-        {
             return skills[index];
-        }
-
-        Debug.LogWarning($"Skill index {index} is out of range for unit {name}.");
+        
         return null;
     }
 }

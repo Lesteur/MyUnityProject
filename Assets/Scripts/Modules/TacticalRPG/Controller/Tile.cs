@@ -1,15 +1,33 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// Represents a single tile on the tactical grid, including position, terrain, and unit occupancy.
 /// </summary>
 [RequireComponent(typeof(SpriteRenderer))]
-public class Tile : MonoBehaviour
+public class Tile : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler
 {
     [SerializeField] private TileData tileData;
     [SerializeField] private TerrainType terrainType = TerrainType.Grass; // Default terrain
 
     private SpriteRenderer spriteRenderer;
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        Debug.Log($"Pointer entered tile at {GridPosition}");
+        // Handle pointer enter on tile
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            Debug.Log($"Left click on tile at {GridPosition}");
+            // Handle left click on tile
+
+            TacticalController.Instance.OnPointerClick(eventData);
+        }
+    }
 
     /// <summary>
     /// The tile's grid position in the tactical map.
@@ -46,11 +64,11 @@ public class Tile : MonoBehaviour
     /// </summary>
     public void Initialize(TileData data, Vector2Int position, int tileHeight, int index)
     {
-        tileData = data;
-        GridPosition = position;
-        Height = tileHeight;
-        Index = index;
-        terrainType = data.terrainType;
+        tileData        = data;
+        GridPosition    = position;
+        Height          = tileHeight;
+        Index           = index;
+        terrainType     = data.terrainType;
 
         gameObject.name = $"Tile_{position.x}_{position.y}_H{Height}";
     }

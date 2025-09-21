@@ -40,23 +40,13 @@ public class TacticalStateMainMenu : TacticalStateBase
         switch (buttonIndex)
         {
             case 0: // Move
-                Debug.Log("Switching to Unit Movement State");
-                stateMachine.EnterState(stateMachine.UnitMovementState);
-                break;
-
+                stateMachine.EnterState(stateMachine.UnitMovementState); break;
             case 1: // Skills
-                Debug.Log("Switching to Skill Menu State");
-                stateMachine.EnterState(stateMachine.SkillMenuState);
-                break;
-
+                stateMachine.EnterState(stateMachine.SkillMenuState); break;
             case 2: // End Turn
-                Debug.Log("Ending turn (not yet implemented).");
-                // TODO: Add end-turn logic
-                break;
-
+                Debug.Log("Ending turn (not yet implemented)."); break;
             default:
-                Debug.LogWarning($"Unhandled button index: {buttonIndex}");
-                break;
+                Debug.LogWarning($"Unhandled button index: {buttonIndex}"); break;
         }
     }
 

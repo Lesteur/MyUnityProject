@@ -34,20 +34,14 @@ public class TacticalStateSkillMenu : TacticalStateBase
     {
         if (Controller.SelectedUnit == null)
         {
-            Debug.LogWarning("No unit is currently selected.");
+            selectedSkill = null;
             return;
         }
 
         if (buttonIndex >= 0 && buttonIndex < Controller.SelectedUnit.Skills.Count)
-        {
             selectedSkill = Controller.SelectedUnit.GetSkillByIndex(buttonIndex);
-            Debug.Log($"Selected Skill: {selectedSkill.SkillName}");
-        }
         else
-        {
-            Debug.LogWarning($"Invalid skill button index: {buttonIndex}");
             selectedSkill = null;
-        }
 
         UpdateRendering();
     }
@@ -55,7 +49,6 @@ public class TacticalStateSkillMenu : TacticalStateBase
     /// <inheritdoc/>
     public override void Exit()
     {
-        Debug.Log("Exiting Skill Menu State");
         Controller.TacticalMenu.Hide();
     }
 
@@ -64,9 +57,7 @@ public class TacticalStateSkillMenu : TacticalStateBase
     {
         // Reset all tiles first
         foreach (Tile tile in Controller.Grid)
-        {
             tile?.ResetIllumination();
-        }
 
         if (selectedSkill == null || Controller.SelectedUnit == null) return;
 
@@ -76,8 +67,6 @@ public class TacticalStateSkillMenu : TacticalStateBase
             Controller);
 
         foreach (Tile tile in affectedTiles)
-        {
             tile?.Illuminate(Color.blue); // Example: highlight affected area
-        }
     }
 }

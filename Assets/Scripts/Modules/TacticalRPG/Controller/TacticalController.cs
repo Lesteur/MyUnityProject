@@ -2,12 +2,11 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
-using Game.Input;
 
 /// <summary>
 /// Manages the tactical grid, units, and state machine. Handles input and unit interactions.
 /// </summary>
-public class TacticalController : MonoBehaviour, IMoveHandler, ISubmitHandler, ICancelHandler
+public class TacticalController : MonoBehaviour, IMoveHandler, ISubmitHandler, ICancelHandler, IPointerClickHandler
 {
     [Header("Grid Settings")]
     [SerializeField] private int width;
@@ -23,6 +22,11 @@ public class TacticalController : MonoBehaviour, IMoveHandler, ISubmitHandler, I
     private Tile[,] grid;
     private Pathfinding pathfinding;
     private TacticalStateMachine stateMachine;
+
+    /// <summary>
+    /// Singleton instance of the TacticalController.
+    /// </summary>
+    public static TacticalController Instance { get; private set; }
 
     /// <summary>
     /// Currently selected unit on the grid.
@@ -56,13 +60,20 @@ public class TacticalController : MonoBehaviour, IMoveHandler, ISubmitHandler, I
 
     private void Awake()
     {
-        Debug.Log("TacticalController Awake called.");
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
 
         pathfinding = GetComponent<Pathfinding>();
+
         GenerateGrid();
 
         if (grid == null || grid.Length == 0)
-            Debug.LogError("Grid has not been initialized properly.");
+            Debug.LogError("Grid has not been initialized properly in TacticalController.");
 
         stateMachine = new TacticalStateMachine(this);
     }
@@ -78,36 +89,22 @@ public class TacticalController : MonoBehaviour, IMoveHandler, ISubmitHandler, I
         SelectedUnit = null;
     }
 
-    private void OnEnable()
-    {
-        if (InputReader.Instance == null)
-        {
-            Debug.LogError("InputReader instance is null. Ensure InputReader is initialized before TacticalController.");
-            return;
-        }
-    }
-
-    private void OnDisable()
-    {
-        if (InputReader.Instance == null) return;
-    }
-
     private void Update()
     {
-        if (stateMachine == null || InputReader.Instance == null) return;
+        if (stateMachine == null) return;
+
         stateMachine.Update();
     }
 
     private void FixedUpdate()
     {
-        if (stateMachine == null || InputReader.Instance == null) return;
+        if (stateMachine == null) return;
+
         stateMachine.PhysicsUpdate();
     }
 
     public void OnMove(AxisEventData eventData)
     {
-        Debug.Log("OnMove event received.");
-
         Vector2 move = eventData.moveVector;
 
         if (Mathf.Abs(move.x) > Mathf.Abs(move.y))
@@ -124,15 +121,21 @@ public class TacticalController : MonoBehaviour, IMoveHandler, ISubmitHandler, I
 
     public void OnSubmit(BaseEventData eventData)
     {
-        Debug.Log("OnSubmit event received.");
+        stateMachine.CurrentState.ConfirmKey();
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        Debug.Log("Pointer Clicked on TacticalController");
+
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
 
         stateMachine.CurrentState.ConfirmKey();
     }
 
     public void OnCancel(BaseEventData eventData)
     {
-        Debug.Log("OnCancel event received.");
-
         stateMachine.CurrentState.CancelKey();
     }
 
@@ -142,7 +145,6 @@ public class TacticalController : MonoBehaviour, IMoveHandler, ISubmitHandler, I
     /// <param name="buttonIndex">The index of the clicked button.</param>
     public void OnClickButton(int buttonIndex)
     {
-        Debug.Log($"Button {buttonIndex} clicked.");
         stateMachine.CurrentState.OnClickButton(buttonIndex);
     }
 
@@ -196,11 +198,6 @@ public class TacticalController : MonoBehaviour, IMoveHandler, ISubmitHandler, I
         {
             stateMachine.EnterState(stateMachine.ActingUnitState);
             unit.GetPath(path);
-            Debug.Log($"Unit {unit.name} is moving to {path.Destination.GridPosition}.");
-        }
-        else
-        {
-            Debug.LogWarning("No valid path selected for confirmation.");
         }
     }
 
@@ -211,7 +208,6 @@ public class TacticalController : MonoBehaviour, IMoveHandler, ISubmitHandler, I
     public void SelectUnit(Unit unit)
     {
         SelectedUnit = unit;
-        Debug.Log($"Unit {unit.name} selected at position {unit.GridPosition}.");
     }
 
     /// <summary>
@@ -276,9 +272,9 @@ public class TacticalController : MonoBehaviour, IMoveHandler, ISubmitHandler, I
         {
             for (int y = 0; y < height; y++)
             {
-                Vector3 start = new(transform.position.x + 0.5f * (x - y), transform.position.y - 0.25f * (x + y) + 0.5f, 0);
-                Vector3 endX = new(transform.position.x + 0.5f * (x + 1 - y), transform.position.y - 0.25f * (x + 1 + y) + 0.5f, 0);
-                Vector3 endY = new(transform.position.x + 0.5f * (x - (y + 1)), transform.position.y - 0.25f * (x + (y + 1)) + 0.5f, 0);
+                Vector3 start   = new(transform.position.x + 0.5f * (x - y), transform.position.y - 0.25f * (x + y) + 0.5f, 0);
+                Vector3 endX    = new(transform.position.x + 0.5f * (x + 1 - y), transform.position.y - 0.25f * (x + 1 + y) + 0.5f, 0);
+                Vector3 endY    = new(transform.position.x + 0.5f * (x - (y + 1)), transform.position.y - 0.25f * (x + (y + 1)) + 0.5f, 0);
 
                 Gizmos.DrawLine(start, endX);
                 Gizmos.DrawLine(start, endY);

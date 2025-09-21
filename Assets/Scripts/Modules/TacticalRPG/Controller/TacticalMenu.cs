@@ -1,11 +1,13 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 
 /// <summary>
 /// Handles displaying and managing the tactical menu UI, including main actions and skill selections.
 /// </summary>
-public class TacticalMenu : MonoBehaviour, ICancelHandler
+public class TacticalMenu : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private UIDocument tacticalMenuDocument;
@@ -20,6 +22,7 @@ public class TacticalMenu : MonoBehaviour, ICancelHandler
     private Button itemsButton;
     private Button statusButton;
     private Button endTurnButton;
+    private InputAction cancelAction;
 
     private readonly Button[] skillButtons = new Button[5];
 
@@ -40,19 +43,17 @@ public class TacticalMenu : MonoBehaviour, ICancelHandler
             return;
         }
 
-        mainMenu = root.Q<VisualElement>("MainMenu");
-        skillMenu = root.Q<VisualElement>("SkillMenu");
+        mainMenu        = root.Q<VisualElement>("MainMenu");
+        skillMenu       = root.Q<VisualElement>("SkillMenu");
 
-        moveButton   = root.Q<Button>("Move");
-        skillsButton = root.Q<Button>("Skills");
-        itemsButton  = root.Q<Button>("Items");
-        statusButton = root.Q<Button>("Status");
-        endTurnButton = root.Q<Button>("EndTurn");
+        moveButton      = root.Q<Button>("Move");
+        skillsButton    = root.Q<Button>("Skills");
+        itemsButton     = root.Q<Button>("Items");
+        statusButton    = root.Q<Button>("Status");
+        endTurnButton   = root.Q<Button>("EndTurn");
 
         for (int i = 0; i < skillButtons.Length; i++)
-        {
             skillButtons[i] = root.Q<Button>($"Skill{i}");
-        }
 
         // Hide the menu on startup
         root.style.display = DisplayStyle.None;
@@ -60,36 +61,50 @@ public class TacticalMenu : MonoBehaviour, ICancelHandler
 
     private void OnEnable()
     {
-        moveButton.clicked   += () => OnMainMenuClicked(0);
-        skillsButton.clicked += () => OnMainMenuClicked(1);
-        itemsButton.clicked  += OnItemsClicked;
-        statusButton.clicked += OnStatusClicked;
-        endTurnButton.clicked += OnEndTurnClicked;
+        var eventSystem = EventSystem.current;
+        if (eventSystem == null)
+        {
+            Debug.LogError($"{nameof(TacticalMenu)}: No EventSystem found in the scene.");
+            return;
+        }
+
+        var uiModule = eventSystem.GetComponent<InputSystemUIInputModule>();
+        cancelAction = uiModule.cancel.action;
+
+        // Bind button click events
+        cancelAction.performed  += ctx => OnCancel();
+        moveButton.clicked      += () => OnMainMenuClicked(0);
+        skillsButton.clicked    += () => OnMainMenuClicked(1);
+        itemsButton.clicked     += OnItemsClicked;
+        statusButton.clicked    += OnStatusClicked;
+        endTurnButton.clicked   += OnEndTurnClicked;
+
+        // Get the Cancel action from the EventSystem and bind it to OnCancel
 
         for (int i = 0; i < skillButtons.Length; i++)
         {
             int index = i; // Capture loop variable
+
             if (skillButtons[i] != null)
-            {
                 skillButtons[i].clicked += () => OnSkillClicked(index);
-            }
         }
     }
 
     private void OnDisable()
     {
-        moveButton.clicked   -= () => OnMainMenuClicked(0);
-        skillsButton.clicked -= () => OnMainMenuClicked(1);
-        itemsButton.clicked  -= OnItemsClicked;
-        statusButton.clicked -= OnStatusClicked;
-        endTurnButton.clicked -= OnEndTurnClicked;
+        moveButton.clicked      -= () => OnMainMenuClicked(0);
+        skillsButton.clicked    -= () => OnMainMenuClicked(1);
+        itemsButton.clicked     -= OnItemsClicked;
+        statusButton.clicked    -= OnStatusClicked;
+        endTurnButton.clicked   -= OnEndTurnClicked;
+
+        if (cancelAction != null)
+            cancelAction.performed -= ctx => OnCancel();
 
         for (int i = 0; i < skillButtons.Length; i++)
         {
             if (skillButtons[i] != null)
-            {
                 skillButtons[i].clicked -= () => OnSkillClicked(i);
-            }
         }
     }
 
@@ -99,7 +114,6 @@ public class TacticalMenu : MonoBehaviour, ICancelHandler
 
     private void OnMainMenuClicked(int buttonIndex)
     {
-        Debug.Log($"Main menu button {buttonIndex} clicked.");
         controller.OnClickButton(buttonIndex);
     }
 
@@ -120,14 +134,12 @@ public class TacticalMenu : MonoBehaviour, ICancelHandler
 
     private void OnSkillClicked(int skillIndex)
     {
-        Debug.Log($"Skill {skillIndex} button clicked.");
         controller.OnClickButton(skillIndex);
     }
 
-    public void OnCancel(BaseEventData eventData)
+    public void OnCancel()
     {
-        Debug.Log("Cancel event received in TacticalMenu.");
-        controller.OnCancel(eventData);
+        controller.OnCancel(null);
     }
 
     #endregion
@@ -141,8 +153,8 @@ public class TacticalMenu : MonoBehaviour, ICancelHandler
     {
         if (root == null) return;
 
-        root.style.display = DisplayStyle.Flex;
-        mainMenu.style.display = DisplayStyle.Flex;
+        root.style.display      = DisplayStyle.Flex;
+        mainMenu.style.display  = DisplayStyle.Flex;
         skillMenu.style.display = DisplayStyle.None;
 
         moveButton?.Focus();
@@ -156,7 +168,6 @@ public class TacticalMenu : MonoBehaviour, ICancelHandler
         if (root == null) return;
 
         Unit selectedUnit = controller.SelectedUnit;
-
         if (selectedUnit == null)
         {
             Debug.LogWarning("No unit is currently selected. Cannot show skill menu.");
@@ -168,12 +179,13 @@ public class TacticalMenu : MonoBehaviour, ICancelHandler
         {
             if (i < selectedUnit.Skills.Count)
             {
-                SkillData skill = selectedUnit.GetSkillByIndex(i);
-                string localizedSkillName = skill.SkillName.GetLocalizedString();
+                SkillData skill         = selectedUnit.GetSkillByIndex(i);
+                var localizedSkillName  = skill.SkillName.GetLocalizedString();
 
-                skillButtons[i].text = skill != null ? localizedSkillName : "N/A";
+                skillButtons[i].text            = skill != null ? localizedSkillName : "N/A";
+                skillButtons[i].style.display   = DisplayStyle.Flex;
+
                 skillButtons[i].SetEnabled(skill != null);
-                skillButtons[i].style.display = DisplayStyle.Flex;
             }
             else
             {
@@ -181,8 +193,8 @@ public class TacticalMenu : MonoBehaviour, ICancelHandler
             }
         }
 
-        root.style.display = DisplayStyle.Flex;
-        mainMenu.style.display = DisplayStyle.None;
+        root.style.display      = DisplayStyle.Flex;
+        mainMenu.style.display  = DisplayStyle.None;
         skillMenu.style.display = DisplayStyle.Flex;
 
         skillButtons[0]?.Focus();
@@ -195,8 +207,8 @@ public class TacticalMenu : MonoBehaviour, ICancelHandler
     {
         if (root == null) return;
 
-        root.style.display = DisplayStyle.None;
-        mainMenu.style.display = DisplayStyle.None;
+        root.style.display      = DisplayStyle.None;
+        mainMenu.style.display  = DisplayStyle.None;
         skillMenu.style.display = DisplayStyle.None;
     }
 
