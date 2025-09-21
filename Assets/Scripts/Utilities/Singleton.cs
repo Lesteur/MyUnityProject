@@ -10,7 +10,7 @@ public abstract class Singleton<T> : StaticInstance<T> where T : Singleton<T>
     /// <remarks> This is used to prevent multiple instances of the same object </remarks>
     protected override void Awake()
     {
-        if (instance != null && instance != this)
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;

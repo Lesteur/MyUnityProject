@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 /// <summary>
 /// Manages the tactical grid, units, and state machine. Handles input and unit interactions.
 /// </summary>
-public class TacticalController : MonoBehaviour, IMoveHandler, ISubmitHandler, ICancelHandler, IPointerClickHandler
+public class TacticalController : Singleton<TacticalController>, IMoveHandler, ISubmitHandler, ICancelHandler, IPointerClickHandler
 {
     [Header("Grid Settings")]
     [SerializeField] private int width;
@@ -22,11 +22,6 @@ public class TacticalController : MonoBehaviour, IMoveHandler, ISubmitHandler, I
     private Tile[,] grid;
     private Pathfinding pathfinding;
     private TacticalStateMachine stateMachine;
-
-    /// <summary>
-    /// Singleton instance of the TacticalController.
-    /// </summary>
-    public static TacticalController Instance { get; private set; }
 
     /// <summary>
     /// Currently selected unit on the grid.
@@ -58,15 +53,9 @@ public class TacticalController : MonoBehaviour, IMoveHandler, ISubmitHandler, I
     /// </summary>
     public Pathfinding Pathfinding => pathfinding;
 
-    private void Awake()
+    protected override void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
+        base.Awake();
 
         pathfinding = GetComponent<Pathfinding>();
 

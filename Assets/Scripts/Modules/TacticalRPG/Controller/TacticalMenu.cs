@@ -7,11 +7,10 @@ using UnityEngine.InputSystem.UI;
 /// <summary>
 /// Handles displaying and managing the tactical menu UI, including main actions and skill selections.
 /// </summary>
-public class TacticalMenu : MonoBehaviour
+public class TacticalMenu : Singleton<TacticalMenu>
 {
     [Header("References")]
     [SerializeField] private UIDocument tacticalMenuDocument;
-    [SerializeField] private TacticalController controller;
 
     private VisualElement root;
     private VisualElement mainMenu;
@@ -28,8 +27,10 @@ public class TacticalMenu : MonoBehaviour
 
     #region Unity Lifecycle
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         if (tacticalMenuDocument == null)
         {
             Debug.LogError($"{nameof(TacticalMenu)}: UIDocument reference is missing.");
@@ -114,7 +115,7 @@ public class TacticalMenu : MonoBehaviour
 
     private void OnMainMenuClicked(int buttonIndex)
     {
-        controller.OnClickButton(buttonIndex);
+        TacticalController.Instance.OnClickButton(buttonIndex);
     }
 
     private void OnItemsClicked()
@@ -134,12 +135,12 @@ public class TacticalMenu : MonoBehaviour
 
     private void OnSkillClicked(int skillIndex)
     {
-        controller.OnClickButton(skillIndex);
+        TacticalController.Instance.OnClickButton(skillIndex);
     }
 
     public void OnCancel()
     {
-        controller.OnCancel(null);
+        TacticalController.Instance.OnCancel(null);
     }
 
     #endregion
@@ -167,7 +168,7 @@ public class TacticalMenu : MonoBehaviour
     {
         if (root == null) return;
 
-        Unit selectedUnit = controller.SelectedUnit;
+        Unit selectedUnit = TacticalController.Instance.SelectedUnit;
         if (selectedUnit == null)
         {
             Debug.LogWarning("No unit is currently selected. Cannot show skill menu.");

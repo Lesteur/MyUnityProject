@@ -14,7 +14,7 @@ public class SingletonPersistent<T> : Singleton<T> where T : SingletonPersistent
         base.Awake();
 
         // Only mark persistent if this is the active instance
-        if (instance == this)
+        if (Instance == this)
             DontDestroyOnLoad(gameObject);
 
         // Set the name of the object to the type of the singleton

@@ -6,19 +6,19 @@ using UnityEngine;
 public abstract class StaticInstance<T> : MonoBehaviour where T : StaticInstance<T>
 {
     /// <summary> The static instance of the class </summary>
-    public static T instance { get; private set; }
+    public static T Instance { get; private set; }
 
 
     /// <summary> Called when the object is created </summary>
     /// <remarks> Set the instance to this object </remarks>
-    protected virtual void Awake() => instance = this as T;
+    protected virtual void Awake() => Instance = this as T;
 
 
     /// <summary> Called when the object is destroyed </summary>
     /// <remarks> Set the instance to null if it is the same as this object </remarks>
     protected virtual void OnDestroy()
     {
-        if (instance == (this as T))
-            instance = null;
+        if (Instance == (this as T))
+            Instance = null;
     }
 }

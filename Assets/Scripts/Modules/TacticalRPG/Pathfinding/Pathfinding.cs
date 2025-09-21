@@ -8,14 +8,6 @@ using UnityEngine.Pool;
 /// </summary>
 public class Pathfinding : MonoBehaviour
 {
-    [SerializeField] private TacticalController tacticalController;
-
-    private void Start()
-    {
-        if (tacticalController == null)
-            tacticalController = FindFirstObjectByType<TacticalController>();
-    }
-
     /// <summary>
     /// Finds the optimal path from a start tile to a target tile using the A* algorithm.
     /// </summary>
@@ -25,8 +17,8 @@ public class Pathfinding : MonoBehaviour
     /// <returns>List of tiles representing the path, or null if no path found.</returns>
     public List<Tile> FindPath(Vector2Int start, Vector2Int target, Unit unit)
     {
-        Tile startTile  = tacticalController.GetTileAt(start);
-        //Tile targetTile = tacticalController.GetTileAt(target);
+        Tile startTile  = TacticalController.Instance.GetTileAt(start);
+        //Tile targetTile = TacticalController.Instance.GetTileAt(target);
 
         var queue       = new PriorityQueue<TileNode>();
         var closedSet   = ListPool<Vector2Int>.Get();
@@ -75,7 +67,7 @@ public class Pathfinding : MonoBehaviour
     public List<Tile> GetReachableTiles(Vector2Int start, Unit unit)
     {
         int maxMovementPoints   = unit.MovementPoints;
-        Tile startTile          = tacticalController.GetTileAt(start);
+        Tile startTile          = TacticalController.Instance.GetTileAt(start);
 
         var reachableTiles  = ListPool<Tile>.Get();
         var visited         = DictionaryPool<Vector2Int, int>.Get();
@@ -119,7 +111,7 @@ public class Pathfinding : MonoBehaviour
     public List<PathResult> GetAllPathsFrom(Vector2Int start, Unit unit)
     {
         int maxMovementPoints = unit.MovementPoints;
-        Tile startTile = tacticalController.GetTileAt(start);
+        Tile startTile = TacticalController.Instance.GetTileAt(start);
 
         var results     = ListPool<PathResult>.Get();
         var visited     = DictionaryPool<Vector2Int, int>.Get();
@@ -269,7 +261,7 @@ public class Pathfinding : MonoBehaviour
             int moveSteps           = 1;
             int jumpCount           = 0;
             Vector2Int currentPos   = startTile.GridPosition + dir;
-            Tile jumpTile           = tacticalController.GetTileAt(currentPos);
+            Tile jumpTile           = TacticalController.Instance.GetTileAt(currentPos);
 
             if (closedSet != null && closedSet.Contains(currentPos))
                 continue; // Skip if already visited
@@ -296,7 +288,7 @@ public class Pathfinding : MonoBehaviour
                         jumpCount ++;
                         currentPos += dir;
 
-                        jumpTile = tacticalController.GetTileAt(currentPos);
+                        jumpTile = TacticalController.Instance.GetTileAt(currentPos);
 
                         continue;
                     }
@@ -321,7 +313,7 @@ public class Pathfinding : MonoBehaviour
                 jumpCount ++;
                 currentPos += dir;
 
-                jumpTile = tacticalController.GetTileAt(currentPos);
+                jumpTile = TacticalController.Instance.GetTileAt(currentPos);
             }
         }
     }
@@ -366,7 +358,7 @@ public class Pathfinding : MonoBehaviour
 
         foreach (var dir in directions)
         {
-            Tile neighbor = tacticalController.GetTileAt(tile.GridPosition + dir);
+            Tile neighbor = TacticalController.Instance.GetTileAt(tile.GridPosition + dir);
             if (neighbor != null)
                 neighbors.Add(neighbor);
         }
