@@ -18,7 +18,6 @@ public class Unit : MonoBehaviour
     [SerializeField] private Tile currentTile;
 
     private SpriteRenderer spriteRenderer;
-    private TacticalController tacticalController;
     private PathResult pathToFollow;
 
     /// <summary>
@@ -58,18 +57,16 @@ public class Unit : MonoBehaviour
 
     private void Awake()
     {
-        spriteRenderer      = GetComponent<SpriteRenderer>();
-        tacticalController  = FindFirstObjectByType<TacticalController>();
-        currentTile         = tacticalController.GetTileAt(gridPosition);
-
-        currentTile.OccupyingUnit = this;
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     private void Start()
     {
-        Vector3 tilePosition        = currentTile.transform.position;
-        transform.position          = new Vector3(tilePosition.x, tilePosition.y + 0.4f, 0);
-        spriteRenderer.sortingOrder = currentTile.GetComponent<SpriteRenderer>().sortingOrder + 1;
+        currentTile =  TacticalController.Instance.GetTileAt(gridPosition);
+        currentTile.OccupyingUnit = this;
+        
+        Vector3 tilePosition = currentTile.transform.position;
+        transform.position = new Vector3(tilePosition.x, tilePosition.y + 0.3f, 0);
     }
 
     /// <summary>
@@ -97,7 +94,7 @@ public class Unit : MonoBehaviour
 
         foreach (Tile tile in pathToFollow.Path)
         {
-            Vector3 targetPosition = new(tile.transform.position.x, tile.transform.position.y + 0.4f, 0);
+            Vector3 targetPosition = new(tile.transform.position.x, tile.transform.position.y + 0.3f, 0);
 
             while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
             {
@@ -106,14 +103,13 @@ public class Unit : MonoBehaviour
             }
 
             transform.position          = targetPosition;
-            spriteRenderer.sortingOrder = tile.GetComponent<SpriteRenderer>().sortingOrder + 1;
             gridPosition                = tile.GridPosition;
         }
 
-        currentTile = tacticalController.GetTileAt(gridPosition);
+        currentTile = TacticalController.Instance.GetTileAt(gridPosition);
         currentTile.OccupyingUnit = this;
 
-        tacticalController.OnUnitFinishedAction(this);
+        TacticalController.Instance.OnUnitFinishedAction(this);
     }
 
     /// <summary>

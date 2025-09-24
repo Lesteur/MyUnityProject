@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
+using UnityEngine.Tilemaps;
 
 /// <summary>
 /// Manages the tactical grid, units, and state machine. Handles input and unit interactions.
@@ -9,19 +10,19 @@ using UnityEngine.EventSystems;
 public class TacticalController : Singleton<TacticalController>, IMoveHandler, ISubmitHandler, ICancelHandler, IPointerClickHandler
 {
     [Header("Grid Settings")]
-    [SerializeField] private int width;
-    [SerializeField] private int height;
     [SerializeField] private GameObject tilePrefab;
     [SerializeField] private TileData defaultTileData;
     [SerializeField] private GameObject cursor;
+    [SerializeField] private List<Tilemap> tilemaps = new();
 
     [Header("Units & UI")]
     [SerializeField] private List<Unit> units = new();
-    [SerializeField] private TacticalMenu tacticalMenu;
 
     private Tile[,] grid;
     private Pathfinding pathfinding;
     private TacticalStateMachine stateMachine;
+    private int width;
+    private int height;
 
     /// <summary>
     /// Currently selected unit on the grid.
@@ -42,11 +43,6 @@ public class TacticalController : Singleton<TacticalController>, IMoveHandler, I
     /// List of all units on the battlefield.
     /// </summary>
     public List<Unit> Units => units;
-
-    /// <summary>
-    /// Reference to the tactical menu UI.
-    /// </summary>
-    public TacticalMenu TacticalMenu => tacticalMenu;
 
     /// <summary>
     /// Reference to the pathfinding system.
@@ -200,74 +196,100 @@ public class TacticalController : Singleton<TacticalController>, IMoveHandler, I
     }
 
     /// <summary>
-    /// Generates the isometric grid and initializes tiles.
+    /// Generates the isometric grid and initializes tiles using the tilemap.
     /// </summary>
     private void GenerateGrid()
     {
         int index = 0;
-        int orderOffset = 150;
+        int orderOffset = 10;
+        
+        var tilemap = tilemaps[0];
+
+        BoundsInt tilemapBounds = tilemap.cellBounds;
+        width  = tilemapBounds.size.x;
+        height = tilemapBounds.size.y;
 
         grid = new Tile[width, height];
 
-        for (int y = 0; y < height; y++)
+        /*
+        for (int i = 0; i < tilemaps.Count; i++)
         {
-            for (int x = 0; x < width; x++)
+            Tilemap tm = tilemaps[i];
+            if (tm == null) continue;
+
+            foreach (Vector3Int pos in tm.cellBounds.allPositionsWithin)
             {
-                int trueHeight = (y == 0) ? x : 0;
+                if (!tm.HasTile(pos))
+                    continue;
 
-                if (x % 3 == 0 && y % 3 == 0)
-                    trueHeight = 5;
+                int x = pos.x - tilemapBounds.xMin;
+                int y = pos.y - tilemapBounds.yMin;
+                int z = i; // Use the index of the tilemap as height
 
-                GameObject tileObject = null;
-
-                for (int z = 0; z < trueHeight + 1; z++)
+                Tile tile = grid[x, y];
+                if (tile != null)
                 {
-                    Vector3 position = new(
-                        transform.position.x + 0.5f * (x - y),
-                        transform.position.y - 0.25f * (x + y) + z * 0.25f,
-                        0);
-
-                    tileObject = Instantiate(tilePrefab, position, Quaternion.identity, transform);
-                    tileObject.name = $"Tile_{x}_{y}_H{z}";
-                    tileObject.GetComponent<SpriteRenderer>().sortingOrder = (x + y) * orderOffset + z * 15;
-
-                    if (z < trueHeight)
-                    {
-                        var polygonCollider = tileObject.GetComponent<PolygonCollider2D>();
-
-                        if (polygonCollider != null)
-                            Destroy(polygonCollider);
-                    }
+                    Debug.LogWarning($"Multiple tiles found at position ({x}, {y}). Overwriting previous tile.");
                 }
 
-                Tile tile = tileObject.GetComponent<Tile>();
+                Vector3 position = tm.CellToWorld(pos) + new Vector3(0, 0.25f, 0);
+
+                GameObject tileObject = Instantiate(tilePrefab, position, Quaternion.identity, transform);
+                tileObject.name = $"Tile_{x}_{y}_H{z}";
+
+                tile = tileObject.GetComponent<Tile>();
                 if (tile == null)
                 {
                     Debug.LogError("Tile prefab must have a Tile component attached.");
                     continue;
                 }
 
-                tile.Initialize(defaultTileData, new Vector2Int(x, y), trueHeight, index);
+                tile.Initialize(defaultTileData, new Vector2Int(x, y), z, index);
                 grid[x, y] = tile;
+
+                index++;
             }
         }
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.green;
-
-        for (int x = 0; x < width; x++)
+        */
+        
+        foreach (Vector3Int pos in tilemapBounds.allPositionsWithin)
         {
-            for (int y = 0; y < height; y++)
-            {
-                Vector3 start   = new(transform.position.x + 0.5f * (x - y), transform.position.y - 0.25f * (x + y) + 0.5f, 0);
-                Vector3 endX    = new(transform.position.x + 0.5f * (x + 1 - y), transform.position.y - 0.25f * (x + 1 + y) + 0.5f, 0);
-                Vector3 endY    = new(transform.position.x + 0.5f * (x - (y + 1)), transform.position.y - 0.25f * (x + (y + 1)) + 0.5f, 0);
+            TileBase tileBase = tilemap.GetTile(pos);
 
-                Gizmos.DrawLine(start, endX);
-                Gizmos.DrawLine(start, endY);
+            if (tileBase == null)
+                continue;
+
+            GameObject tileObject = null;
+
+            int x = pos.x - tilemapBounds.xMin;
+            int y = pos.y - tilemapBounds.yMin;
+            int z = pos.z; // Use the z-coordinate as height
+
+            if (grid[x, y] != null)
+            {
+                Debug.LogWarning($"Multiple tiles found at position ({x}, {y}). Overwriting previous tile.");
+
+                Destroy(grid[x, y].gameObject);
+                grid[x, y] = null;
             }
+
+            Vector3 position = tilemap.CellToWorld(pos) + new Vector3(0, 0.25f, 0);
+
+            tileObject = Instantiate(tilePrefab, position, Quaternion.identity, transform);
+            tileObject.name = $"Tile_{x}_{y}_H{z}";
+
+            Tile tile = tileObject.GetComponent<Tile>();
+            if (tile == null)
+            {
+                Debug.LogError("Tile prefab must have a Tile component attached.");
+                continue;
+            }
+
+            tile.Initialize(defaultTileData, new Vector2Int(x, y), z, index);
+            grid[x, y] = tile;
+
+            index++;
         }
+
     }
 }

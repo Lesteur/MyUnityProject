@@ -87,9 +87,8 @@ public class TacticalStateUnitMovement : TacticalStateBase
     /// <inheritdoc/>
     public override void UpdateRendering()
     {
-        Controller.Cursor.transform.position = Controller.Grid[positionCursor.x, positionCursor.y].transform.position + new Vector3(0, 0.25f, 0);
-        Controller.Cursor.GetComponent<SpriteRenderer>().sortingOrder = Controller.Grid[positionCursor.x, positionCursor.y].GetComponent<SpriteRenderer>().sortingOrder;
-
+        Controller.Cursor.transform.position = Controller.Grid[positionCursor.x, positionCursor.y].transform.position;
+        
         foreach (Tile tile in stateMachine.Controller.Grid)
         {
             if (tile == null) continue;

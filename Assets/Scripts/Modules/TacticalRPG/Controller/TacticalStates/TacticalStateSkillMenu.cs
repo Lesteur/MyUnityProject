@@ -19,7 +19,7 @@ public class TacticalStateSkillMenu : TacticalStateBase
         Debug.Log("Entering Skill Menu State");
 
         selectedSkill = null;
-        Controller.TacticalMenu.ShowSkillMenu();
+        TacticalMenu.Instance.ShowSkillMenu();
         UpdateRendering();
     }
 
@@ -49,7 +49,8 @@ public class TacticalStateSkillMenu : TacticalStateBase
     /// <inheritdoc/>
     public override void Exit()
     {
-        Controller.TacticalMenu.Hide();
+        TacticalMenu.Instance.Hide();
+        selectedSkill = null;
     }
 
     /// <inheritdoc/>

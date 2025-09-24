@@ -4,13 +4,11 @@ using UnityEngine.EventSystems;
 /// <summary>
 /// Represents a single tile on the tactical grid, including position, terrain, and unit occupancy.
 /// </summary>
-[RequireComponent(typeof(SpriteRenderer))]
 public class Tile : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler
 {
+    [SerializeField] private SpriteRenderer tileSprite;
     [SerializeField] private TileData tileData;
     [SerializeField] private TerrainType terrainType = TerrainType.Grass; // Default terrain
-
-    private SpriteRenderer spriteRenderer;
 
     public void OnPointerEnter(PointerEventData eventData)
     {
@@ -54,11 +52,6 @@ public class Tile : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler
     /// </summary>
     public TerrainType TerrainType => terrainType;
 
-    private void Awake()
-    {
-        spriteRenderer = GetComponent<SpriteRenderer>();
-    }
-
     /// <summary>
     /// Initializes this tile with data and grid parameters.
     /// </summary>
@@ -87,10 +80,18 @@ public class Tile : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler
     /// <summary>
     /// Highlights this tile with a specified color.
     /// </summary>
-    public void Illuminate(Color color) => spriteRenderer.color = color;
+    public void Illuminate(Color color)
+    {
+        tileSprite.enabled = true;
+        tileSprite.color = color;
+    }
 
     /// <summary>
     /// Resets the tile's visual highlight to its default state.
     /// </summary>
-    public void ResetIllumination() => spriteRenderer.color = Color.white;
+    public void ResetIllumination()
+    {
+        tileSprite.enabled = false;
+        tileSprite.color = Color.white;
+    }
 }

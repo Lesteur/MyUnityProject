@@ -18,7 +18,7 @@ public class TacticalStateMainMenu : TacticalStateBase
     {
         Debug.Log("Entering Main Menu State");
 
-        Controller.TacticalMenu.ShowMainMenu();
+        TacticalMenu.Instance.ShowMainMenu();
         UpdateRendering();
     }
 
@@ -53,7 +53,7 @@ public class TacticalStateMainMenu : TacticalStateBase
     /// <inheritdoc/>
     public override void Exit()
     {
-        Controller.TacticalMenu.Hide();
+        TacticalMenu.Instance.Hide();
     }
 
     /// <inheritdoc/>
