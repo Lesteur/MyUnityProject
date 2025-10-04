@@ -603,7 +603,7 @@ MonoBehaviour:
   tilemaps:
   - {fileID: 1261169259}
   - {fileID: 319372283}
-  units:
+  allUnits:
   - {fileID: 684959799}
   - {fileID: 1092169552}
   - {fileID: 786777736}
@@ -655,13 +655,33 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
+      propertyPath: _startPosition.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: skills.Array.size
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
+      propertyPath: _skills.Array.size
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: 'skills.Array.data[0]'
       value: 
       objectReference: {fileID: 11400000, guid: 5df721d11f12fd043ad4dbedd79dbbcc, type: 2}
+    - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
+      propertyPath: '_skills.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 5df721d11f12fd043ad4dbedd79dbbcc, type: 2}
+    - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
+      propertyPath: '_skills.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 72fdcc314e451b44bb737f1d52f41350, type: 2}
+    - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
+      propertyPath: '_skills.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 0123fc1a64e616a44a9f33e801f056f1, type: 2}
     - target: {fileID: 5734348783090883360, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.1028926
@@ -2734,6 +2754,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
+      propertyPath: _unitType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: jumpHeight
       value: 3
       objectReference: {fileID: 0}
@@ -2751,11 +2775,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: movementPoints
-      value: 6
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: startPosition.x
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
+      propertyPath: _startPosition.x
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: skills.Array.size
@@ -2878,7 +2906,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16a7cc55eb4c5f54d94caf8fc1f3be7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tacticalMenuDocument: {fileID: 1906852631}
+  _menuDocument: {fileID: 1906852631}
 --- !u!1001 &1356061123344820155
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2916,6 +2944,10 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
+      propertyPath: _skills.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: 'skills.Array.data[0]'
       value: 
       objectReference: {fileID: 11400000, guid: 5df721d11f12fd043ad4dbedd79dbbcc, type: 2}
@@ -2925,6 +2957,18 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 72fdcc314e451b44bb737f1d52f41350, type: 2}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: 'skills.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 0123fc1a64e616a44a9f33e801f056f1, type: 2}
+    - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
+      propertyPath: '_skills.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 5df721d11f12fd043ad4dbedd79dbbcc, type: 2}
+    - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
+      propertyPath: '_skills.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 72fdcc314e451b44bb737f1d52f41350, type: 2}
+    - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
+      propertyPath: '_skills.Array.data[2]'
       value: 
       objectReference: {fileID: 11400000, guid: 0123fc1a64e616a44a9f33e801f056f1, type: 2}
     - target: {fileID: 5734348783090883360, guid: 44688545346df4b43aee0670d58bedeb, type: 3}

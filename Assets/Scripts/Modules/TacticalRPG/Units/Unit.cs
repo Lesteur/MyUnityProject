@@ -1,238 +1,146 @@
 using UnityEngine;
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
 
 /// <summary>
-/// Represents a unit in the tactical grid, capable of moving across tiles and using skills.
+/// Represents a unit in the tactical grid capable of moving and acting using skills.
 /// </summary>
 public class Unit : MonoBehaviour
 {
-    public enum UnitType
-    {
-        Player,
-        Enemy,
-        Neutral
-    }
+    public enum UnitType { Player, Enemy, Neutral }
 
     [Header("Unit Settings")]
-    [SerializeField] private Vector2Int startPosition;
-    [SerializeField] private int movementPoints;
-    [SerializeField] private int jumpHeight = 1;
-    [SerializeField] private int maxFallHeight = 10;
-    [SerializeField] private UnitType unitType = UnitType.Player;
-    [SerializeField] private List<SkillData> skills = new();
+    [SerializeField] private Vector2Int _startPosition;
+    [SerializeField] private int _movementPoints = 5;
+    [SerializeField] private int _jumpHeight = 1;
+    [SerializeField] private int _maxFallHeight = 10;
+    [SerializeField] private UnitType _unitType = UnitType.Player;
+    [SerializeField] private List<SkillData> _skills = new();
 
-    private Tile currentTile = null;
-    private Tile previousTile = null;
-    private SpriteRenderer spriteRenderer;
-    private PathResult pathToFollow;
-    public bool endTurn = false;
-    private bool actionDone = false;
-    private bool movementDone = false;
-    private List<List<Vector2Int>> movementPatterns = new();
+    private Tile _currentTile;
+    private Tile _previousTile;
+    private SpriteRenderer _spriteRenderer;
+    private PathResult _currentPath;
 
-    /// <summary>
-    /// List of available movement paths for this unit.
-    /// </summary>
+    private readonly List<List<Vector2Int>> _movementPatterns = new();
+
+    public bool EndTurn { get; set; }
+    public bool MovementDone { get; set; }
+    public bool ActionDone { get; set; }
+
     public List<PathResult> AvailablePaths { get; private set; } = new();
+    public Tile CurrentTile => _currentTile;
+    public Tile PreviousTile => _previousTile;
+    public Vector2Int GridPosition => _currentTile != null ? _currentTile.GridPosition : _startPosition;
+    public int MovementPoints => _movementPoints;
+    public int JumpHeight => _jumpHeight;
+    public int MaxFallHeight => _maxFallHeight;
+    public UnitType Type => _unitType;
+    public List<SkillData> Skills => _skills;
+    public List<List<Vector2Int>> MovementPatterns => _movementPatterns;
 
-    /// <summary>
-    /// The tile the unit is currently occupying.
-    /// </summary>
-    public Tile CurrentTile => currentTile;
-
-    /// <summary>
-    /// The current grid position of the unit.
-    /// </summary>
-    public Vector2Int GridPosition => currentTile != null ? currentTile.GridPosition : startPosition;
-
-    /// <summary>
-    /// The tile the unit previously occupied.
-    /// </summary>
-    public Tile PreviousTile => previousTile;
-
-    /// <summary>
-    /// Remaining movement points.
-    /// </summary>
-    public int MovementPoints => movementPoints;
-
-    /// <summary>
-    /// Maximum height the unit can jump.
-    /// </summary>
-    public int JumpHeight => jumpHeight;
-
-    /// <summary>
-    /// Maximum height the unit can fall without penalty.
-    /// </summary>
-    public int MaxFallHeight => maxFallHeight;
-
-    /// <summary>
-    /// The type of the unit (Player, Enemy, Neutral).
-    /// </summary>
-    public UnitType Type => unitType;
-
-    /// <summary>
-    /// List of skills the unit possesses.
-    /// </summary>
-    public List<SkillData> Skills => skills;
-
-    /// <summary>
-    /// Precomputed movement patterns based on skills.
-    /// </summary>
-    public List<List<Vector2Int>> MovementPatterns => movementPatterns;
-
-    /// <summary>
-    /// Indicates whether the unit has ended its turn.
-    /// </summary>
-    public bool EndTurn
-    {
-        get => endTurn;
-        set => endTurn = value;
-    }
-
-    /// <summary>
-    /// Indicates whether the unit has completed its movement for the turn.
-    /// </summary>
-    public bool MovementDone
-    {
-        get => movementDone;
-        set => movementDone = value;
-    }
-
-    /// <summary>
-    /// Indicates whether the unit has completed its action for the turn.
-    /// </summary>
-    public bool ActionDone
-    {
-        get => actionDone;
-        set => actionDone = value;
-    }
-
-    private void Awake()
-    {
-        spriteRenderer = GetComponent<SpriteRenderer>();
-    }
-
-    private void Start()
-    {
-        
-    }
+    // ────────────────────────────────────────────────────────────────
+    private void Awake() => _spriteRenderer = GetComponent<SpriteRenderer>();
 
     public void Initialize()
     {
-        currentTile = TacticalController.Instance.GetTileAt(startPosition);
-        currentTile.OccupyingUnit = this;
-
-        previousTile = null;
-
-        //GridPosition = currentTile.GridPosition;
-
-        Debug.Log($"Unit {name} starting at position {GridPosition}");
-
-        Vector3 tilePosition = currentTile.transform.position;
-        transform.position = new Vector3(tilePosition.x, tilePosition.y + 0.3f, 0);
-        spriteRenderer.sortingOrder = currentTile.Order + 2;
-
-        foreach (SkillData skill in skills)
+        _currentTile = TacticalController.Instance.GetTileAt(_startPosition);
+        if (_currentTile == null)
         {
-            if (skill != null)
-                movementPatterns.Add(skill.AreaOfEffect.GetAllRangedPositions());
-        }
-    }
-
-    /// <summary>
-    /// Starts moving the unit along a given path.
-    /// </summary>
-    /// <param name="pathResult">The path the unit should follow.</param>
-    public void GetPath(PathResult pathResult)
-    {
-        if (!pathResult.IsValid)
-        {
-            Debug.LogError($"Path is empty or null for unit {name}.");
+            Debug.LogError($"Unit {name} could not find starting tile at {_startPosition}.");
             return;
         }
 
-        pathToFollow = pathResult;
-        StartCoroutine(MoveAlongPath());
+        _currentTile.OccupyingUnit = this;
+        _previousTile = null;
+
+        MoveToTile(_currentTile);
+        Debug.Log($"Unit {name} initialized at position {GridPosition}");
+
+        foreach (var skill in _skills)
+        {
+            if (skill != null)
+                _movementPatterns.Add(skill.AreaOfEffect.GetAllRangedPositions());
+        }
     }
 
+    // ────────────────────────────────────────────────────────────────
+    #region Movement
+
     /// <summary>
-    /// Moves the unit step by step along the assigned path.
+    /// Starts moving the unit along the given path.
     /// </summary>
-    private IEnumerator MoveAlongPath()
+    public void FollowPath(PathResult pathResult)
     {
-        //Tile t;
-
-        foreach (Tile tile in pathToFollow.Path)
+        if (!pathResult.IsValid)
         {
-            Vector3 targetPosition = new(tile.transform.position.x, tile.transform.position.y + 0.3f, 0);
+            Debug.LogError($"Invalid path for unit {name}.");
+            return;
+        }
 
-            while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
+        _currentPath = pathResult;
+        StartCoroutine(_MoveAlongPath());
+    }
+
+    private IEnumerator _MoveAlongPath()
+    {
+        foreach (var tile in _currentPath.Path)
+        {
+            Vector3 targetPos = new(tile.transform.position.x, tile.transform.position.y + 0.3f, 0);
+
+            while (Vector3.Distance(transform.position, targetPos) > 0.1f)
             {
-                transform.position = Vector3.MoveTowards(transform.position, targetPosition, Time.deltaTime * 3f);
+                transform.position = Vector3.MoveTowards(transform.position, targetPos, Time.deltaTime * 3f);
                 yield return null;
             }
 
-            transform.position = targetPosition;
-            spriteRenderer.sortingOrder = tile.Order + 2;
-
-            //t = tile;
+            transform.position = targetPos;
+            _spriteRenderer.sortingOrder = tile.Order + 2;
         }
 
-        //currentTile = TacticalController.Instance.GetTileAt(gridPosition);
-        //currentTile.OccupyingUnit = this;
+        SetPosition(_currentPath.Path[^1]);
+        MovementDone = true;
 
-        SetPosition(pathToFollow.Path[^1]);
-
-        movementDone = true;
-
-        TacticalController.Instance.OnUnitFinishedAction(this);
+        TacticalController.Instance.HandleUnitActionEnd();
     }
 
-    /// <summary>
-    /// Assigns available movement paths to this unit.
-    /// </summary>
-    /// <param name="paths">List of possible paths.</param>
+    private void MoveToTile(Tile tile)
+    {
+        if (tile == null) return;
+        Vector3 pos = tile.transform.position;
+        transform.position = new Vector3(pos.x, pos.y + 0.3f, 0);
+        _spriteRenderer.sortingOrder = tile.Order + 2;
+    }
+
+    #endregion
+    // ────────────────────────────────────────────────────────────────
+    #region Position & Skills
+
     public void SetAvailablePaths(List<PathResult> paths)
-    {
-        if (paths != null && paths.Count > 0)
-            AvailablePaths = paths;
-        else
-            AvailablePaths = new List<PathResult>();
-    }
+        => AvailablePaths = (paths != null && paths.Count > 0) ? paths : new();
 
-    /// <summary>
-    /// Gets a skill by its index.
-    /// </summary>
-    /// <param name="index">The index of the skill.</param>
-    /// <returns>The skill at the given index, or null if invalid.</returns>
     public SkillData GetSkillByIndex(int index)
-    {
-        if (skills != null && index >= 0 && index < skills.Count)
-            return skills[index];
-
-        return null;
-    }
+        => (_skills != null && index >= 0 && index < _skills.Count) ? _skills[index] : null;
 
     public void SetPosition(Tile newTile)
     {
-        previousTile = currentTile;
-        currentTile.OccupyingUnit = null;
+        if (newTile == null) return;
 
-        currentTile = newTile;
-        currentTile.OccupyingUnit = this;
+        _previousTile = _currentTile;
+        if (_currentTile != null)
+            _currentTile.OccupyingUnit = null;
 
-        //GridPosition = currentTile.GridPosition;
+        _currentTile = newTile;
+        _currentTile.OccupyingUnit = this;
 
-        Vector3 tilePosition = currentTile.transform.position;
-        transform.position = new Vector3(tilePosition.x, tilePosition.y + 0.3f, 0);
-        spriteRenderer.sortingOrder = currentTile.Order + 2;
+        MoveToTile(_currentTile);
     }
 
     public void SetPosition(Vector2Int newPosition)
     {
-        Tile newTile = TacticalController.Instance.GetTileAt(newPosition);
-
-        SetPosition(newTile);
+        var tile = TacticalController.Instance.GetTileAt(newPosition);
+        SetPosition(tile);
     }
+
+    #endregion
 }

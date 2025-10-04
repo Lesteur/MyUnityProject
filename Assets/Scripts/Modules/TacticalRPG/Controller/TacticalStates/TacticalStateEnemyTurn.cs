@@ -24,7 +24,7 @@ public class TacticalStateEnemyTurn : TacticalStateBase
         Debug.Log("Entering Enemy Turn State");
 
         // Automatically select the first enemy unit that hasn't ended its turn
-        foreach (Unit enemy in stateMachine.Controller.Units)
+        foreach (Unit enemy in stateMachine.Controller.AllUnits)
         {
             if (enemy.Type == Unit.UnitType.Enemy && !enemy.EndTurn)
             {
