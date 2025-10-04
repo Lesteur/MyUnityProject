@@ -12,7 +12,7 @@ public class Tile : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        Debug.Log($"Pointer entered tile at {GridPosition}");
+        // Debug.Log($"Pointer entered tile at {GridPosition}");
         // Handle pointer enter on tile
     }
 
@@ -20,7 +20,7 @@ public class Tile : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler
     {
         if (eventData.button == PointerEventData.InputButton.Left)
         {
-            Debug.Log($"Left click on tile at {GridPosition}");
+            // Debug.Log($"Left click on tile at {GridPosition}");
             // Handle left click on tile
 
             TacticalController.Instance.OnPointerClick(eventData);
@@ -38,9 +38,9 @@ public class Tile : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler
     public int Height { get; private set; }
 
     /// <summary>
-    /// The index assigned to this tile in the grid.
+    /// The order assigned to this tile in the grid.
     /// </summary>
-    public int Index { get; private set; }
+    public int Order { get; private set; }
 
     /// <summary>
     /// The unit currently occupying this tile, if any.
@@ -55,15 +55,17 @@ public class Tile : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler
     /// <summary>
     /// Initializes this tile with data and grid parameters.
     /// </summary>
-    public void Initialize(TileData data, Vector2Int position, int tileHeight, int index)
+    public void Initialize(TileData data, Vector2Int position, int tileHeight, int order)
     {
-        tileData        = data;
-        GridPosition    = position;
-        Height          = tileHeight;
-        Index           = index;
-        terrainType     = data.terrainType;
+        tileData = data;
+        GridPosition = position;
+        Height = tileHeight;
+        Order = order;
+        terrainType = data.terrainType;
+        OccupyingUnit = null;
 
         gameObject.name = $"Tile_{position.x}_{position.y}_H{Height}";
+        tileSprite.sortingOrder = order + 1; // Ensure tile is above units
     }
 
     /// <summary>

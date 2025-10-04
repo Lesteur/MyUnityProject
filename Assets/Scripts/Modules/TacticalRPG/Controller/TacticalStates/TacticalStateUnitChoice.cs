@@ -45,19 +45,13 @@ public class TacticalStateUnitChoice : TacticalStateBase
     /// <inheritdoc/>
     public override void HorizontalKey(int direction)
     {
-        UpdateCursorPosition(new Vector2Int(Mathf.Clamp(
-            positionCursor.x + direction,
-            0,
-            Controller.Grid.GetLength(0) - 1), positionCursor.y));
+        UpdateCursorPosition(new Vector2Int(positionCursor.x, positionCursor.y - direction));
     }
 
     /// <inheritdoc/>
     public override void VerticalKey(int direction)
     {
-        UpdateCursorPosition(new Vector2Int(positionCursor.x, Mathf.Clamp(
-            positionCursor.y - direction,
-            0,
-            Controller.Grid.GetLength(1) - 1)));
+        UpdateCursorPosition(new Vector2Int(positionCursor.x + direction, positionCursor.y));
     }
 
     /// <summary>
@@ -66,6 +60,9 @@ public class TacticalStateUnitChoice : TacticalStateBase
     /// <param name="newPosition">The new grid coordinates for the cursor.</param>
     public void UpdateCursorPosition(Vector2Int newPosition)
     {
+        if (TacticalController.Instance.GetTileAt(newPosition) == null)
+            return;
+        
         positionCursor = newPosition;
 
         UpdateRendering();
@@ -74,7 +71,7 @@ public class TacticalStateUnitChoice : TacticalStateBase
     /// <inheritdoc/>
     public override void ConfirmKey()
     {
-        foreach (Unit unit in Controller.Units)
+        foreach (Unit unit in Controller.AlliedUnits)
         {
             if (unit.GridPosition == positionCursor)
             {

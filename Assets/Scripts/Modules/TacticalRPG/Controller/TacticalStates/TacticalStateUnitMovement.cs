@@ -54,19 +54,13 @@ public class TacticalStateUnitMovement : TacticalStateBase
     /// <inheritdoc/>
     public override void HorizontalKey(int direction)
     {
-        UpdatePathSelection(new Vector2Int(Mathf.Clamp(
-            positionCursor.x + direction,
-            0,
-            stateMachine.Controller.Grid.GetLength(0) - 1), positionCursor.y));
+        UpdatePathSelection(new Vector2Int(positionCursor.x, positionCursor.y - direction));
     }
 
     /// <inheritdoc/>
     public override void VerticalKey(int direction)
     {
-        UpdatePathSelection(new Vector2Int(positionCursor.x, Mathf.Clamp(
-            positionCursor.y - direction,
-            0,
-            stateMachine.Controller.Grid.GetLength(1) - 1)));
+        UpdatePathSelection(new Vector2Int(positionCursor.x + direction, positionCursor.y));
     }
 
     /// <inheritdoc/>
@@ -88,7 +82,7 @@ public class TacticalStateUnitMovement : TacticalStateBase
     public override void UpdateRendering()
     {
         Controller.Cursor.transform.position = Controller.Grid[positionCursor.x, positionCursor.y].transform.position;
-        
+
         foreach (Tile tile in stateMachine.Controller.Grid)
         {
             if (tile == null) continue;
@@ -127,6 +121,9 @@ public class TacticalStateUnitMovement : TacticalStateBase
     /// <param name="newPosition">New cursor position to update before checking paths.</param>
     private void UpdatePathSelection(Vector2Int newPosition)
     {
+        if (TacticalController.Instance.GetTileAt(newPosition) == null)
+            return;
+
         positionCursor = newPosition;
 
         if (SelectedUnit?.AvailablePaths == null)

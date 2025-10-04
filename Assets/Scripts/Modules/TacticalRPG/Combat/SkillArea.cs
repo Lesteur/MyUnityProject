@@ -31,32 +31,26 @@ public class SkillArea
     //public AreaType Shape => areaType;
 
     /// <summary>
-    /// Returns a list of tiles affected by this area pattern.
+    /// Returns a list of grid positions affected by this skill area from a given origin tile.
     /// </summary>
-    /// <param name="originTile">The tile where the effect originates (usually the caster's position).</param>
-    /// <param name="controller">Reference to the tactical controller for grid access.</param>
-    public List<Tile> GetAffectedTiles(Tile originTile, TacticalController controller)
+    public List<Vector2Int> GetAllRangedPositions()
     {
-        List<Tile> affectedTiles = new List<Tile>();
-        Vector2Int originPos = originTile.GridPosition;
-
+        List<Vector2Int> affectedPositions = new List<Vector2Int>();
+        
         for (int x = -maxRange; x <= maxRange; x++)
         {
             for (int y = -maxRange; y <= maxRange; y++)
             {
                 int distance = Mathf.Abs(x) + Mathf.Abs(y);
-                Vector2Int testPos = new Vector2Int(originPos.x + x, originPos.y + y);
 
                 if (IsTileInArea(x, y, distance))
                 {
-                    Tile tile = controller.GetTileAt(testPos);
-                    if (tile != null)
-                        affectedTiles.Add(tile);
+                    affectedPositions.Add(new Vector2Int(x, y));
                 }
             }
         }
 
-        return affectedTiles;
+        return affectedPositions;
     }
 
     /// <summary>

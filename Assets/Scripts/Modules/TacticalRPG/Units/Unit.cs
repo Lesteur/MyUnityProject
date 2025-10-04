@@ -7,18 +7,28 @@ using System.Collections;
 /// </summary>
 public class Unit : MonoBehaviour
 {
+    public enum UnitType
+    {
+        Player,
+        Enemy,
+        Neutral
+    }
+
     [Header("Unit Settings")]
-    [SerializeField] private Vector2Int gridPosition;
+    [SerializeField] private Vector2Int startPosition;
     [SerializeField] private int movementPoints;
     [SerializeField] private int jumpHeight = 1;
     [SerializeField] private int maxFallHeight = 10;
+    [SerializeField] private UnitType unitType = UnitType.Player;
     [SerializeField] private List<SkillData> skills = new();
 
-    [Header("Runtime References")]
-    [SerializeField] private Tile currentTile;
-
+    private Tile currentTile = null;
+    private Tile previousTile = null;
     private SpriteRenderer spriteRenderer;
     private PathResult pathToFollow;
+    private bool actionDone = false;
+    private bool movementDone = false;
+    private List<List<Vector2Int>> movementPatterns = new();
 
     /// <summary>
     /// List of available movement paths for this unit.
@@ -26,14 +36,19 @@ public class Unit : MonoBehaviour
     public List<PathResult> AvailablePaths { get; private set; } = new();
 
     /// <summary>
-    /// The current grid position of the unit.
-    /// </summary>
-    public Vector2Int GridPosition => gridPosition;
-
-    /// <summary>
     /// The tile the unit is currently occupying.
     /// </summary>
     public Tile CurrentTile => currentTile;
+
+    /// <summary>
+    /// The current grid position of the unit.
+    /// </summary>
+    public Vector2Int GridPosition => currentTile != null ? currentTile.GridPosition : startPosition;
+
+    /// <summary>
+    /// The tile the unit previously occupied.
+    /// </summary>
+    public Tile PreviousTile => previousTile;
 
     /// <summary>
     /// Remaining movement points.
@@ -51,9 +66,37 @@ public class Unit : MonoBehaviour
     public int MaxFallHeight => maxFallHeight;
 
     /// <summary>
+    /// The type of the unit (Player, Enemy, Neutral).
+    /// </summary>
+    public UnitType Type => unitType;
+
+    /// <summary>
     /// List of skills the unit possesses.
     /// </summary>
     public List<SkillData> Skills => skills;
+
+    /// <summary>
+    /// Precomputed movement patterns based on skills.
+    /// </summary>
+    public List<List<Vector2Int>> MovementPatterns => movementPatterns;
+
+    /// <summary>
+    /// Indicates whether the unit has completed its movement for the turn.
+    /// </summary>
+    public bool MovementDone
+    {
+        get => movementDone;
+        set => movementDone = value;
+    }
+
+    /// <summary>
+    /// Indicates whether the unit has completed its action for the turn.
+    /// </summary>
+    public bool ActionDone
+    {
+        get => actionDone;
+        set => actionDone = value;
+    }
 
     private void Awake()
     {
@@ -62,11 +105,29 @@ public class Unit : MonoBehaviour
 
     private void Start()
     {
-        currentTile =  TacticalController.Instance.GetTileAt(gridPosition);
-        currentTile.OccupyingUnit = this;
         
+    }
+
+    public void Initialize()
+    {
+        currentTile = TacticalController.Instance.GetTileAt(startPosition);
+        currentTile.OccupyingUnit = this;
+
+        previousTile = null;
+
+        //GridPosition = currentTile.GridPosition;
+
+        Debug.Log($"Unit {name} starting at position {GridPosition}");
+
         Vector3 tilePosition = currentTile.transform.position;
         transform.position = new Vector3(tilePosition.x, tilePosition.y + 0.3f, 0);
+        spriteRenderer.sortingOrder = currentTile.Order + 2;
+
+        foreach (SkillData skill in skills)
+        {
+            if (skill != null)
+                movementPatterns.Add(skill.AreaOfEffect.GetAllRangedPositions());
+        }
     }
 
     /// <summary>
@@ -90,7 +151,7 @@ public class Unit : MonoBehaviour
     /// </summary>
     private IEnumerator MoveAlongPath()
     {
-        currentTile.OccupyingUnit = null;
+        //Tile t;
 
         foreach (Tile tile in pathToFollow.Path)
         {
@@ -102,12 +163,18 @@ public class Unit : MonoBehaviour
                 yield return null;
             }
 
-            transform.position          = targetPosition;
-            gridPosition                = tile.GridPosition;
+            transform.position = targetPosition;
+            spriteRenderer.sortingOrder = tile.Order + 2;
+
+            //t = tile;
         }
 
-        currentTile = TacticalController.Instance.GetTileAt(gridPosition);
-        currentTile.OccupyingUnit = this;
+        //currentTile = TacticalController.Instance.GetTileAt(gridPosition);
+        //currentTile.OccupyingUnit = this;
+
+        SetPosition(pathToFollow.Path[^1]);
+
+        movementDone = true;
 
         TacticalController.Instance.OnUnitFinishedAction(this);
     }
@@ -133,7 +200,29 @@ public class Unit : MonoBehaviour
     {
         if (skills != null && index >= 0 && index < skills.Count)
             return skills[index];
-        
+
         return null;
+    }
+
+    public void SetPosition(Tile newTile)
+    {
+        previousTile = currentTile;
+        currentTile.OccupyingUnit = null;
+
+        currentTile = newTile;
+        currentTile.OccupyingUnit = this;
+
+        //GridPosition = currentTile.GridPosition;
+
+        Vector3 tilePosition = currentTile.transform.position;
+        transform.position = new Vector3(tilePosition.x, tilePosition.y + 0.3f, 0);
+        spriteRenderer.sortingOrder = currentTile.Order + 2;
+    }
+
+    public void SetPosition(Vector2Int newPosition)
+    {
+        Tile newTile = TacticalController.Instance.GetTileAt(newPosition);
+
+        SetPosition(newTile);
     }
 }

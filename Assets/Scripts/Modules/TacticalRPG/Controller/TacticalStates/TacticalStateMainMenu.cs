@@ -25,6 +25,15 @@ public class TacticalStateMainMenu : TacticalStateBase
     /// <inheritdoc/>
     public override void CancelKey()
     {
+        if (SelectedUnit.ActionDone)
+            return;
+
+        if (SelectedUnit.MovementDone)
+        {
+            SelectedUnit.SetPosition(SelectedUnit.PreviousTile.GridPosition);
+            SelectedUnit.MovementDone = false;
+        }
+        
         stateMachine.EnterState(stateMachine.UnitChoiceState);
     }
 

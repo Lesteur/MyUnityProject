@@ -24,6 +24,7 @@ public class TacticalMenu : Singleton<TacticalMenu>
     private InputAction cancelAction;
 
     private readonly Button[] skillButtons = new Button[5];
+    private Unit SelectedUnit => TacticalController.Instance.SelectedUnit;
 
     #region Unity Lifecycle
 
@@ -153,6 +154,11 @@ public class TacticalMenu : Singleton<TacticalMenu>
     public void ShowMainMenu()
     {
         if (root == null) return;
+
+        if (SelectedUnit.MovementDone)
+            moveButton.SetEnabled(false);
+        else
+            moveButton.SetEnabled(true);
 
         root.style.display      = DisplayStyle.Flex;
         mainMenu.style.display  = DisplayStyle.Flex;

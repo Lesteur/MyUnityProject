@@ -6,7 +6,9 @@ using System.Collections.Generic;
 /// </summary>
 public class TacticalStateSkillMenu : TacticalStateBase
 {
+    private int index = 0;
     private SkillData selectedSkill;
+    private Unit selectedUnit => Controller.SelectedUnit;
 
     /// <summary>
     /// Initializes a new instance of the skill menu state.
@@ -20,6 +22,7 @@ public class TacticalStateSkillMenu : TacticalStateBase
 
         selectedSkill = null;
         TacticalMenu.Instance.ShowSkillMenu();
+
         UpdateRendering();
     }
 
@@ -42,6 +45,8 @@ public class TacticalStateSkillMenu : TacticalStateBase
             selectedSkill = Controller.SelectedUnit.GetSkillByIndex(buttonIndex);
         else
             selectedSkill = null;
+        
+        index = buttonIndex;
 
         UpdateRendering();
     }
@@ -60,12 +65,20 @@ public class TacticalStateSkillMenu : TacticalStateBase
         foreach (Tile tile in Controller.Grid)
             tile?.ResetIllumination();
 
-        if (selectedSkill == null || Controller.SelectedUnit == null) return;
+        if (selectedSkill == null || selectedUnit == null) return;
 
         // Highlight tiles affected by the selected skill
-        List<Tile> affectedTiles = selectedSkill.AreaOfEffect.GetAffectedTiles(
-            Controller.SelectedUnit.CurrentTile,
-            Controller);
+        List<Tile> affectedTiles = new List<Tile>();
+        List<Vector2Int> pattern = selectedUnit.MovementPatterns[index];
+        Vector2Int unitPos = selectedUnit.GridPosition;
+
+        foreach (Vector2Int pos in pattern)
+        {
+            Tile tile = TacticalController.Instance.GetTileAt(pos + unitPos);
+            
+            if (tile != null)
+                affectedTiles.Add(tile);
+        }
 
         foreach (Tile tile in affectedTiles)
             tile?.Illuminate(Color.blue); // Example: highlight affected area

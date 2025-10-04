@@ -23,6 +23,9 @@ public class TacticalController : Singleton<TacticalController>, IMoveHandler, I
     private TacticalStateMachine stateMachine;
     private int width;
     private int height;
+    private int turnTeam = 0; // 0 = Player, 1 = Enemy
+    private List<Unit> alliedUnits = new();
+    private List<Unit> enemyUnits = new();
 
     /// <summary>
     /// Currently selected unit on the grid.
@@ -35,6 +38,16 @@ public class TacticalController : Singleton<TacticalController>, IMoveHandler, I
     public Tile[,] Grid => grid;
 
     /// <summary>
+    /// Width of the grid in tiles.
+    /// </summary>
+    public int Width => width;
+
+    /// <summary>
+    /// Height of the grid in tiles.
+    /// </summary>
+    public int Height => height;
+
+    /// <summary>
     /// Cursor GameObject for indicating selection.
     /// </summary>
     public GameObject Cursor => cursor;
@@ -43,6 +56,16 @@ public class TacticalController : Singleton<TacticalController>, IMoveHandler, I
     /// List of all units on the battlefield.
     /// </summary>
     public List<Unit> Units => units;
+
+    /// <summary>
+    /// List of allied (player) units.
+    /// </summary>
+    public List<Unit> AlliedUnits => alliedUnits;
+
+    /// <summary>
+    /// List of enemy units.
+    /// </summary>
+    public List<Unit> EnemyUnits => enemyUnits;
 
     /// <summary>
     /// Reference to the pathfinding system.
@@ -66,11 +89,23 @@ public class TacticalController : Singleton<TacticalController>, IMoveHandler, I
     private void Start()
     {
         foreach (Unit unit in units)
+            unit.Initialize();
+
+        foreach (Unit unit in units)
         {
             List<PathResult> unitPaths = pathfinding.GetAllPathsFrom(unit.GridPosition, unit);
             unit.SetAvailablePaths(unitPaths);
+
+            if (unit != null)
+            {
+                if (unit.Type == Unit.UnitType.Player)
+                    alliedUnits.Add(unit);
+                else if (unit.Type == Unit.UnitType.Enemy)
+                    enemyUnits.Add(unit);
+            }
         }
 
+        turnTeam = 0;
         SelectedUnit = null;
     }
 
@@ -163,11 +198,13 @@ public class TacticalController : Singleton<TacticalController>, IMoveHandler, I
     /// <param name="finishedUnit">The unit that finished its action.</param>
     public void OnUnitFinishedAction(Unit finishedUnit)
     {
+        /*
         foreach (Unit unit in units)
         {
             List<PathResult> unitPaths = pathfinding.GetAllPathsFrom(unit.GridPosition, unit);
             unit.SetAvailablePaths(unitPaths);
         }
+        */
 
         stateMachine.EnterState(stateMachine.MainMenuState);
     }
@@ -201,95 +238,50 @@ public class TacticalController : Singleton<TacticalController>, IMoveHandler, I
     private void GenerateGrid()
     {
         int index = 0;
-        int orderOffset = 10;
-        
-        var tilemap = tilemaps[0];
+        var tm = tilemaps[0];
 
-        BoundsInt tilemapBounds = tilemap.cellBounds;
-        width  = tilemapBounds.size.x;
+        BoundsInt tilemapBounds = tm.cellBounds;
+        width = tilemapBounds.size.x;
         height = tilemapBounds.size.y;
 
         grid = new Tile[width, height];
 
-        /*
-        for (int i = 0; i < tilemaps.Count; i++)
+        foreach (Tilemap tilemap in tilemaps)
         {
-            Tilemap tm = tilemaps[i];
-            if (tm == null) continue;
+            tilemapBounds = tilemap.cellBounds;
 
-            foreach (Vector3Int pos in tm.cellBounds.allPositionsWithin)
+            int sortingOrder = tilemap.GetComponent<TilemapRenderer>().sortingOrder;
+
+            foreach (Vector3Int pos in tilemapBounds.allPositionsWithin)
             {
-                if (!tm.HasTile(pos))
+                TileBase tileBase = tilemap.GetTile(pos);
+
+                if (tileBase == null)
                     continue;
 
                 int x = pos.x - tilemapBounds.xMin;
                 int y = pos.y - tilemapBounds.yMin;
-                int z = i; // Use the index of the tilemap as height
+                int z = pos.z; // Use the z-coordinate as height
 
-                Tile tile = grid[x, y];
-                if (tile != null)
+                if (grid[x, y] != null)
                 {
-                    Debug.LogWarning($"Multiple tiles found at position ({x}, {y}). Overwriting previous tile.");
+                    Destroy(grid[x, y].gameObject);
+                    grid[x, y] = null;
                 }
 
-                Vector3 position = tm.CellToWorld(pos) + new Vector3(0, 0.25f, 0);
+                Vector3 position = tilemap.CellToWorld(pos) + new Vector3(0, 0.25f, 0);
 
                 GameObject tileObject = Instantiate(tilePrefab, position, Quaternion.identity, transform);
                 tileObject.name = $"Tile_{x}_{y}_H{z}";
 
-                tile = tileObject.GetComponent<Tile>();
-                if (tile == null)
-                {
-                    Debug.LogError("Tile prefab must have a Tile component attached.");
-                    continue;
-                }
-
-                tile.Initialize(defaultTileData, new Vector2Int(x, y), z, index);
+                Tile tile = tileObject.GetComponent<Tile>();
+                tile.Initialize(defaultTileData, new Vector2Int(x, y), z, sortingOrder);
                 grid[x, y] = tile;
 
-                index++;
+                index ++;
             }
         }
-        */
         
-        foreach (Vector3Int pos in tilemapBounds.allPositionsWithin)
-        {
-            TileBase tileBase = tilemap.GetTile(pos);
-
-            if (tileBase == null)
-                continue;
-
-            GameObject tileObject = null;
-
-            int x = pos.x - tilemapBounds.xMin;
-            int y = pos.y - tilemapBounds.yMin;
-            int z = pos.z; // Use the z-coordinate as height
-
-            if (grid[x, y] != null)
-            {
-                Debug.LogWarning($"Multiple tiles found at position ({x}, {y}). Overwriting previous tile.");
-
-                Destroy(grid[x, y].gameObject);
-                grid[x, y] = null;
-            }
-
-            Vector3 position = tilemap.CellToWorld(pos) + new Vector3(0, 0.25f, 0);
-
-            tileObject = Instantiate(tilePrefab, position, Quaternion.identity, transform);
-            tileObject.name = $"Tile_{x}_{y}_H{z}";
-
-            Tile tile = tileObject.GetComponent<Tile>();
-            if (tile == null)
-            {
-                Debug.LogError("Tile prefab must have a Tile component attached.");
-                continue;
-            }
-
-            tile.Initialize(defaultTileData, new Vector2Int(x, y), z, index);
-            grid[x, y] = tile;
-
-            index++;
-        }
-
+        Debug.Log($"Generated grid with dimensions: {width}x{height} and total tiles: {index}");
     }
 }
