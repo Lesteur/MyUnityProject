@@ -40,6 +40,11 @@ public class TacticalStateMachine
     /// State for acting with a unit.
     /// </summary>
     public TacticalStateActingUnit ActingUnitState { get; }
+    
+    /// <summary>
+    /// State for handling the enemy turn.
+    /// </summary>
+    public TacticalStateEnemyTurn EnemyTurnState { get; }
 
     /// <summary>
     /// Initializes the tactical state machine and its states.
@@ -54,6 +59,7 @@ public class TacticalStateMachine
         MainMenuState = new TacticalStateMainMenu(this);
         SkillMenuState = new TacticalStateSkillMenu(this);
         ActingUnitState = new TacticalStateActingUnit(this);
+        EnemyTurnState = new TacticalStateEnemyTurn(this);
 
         EnterDefaultState();
     }

@@ -26,6 +26,7 @@ public class Unit : MonoBehaviour
     private Tile previousTile = null;
     private SpriteRenderer spriteRenderer;
     private PathResult pathToFollow;
+    public bool endTurn = false;
     private bool actionDone = false;
     private bool movementDone = false;
     private List<List<Vector2Int>> movementPatterns = new();
@@ -79,6 +80,15 @@ public class Unit : MonoBehaviour
     /// Precomputed movement patterns based on skills.
     /// </summary>
     public List<List<Vector2Int>> MovementPatterns => movementPatterns;
+
+    /// <summary>
+    /// Indicates whether the unit has ended its turn.
+    /// </summary>
+    public bool EndTurn
+    {
+        get => endTurn;
+        set => endTurn = value;
+    }
 
     /// <summary>
     /// Indicates whether the unit has completed its movement for the turn.

@@ -131,7 +131,7 @@ public class TacticalMenu : Singleton<TacticalMenu>
 
     private void OnEndTurnClicked()
     {
-        Debug.Log("End Turn button clicked. (Not yet implemented)");
+        TacticalController.Instance.EndTurn();
     }
 
     private void OnSkillClicked(int skillIndex)

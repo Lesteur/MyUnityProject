@@ -198,15 +198,18 @@ public class TacticalController : Singleton<TacticalController>, IMoveHandler, I
     /// <param name="finishedUnit">The unit that finished its action.</param>
     public void OnUnitFinishedAction(Unit finishedUnit)
     {
-        /*
-        foreach (Unit unit in units)
+        if (turnTeam == 0)
         {
-            List<PathResult> unitPaths = pathfinding.GetAllPathsFrom(unit.GridPosition, unit);
-            unit.SetAvailablePaths(unitPaths);
+            stateMachine.EnterState(stateMachine.MainMenuState);
         }
-        */
+        else if (turnTeam == 1)
+        {
+            finishedUnit.EndTurn = true;
+            finishedUnit.MovementDone = true;
+            finishedUnit.ActionDone = true;
 
-        stateMachine.EnterState(stateMachine.MainMenuState);
+            EndTurn();
+        }
     }
 
     /// <summary>
@@ -220,6 +223,61 @@ public class TacticalController : Singleton<TacticalController>, IMoveHandler, I
         {
             stateMachine.EnterState(stateMachine.ActingUnitState);
             unit.GetPath(path);
+        }
+    }
+
+    public void EndTurn()
+    {
+        SelectedUnit.EndTurn = true;
+        SelectedUnit = null;
+
+        foreach (Unit unit in units)
+        {
+            List<PathResult> unitPaths = pathfinding.GetAllPathsFrom(unit.GridPosition, unit);
+            unit.SetAvailablePaths(unitPaths);
+        }
+
+        if (turnTeam == 0)
+        {
+            foreach (Unit unit in alliedUnits)
+            {
+                if (!unit.EndTurn)
+                {
+                    stateMachine.EnterState(stateMachine.UnitChoiceState);
+                    return;
+                }
+            }
+
+            foreach (Unit enemy in enemyUnits)
+            {
+                enemy.EndTurn = false;
+                enemy.MovementDone = false;
+                enemy.ActionDone = false;
+            }
+
+            turnTeam = 1;
+            stateMachine.EnterState(stateMachine.EnemyTurnState);
+        }
+        else if (turnTeam == 1)
+        {
+            foreach (Unit unit in enemyUnits)
+            {
+                if (!unit.EndTurn)
+                {
+                    stateMachine.EnterState(stateMachine.EnemyTurnState);
+                    return;
+                }
+            }
+
+            foreach (Unit ally in alliedUnits)
+            {
+                ally.EndTurn = false;
+                ally.MovementDone = false;
+                ally.ActionDone = false;
+            }
+            
+            turnTeam = 0;
+            stateMachine.EnterState(stateMachine.UnitChoiceState);
         }
     }
 

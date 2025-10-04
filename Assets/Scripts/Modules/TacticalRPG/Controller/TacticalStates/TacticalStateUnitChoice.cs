@@ -73,7 +73,7 @@ public class TacticalStateUnitChoice : TacticalStateBase
     {
         foreach (Unit unit in Controller.AlliedUnits)
         {
-            if (unit.GridPosition == positionCursor)
+            if (unit.GridPosition == positionCursor && !unit.EndTurn)
             {
                 Controller.SelectUnit(unit);
                 stateMachine.EnterState(stateMachine.MainMenuState);
