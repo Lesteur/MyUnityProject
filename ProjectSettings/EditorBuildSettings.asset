@@ -6,8 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/3D/Scene3D.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    path: Assets/Scenes/2D/SceneTactical.unity
+    guid: 8c444d7dbc34d1e4bac8eba2f124df75
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 18ecc6396eabb024bb4f124ad2908f42, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

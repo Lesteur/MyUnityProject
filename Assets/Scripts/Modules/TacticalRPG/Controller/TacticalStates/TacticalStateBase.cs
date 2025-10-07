@@ -83,4 +83,19 @@ public abstract class TacticalStateBase
     /// </summary>
     /// <param name="buttonIndex">The index of the clicked button.</param>
     public virtual void OnClickButton(int buttonIndex) { }
+
+    /// <summary>
+    /// Handles tile click events.
+    /// </summary>
+    public virtual void OnTileClicked(Tile tile) { }
+
+    /// <summary>
+    /// Gets the tile currently under the mouse cursor.
+    /// </summary>
+    public virtual void OnTileHovered(Tile tile) { }
+
+    /// <summary>
+    /// Called when the mouse cursor exits a tile.
+    /// </summary>
+    public virtual void OnTileHoverExited() { }
 }

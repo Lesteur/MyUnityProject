@@ -6,13 +6,10 @@ using System.Collections.Generic;
 /// </summary>
 public class TacticalStateSkillMenu : TacticalStateBase
 {
-    private int index = 0;
-    private SkillData selectedSkill;
-    private Unit selectedUnit => Controller.SelectedUnit;
+    private int _selectedIndex = -1;
+    private SkillData _selectedSkill;
+    private Unit _selectedUnit => Controller.SelectedUnit;
 
-    /// <summary>
-    /// Initializes a new instance of the skill menu state.
-    /// </summary>
     public TacticalStateSkillMenu(TacticalStateMachine stateMachine) : base(stateMachine) { }
 
     /// <inheritdoc/>
@@ -20,67 +17,81 @@ public class TacticalStateSkillMenu : TacticalStateBase
     {
         Debug.Log("Entering Skill Menu State");
 
-        selectedSkill = null;
-        TacticalMenu.Instance.ShowSkillMenu();
+        _selectedIndex = -1;
+        _selectedSkill = null;
 
+        TacticalMenu.Instance.ShowSkillMenu();
         UpdateRendering();
     }
 
     /// <inheritdoc/>
     public override void CancelKey()
     {
+        // Return to the main menu when cancelling skill selection
         stateMachine.EnterState(stateMachine.MainMenuState);
     }
 
     /// <inheritdoc/>
     public override void OnClickButton(int buttonIndex)
     {
-        if (Controller.SelectedUnit == null)
+        if (_selectedUnit == null)
         {
-            selectedSkill = null;
+            Debug.LogWarning("No selected unit to choose skill for.");
+            _selectedSkill = null;
             return;
         }
 
-        if (buttonIndex >= 0 && buttonIndex < Controller.SelectedUnit.Skills.Count)
-            selectedSkill = Controller.SelectedUnit.GetSkillByIndex(buttonIndex);
-        else
-            selectedSkill = null;
-        
-        index = buttonIndex;
+        // Validate index
+        if (buttonIndex < 0 || buttonIndex >= _selectedUnit.Skills.Count)
+        {
+            Debug.LogWarning($"Invalid skill index: {buttonIndex}");
+            _selectedSkill = null;
+            return;
+        }
+
+        _selectedIndex = buttonIndex;
+        _selectedSkill = _selectedUnit.GetSkillByIndex(buttonIndex);
+
+        Debug.Log($"Skill selected: {_selectedSkill.SkillName.GetLocalizedString()}");
 
         UpdateRendering();
+
+        // Optional: Transition to targeting state once selection confirmed
+        // stateMachine.EnterState(stateMachine.SkillTargetingState);
     }
 
     /// <inheritdoc/>
     public override void Exit()
     {
         TacticalMenu.Instance.Hide();
-        selectedSkill = null;
+        _selectedSkill = null;
+        _selectedIndex = -1;
     }
 
     /// <inheritdoc/>
     public override void UpdateRendering()
     {
-        // Reset all tiles first
-        foreach (Tile tile in Controller.Grid)
-            tile?.ResetIllumination();
+        // Reset grid illumination safely
+        Controller.ResetAllTiles();
 
-        if (selectedSkill == null || selectedUnit == null) return;
+        if (_selectedSkill == null || _selectedUnit == null)
+            return;
 
-        // Highlight tiles affected by the selected skill
-        List<Tile> affectedTiles = new List<Tile>();
-        List<Vector2Int> pattern = selectedUnit.MovementPatterns[index];
-        Vector2Int unitPos = selectedUnit.GridPosition;
-
-        foreach (Vector2Int pos in pattern)
+        // Validate pattern availability
+        if (_selectedIndex < 0 || _selectedIndex >= _selectedUnit.MovementPatterns.Count)
         {
-            Tile tile = TacticalController.Instance.GetTileAt(pos + unitPos);
-            
-            if (tile != null)
-                affectedTiles.Add(tile);
+            Debug.LogWarning($"No movement pattern found for skill index {_selectedIndex}");
+            return;
         }
 
-        foreach (Tile tile in affectedTiles)
-            tile?.Illuminate(Color.blue); // Example: highlight affected area
+        var pattern = _selectedUnit.MovementPatterns[_selectedIndex];
+        Vector2Int unitPos = _selectedUnit.GridPosition;
+
+        foreach (Vector2Int offset in pattern)
+        {
+            Tile tile = TacticalController.Instance.GetTileAt(unitPos + offset);
+            if (tile != null)
+                tile.Illuminate(Color.cyan); // Different highlight color for skill preview
+        }
     }
 }

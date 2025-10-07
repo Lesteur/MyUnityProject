@@ -635,6 +635,10 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
+      propertyPath: _jumpHeight
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: maxFallHeight
       value: 3
       objectReference: {fileID: 0}
@@ -2921,6 +2925,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: jumpHeight
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
+      propertyPath: _jumpHeight
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1758189760467995186, guid: 44688545346df4b43aee0670d58bedeb, type: 3}

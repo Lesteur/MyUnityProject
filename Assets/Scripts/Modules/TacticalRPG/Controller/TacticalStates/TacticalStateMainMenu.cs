@@ -5,12 +5,10 @@ using UnityEngine;
 /// </summary>
 public class TacticalStateMainMenu : TacticalStateBase
 {
-    private Unit SelectedUnit => stateMachine.Controller.SelectedUnit;
-    private bool startInput = true;
+    private enum MainMenuAction { Move = 0, Skills = 1, Items = 2, Status = 3, EndTurn = 4 }
 
-    /// <summary>
-    /// Initializes a new instance of the main menu state.
-    /// </summary>
+    private Unit _selectedUnit => stateMachine.Controller.SelectedUnit;
+
     public TacticalStateMainMenu(TacticalStateMachine stateMachine) : base(stateMachine) { }
 
     /// <inheritdoc/>
@@ -19,43 +17,54 @@ public class TacticalStateMainMenu : TacticalStateBase
         Debug.Log("Entering Main Menu State");
 
         TacticalMenu.Instance.ShowMainMenu();
+
         UpdateRendering();
     }
 
     /// <inheritdoc/>
     public override void CancelKey()
     {
-        if (SelectedUnit.ActionDone)
+        if (_selectedUnit == null || _selectedUnit.ActionDone)
             return;
 
-        if (SelectedUnit.MovementDone)
+        // If unit moved but hasn’t confirmed
+        if (_selectedUnit.MovementDone)
         {
-            SelectedUnit.SetPosition(SelectedUnit.PreviousTile.GridPosition);
-            SelectedUnit.MovementDone = false;
+            _selectedUnit.SetPosition(_selectedUnit.PreviousTile.GridPosition);
+            _selectedUnit.MovementDone = false;
         }
-        
+
         stateMachine.EnterState(stateMachine.UnitChoiceState);
     }
 
     /// <inheritdoc/>
     public override void OnClickButton(int buttonIndex)
     {
-        if (startInput == false)
+        switch ((MainMenuAction)buttonIndex)
         {
-            startInput = true;
-            return; // Ignore the first input to prevent accidental selections
-        }
+            case MainMenuAction.Move:
+                stateMachine.EnterState(stateMachine.UnitMovementState);
+                break;
 
-        switch (buttonIndex)
-        {
-            case 0: // Move
-                stateMachine.EnterState(stateMachine.UnitMovementState); break;
-            case 1: // Skills
-                stateMachine.EnterState(stateMachine.SkillMenuState); break;
-            case 2: // End Turn
-                Debug.Log("Ending turn (not yet implemented)."); break;
+            case MainMenuAction.Skills:
+                stateMachine.EnterState(stateMachine.SkillMenuState);
+                break;
+
+            case MainMenuAction.Items:
+                Debug.Log("Items menu (not yet implemented).");
+                break;
+
+            case MainMenuAction.Status:
+                Debug.Log("Status screen (not yet implemented).");
+                break;
+
+            case MainMenuAction.EndTurn:
+                stateMachine.Controller.EndTurn();
+                break;
+
             default:
-                Debug.LogWarning($"Unhandled button index: {buttonIndex}"); break;
+                Debug.LogWarning($"Unhandled menu button index: {buttonIndex}");
+                break;
         }
     }
 
@@ -68,9 +77,6 @@ public class TacticalStateMainMenu : TacticalStateBase
     /// <inheritdoc/>
     public override void UpdateRendering()
     {
-        foreach (Tile tile in Controller.Grid)
-        {
-            tile?.ResetIllumination();
-        }
+        Controller.ResetAllTiles();
     }
 }

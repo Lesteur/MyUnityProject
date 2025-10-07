@@ -7,14 +7,14 @@ using UnityEngine.EventSystems;
 /// </summary>
 public class TacticalStateUnitChoice : TacticalStateBase
 {
-    private Vector2Int positionCursor;
+    private Vector2Int _cursorPos;
+    private Vector2Int _lastCursorPos;
+    private Camera _mainCamera;
 
-    /// <summary>
-    /// Creates a new instance of the unit choice state.
-    /// </summary>
     public TacticalStateUnitChoice(TacticalStateMachine stateMachine) : base(stateMachine)
     {
-        positionCursor = Vector2Int.zero;
+        _cursorPos = Vector2Int.zero;
+        _mainCamera = Camera.main;
     }
 
     /// <inheritdoc/>
@@ -22,48 +22,40 @@ public class TacticalStateUnitChoice : TacticalStateBase
     {
         Debug.Log("Entering Unit Choice State");
 
-        EventSystem.current.SetSelectedGameObject(Controller.gameObject);
+        EventSystem.current?.SetSelectedGameObject(Controller.gameObject);
+        _lastCursorPos = _cursorPos;
+
         UpdateRendering();
     }
 
     /// <inheritdoc/>
-    public override void Update()
-    {
-        var hit = GetFocusedOnTile();
-
-        if (hit.HasValue && hit.Value.collider != null)
-        {
-            var tile = hit.Value.collider.gameObject.GetComponent<Tile>();
-
-            if (tile != null)
-                UpdateCursorPosition(tile.GridPosition);
-        }
-        
-        EventSystem.current.SetSelectedGameObject(Controller.gameObject);
-    }
-
-    /// <inheritdoc/>
     public override void HorizontalKey(int direction)
-    {
-        UpdateCursorPosition(new Vector2Int(positionCursor.x, positionCursor.y - direction));
-    }
+        => MoveCursor(Vector2Int.down * direction);
 
     /// <inheritdoc/>
     public override void VerticalKey(int direction)
+        => MoveCursor(Vector2Int.right * direction);
+
+    /// <summary>
+    /// Moves the cursor by a directional delta, if within grid bounds.
+    /// </summary>
+    private void MoveCursor(Vector2Int delta)
     {
-        UpdateCursorPosition(new Vector2Int(positionCursor.x + direction, positionCursor.y));
+        var newPos = _cursorPos + delta;
+        if (Controller.GetTileAt(newPos) != null)
+            UpdateCursorPosition(newPos);
     }
 
     /// <summary>
-    /// Updates the cursor position to the specified grid coordinates.
+    /// Updates the cursor position and re-renders highlights.
     /// </summary>
-    /// <param name="newPosition">The new grid coordinates for the cursor.</param>
-    public void UpdateCursorPosition(Vector2Int newPosition)
+    private void UpdateCursorPosition(Vector2Int newPosition)
     {
-        if (TacticalController.Instance.GetTileAt(newPosition) == null)
+        if (newPosition == _cursorPos)
             return;
-        
-        positionCursor = newPosition;
+
+        _lastCursorPos = _cursorPos;
+        _cursorPos = newPosition;
 
         UpdateRendering();
     }
@@ -71,9 +63,9 @@ public class TacticalStateUnitChoice : TacticalStateBase
     /// <inheritdoc/>
     public override void ConfirmKey()
     {
-        foreach (Unit unit in Controller.AlliedUnits)
+        foreach (var unit in Controller.AlliedUnits)
         {
-            if (unit.GridPosition == positionCursor && !unit.EndTurn)
+            if (unit.GridPosition == _cursorPos && !unit.EndTurn)
             {
                 Controller.SelectUnit(unit);
                 stateMachine.EnterState(stateMachine.MainMenuState);
@@ -85,30 +77,33 @@ public class TacticalStateUnitChoice : TacticalStateBase
     /// <inheritdoc/>
     public override void UpdateRendering()
     {
-        Controller.Cursor.transform.position = Controller.Grid[positionCursor.x, positionCursor.y].transform.position;
+        var cursor = Controller.Cursor;
+        var grid = Controller.Grid;
 
-        foreach (Tile tile in Controller.Grid)
-        {
-            if (tile == null) continue;
+        // Update cursor position
+        cursor.transform.position = grid[_cursorPos.x, _cursorPos.y].transform.position;
 
-            if (positionCursor == tile.GridPosition)
-            {
-                tile.Illuminate(Color.blue); // Cursor highlight
-            }
-            else
-            {
-                tile.ResetIllumination();
-            }
-        }
+        // Reset previous tile highlight
+        var lastTile = Controller.GetTileAt(_lastCursorPos);
+        lastTile?.ResetIllumination();
+
+        // Highlight current tile
+        var currentTile = Controller.GetTileAt(_cursorPos);
+        currentTile?.Illuminate(Color.blue);
     }
 
-    /// <summary>
-    /// Gets the tile currently focused on by the mouse cursor.
-    /// </summary>
-    private RaycastHit2D? GetFocusedOnTile()
+    public override void OnTileClicked(Tile tile)
     {
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 mousePos2D = new Vector2(mouseWorldPos.x, mouseWorldPos.y);
-        return Physics2D.Raycast(mousePos2D, Vector2.zero);
+        if (tile == null) return;
+
+        UpdateCursorPosition(tile.GridPosition);
+        ConfirmKey();
+    }
+
+    public override void OnTileHovered(Tile tile)
+    {
+        if (tile == null) return;
+
+        UpdateCursorPosition(tile.GridPosition);
     }
 }

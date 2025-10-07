@@ -5,11 +5,11 @@ using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 
 /// <summary>
-/// Manages the tactical grid, units, and game state transitions.
-/// Handles input, turn flow, and unit interactions.
+/// Core tactical battle controller.
+/// Handles unit selection, grid generation, turn flow, and input routing.
 /// </summary>
-public class TacticalController : Singleton<TacticalController>, 
-    IMoveHandler, ISubmitHandler, ICancelHandler, IPointerClickHandler
+public class TacticalController : Singleton<TacticalController>,
+    IMoveHandler, ISubmitHandler, ICancelHandler
 {
     private enum Team { Player, Enemy }
 
@@ -28,16 +28,26 @@ public class TacticalController : Singleton<TacticalController>,
 
     private int width;
     private int height;
-
     private Team currentTeam = Team.Player;
 
     private readonly List<Unit> alliedUnits = new();
     private readonly List<Unit> enemyUnits = new();
 
+    // ────────────────────────────────────────────────────────────────
+    #region Events
+
+    /// <summary>Fired whenever a unit becomes the current selection.</summary>
     public event System.Action<Unit> OnUnitSelectedEvent;
-    public event System.Action<Unit> OnUnitActionFinishedEvent;
+
+    /// <summary>Fired when a unit completes its action (move/attack/etc.).</summary>
+    // public event System.Action<Unit> OnUnitActionFinishedEvent;
+
+    /// <summary>Fired when the turn passes to a new team.</summary>
     public event System.Action<int> OnTurnChangedEvent;
 
+    #endregion
+    // ────────────────────────────────────────────────────────────────
+    #region Properties
 
     public Unit SelectedUnit { get; private set; }
     public Tile[,] Grid => grid;
@@ -49,11 +59,13 @@ public class TacticalController : Singleton<TacticalController>,
     public List<Unit> EnemyUnits => enemyUnits;
     public Pathfinding Pathfinding => pathfinding;
 
+    #endregion
     // ────────────────────────────────────────────────────────────────
+    #region Unity Lifecycle
+
     protected override void Awake()
     {
         base.Awake();
-
         pathfinding = GetComponent<Pathfinding>();
         GenerateGrid();
 
@@ -63,6 +75,20 @@ public class TacticalController : Singleton<TacticalController>,
         stateMachine = new TacticalStateMachine(this);
     }
 
+    private void OnEnable()
+    {
+        Tile.OnTileClicked += (tile) => OnTileClicked(tile);
+        Tile.OnTileHovered += (tile) => OnTileHovered(tile);
+        Tile.OnTileHoverExited += () => OnTileHoverExited();
+    }
+
+    private void OnDisable()
+    {
+        Tile.OnTileClicked -= (tile) => OnTileClicked(tile);
+        Tile.OnTileHovered -= (tile) => OnTileHovered(tile);
+        Tile.OnTileHoverExited -= () => OnTileHoverExited();
+    }
+
     private void Start()
     {
         InitializeUnits();
@@ -70,16 +96,21 @@ public class TacticalController : Singleton<TacticalController>,
         currentTeam = Team.Player;
     }
 
-    private void Update()
+    private void Update() => stateMachine?.Update();
+    private void FixedUpdate() => stateMachine?.PhysicsUpdate();
+
+    protected override void OnDestroy()
     {
-        stateMachine?.Update();
+        base.OnDestroy();
+
+        foreach (var unit in allUnits)
+        {
+            unit.OnMovementComplete -= HandleUnitMovementComplete;
+            // unit.OnActionComplete -= HandleUnitActionComplete;
+        }
     }
 
-    private void FixedUpdate()
-    {
-        stateMachine?.PhysicsUpdate();
-    }
-
+    #endregion
     // ────────────────────────────────────────────────────────────────
     #region Input Handlers
 
@@ -95,16 +126,9 @@ public class TacticalController : Singleton<TacticalController>,
 
     public void OnSubmit(BaseEventData eventData) => stateMachine.CurrentState.ConfirmKey();
 
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        if (eventData.button == PointerEventData.InputButton.Left)
-            stateMachine.CurrentState.ConfirmKey();
-    }
-
     public void OnCancel(BaseEventData eventData) => stateMachine.CurrentState.CancelKey();
 
-    public void HandleMenuButtonClick(int buttonIndex)
-        => stateMachine.CurrentState.OnClickButton(buttonIndex);
+    public void HandleMenuButtonClick(int buttonIndex) => stateMachine.CurrentState.OnClickButton(buttonIndex);
 
     #endregion
     // ────────────────────────────────────────────────────────────────
@@ -112,35 +136,62 @@ public class TacticalController : Singleton<TacticalController>,
 
     private void InitializeUnits()
     {
+        alliedUnits.Clear();
+        enemyUnits.Clear();
+
         foreach (var unit in allUnits)
         {
             unit.Initialize();
 
-            if (unit.Type == Unit.UnitType.Player)
-                alliedUnits.Add(unit);
-            else if (unit.Type == Unit.UnitType.Enemy)
-                enemyUnits.Add(unit);
+            // Subscribe to unit lifecycle events
+            unit.OnMovementComplete += HandleUnitMovementComplete;
+            // unit.OnActionComplete += HandleUnitActionComplete;
+
+            switch (unit.Type)
+            {
+                case Unit.UnitType.Player:
+                    alliedUnits.Add(unit);
+                    break;
+                case Unit.UnitType.Enemy:
+                    enemyUnits.Add(unit);
+                    break;
+            }
         }
 
         foreach (var unit in allUnits)
             unit.SetAvailablePaths(pathfinding.GetAllPathsFrom(unit.GridPosition, unit));
     }
 
-    public void SelectUnit(Unit unit) => SelectedUnit = unit;
-
-    public void HandleUnitActionEnd()
+    public void SelectUnit(Unit unit)
     {
-        if (currentTeam == Team.Player)
-        {
+        SelectedUnit = unit;
+        OnUnitSelectedEvent?.Invoke(unit);
+    }
+
+    /// <summary>
+    /// Called when a unit finishes its movement phase.
+    /// </summary>
+    private void HandleUnitMovementComplete(Unit unit)
+    {
+        unit.MovementDone = true;
+
+        // Movement is complete — trigger the next logical phase
+        if (unit.Type == Unit.UnitType.Player)
             stateMachine.EnterState(stateMachine.MainMenuState);
-        }
         else
-        {
-            SelectedUnit.EndTurn = true;
-            SelectedUnit.MovementDone = true;
-            SelectedUnit.ActionDone = true;
             EndTurn();
-        }
+    }
+
+    /// <summary>
+    /// Called when a unit completes an action (attack, skill, etc.).
+    /// </summary>
+    private void HandleUnitActionComplete(Unit unit)
+    {
+        unit.ActionDone = true;
+
+        // End the unit’s turn automatically if both actions are complete
+        if (unit.MovementDone && unit.ActionDone)
+            EndTurn();
     }
 
     public void MoveUnitPath(Unit unit, PathResult path)
@@ -163,9 +214,7 @@ public class TacticalController : Singleton<TacticalController>,
 
     public void EndTurn()
     {
-        if (SelectedUnit != null)
-            SelectedUnit.EndTurn = true;
-
+        SelectedUnit.EndTurn = true;
         SelectedUnit = null;
 
         foreach (var unit in allUnits)
@@ -182,6 +231,7 @@ public class TacticalController : Singleton<TacticalController>,
 
                 ResetUnits(enemyUnits);
                 currentTeam = Team.Enemy;
+                OnTurnChangedEvent?.Invoke((int)Team.Enemy);
                 stateMachine.EnterState(stateMachine.EnemyTurnState);
                 break;
 
@@ -194,6 +244,7 @@ public class TacticalController : Singleton<TacticalController>,
 
                 ResetUnits(alliedUnits);
                 currentTeam = Team.Player;
+                OnTurnChangedEvent?.Invoke((int)Team.Player);
                 stateMachine.EnterState(stateMachine.UnitChoiceState);
                 break;
         }
@@ -202,6 +253,12 @@ public class TacticalController : Singleton<TacticalController>,
     #endregion
     // ────────────────────────────────────────────────────────────────
     #region Grid and Tile Management
+
+    private void OnTileClicked(Tile tile) => stateMachine.CurrentState.OnTileClicked(tile);
+
+    private void OnTileHovered(Tile tile) => stateMachine.CurrentState.OnTileHovered(tile);
+
+    private void OnTileHoverExited() => stateMachine.CurrentState.OnTileHoverExited();
 
     public Tile GetTileAt(Vector2Int position)
     {
@@ -265,8 +322,15 @@ public class TacticalController : Singleton<TacticalController>,
                 tileCount++;
             }
         }
+    }
 
-        Debug.Log($"Generated grid: {width}x{height}, total tiles: {tileCount}");
+    public void ResetAllTiles()
+    {
+        foreach (var tile in grid)
+        {
+            if (tile != null)
+                tile.ResetIllumination();
+        }
     }
 
     #endregion

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+#if (UNITY_EDITOR)
+
 public static class VNPreprocessor
 {
     [MenuItem("VN/Compile Scripts")]
@@ -78,3 +80,5 @@ public static class VNPreprocessor
         public List<SerializedCommand> commands;
     }
 }
+
+#endif

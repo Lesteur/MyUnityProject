@@ -157,11 +157,19 @@ public class TacticalMenu : Singleton<TacticalMenu>
     {
         if (_root == null || SelectedUnit == null) return;
 
-        _moveButton.SetEnabled(!SelectedUnit.MovementDone);
         SetMenuVisibility(_mainMenu, true);
         SetMenuVisibility(_skillMenu, false);
 
-        _moveButton.Focus();
+        if (SelectedUnit.MovementDone)
+        {
+            _moveButton.SetEnabled(false);
+            _skillsButton.Focus();
+        }
+        else
+        {
+            _moveButton.SetEnabled(true);
+            _moveButton.Focus();
+        }
     }
 
     public void ShowSkillMenu()

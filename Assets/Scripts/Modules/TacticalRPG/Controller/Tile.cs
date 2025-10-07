@@ -4,27 +4,32 @@ using UnityEngine.EventSystems;
 /// <summary>
 /// Represents a single tile on the tactical grid, including position, terrain, and unit occupancy.
 /// </summary>
-public class Tile : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler
+public class Tile : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private SpriteRenderer tileSprite;
     [SerializeField] private TileData tileData;
     [SerializeField] private TerrainType terrainType = TerrainType.Grass; // Default terrain
 
+    public static event System.Action<Tile> OnTileHovered;
+    public static event System.Action<Tile> OnTileClicked;
+    public static event System.Action OnTileHoverExited;
+
     public void OnPointerEnter(PointerEventData eventData)
     {
-        // Debug.Log($"Pointer entered tile at {GridPosition}");
-        // Handle pointer enter on tile
+        OnTileHovered?.Invoke(this);
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
         if (eventData.button == PointerEventData.InputButton.Left)
         {
-            // Debug.Log($"Left click on tile at {GridPosition}");
-            // Handle left click on tile
-
-            TacticalController.Instance.OnPointerClick(eventData);
+            OnTileClicked?.Invoke(this);
         }
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        OnTileHoverExited?.Invoke();
     }
 
     /// <summary>
@@ -66,6 +71,8 @@ public class Tile : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler
 
         gameObject.name = $"Tile_{position.x}_{position.y}_H{Height}";
         tileSprite.sortingOrder = order + 1; // Ensure tile is above units
+
+        ResetIllumination();
     }
 
     /// <summary>
