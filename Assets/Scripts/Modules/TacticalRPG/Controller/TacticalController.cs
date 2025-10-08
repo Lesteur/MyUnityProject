@@ -33,7 +33,6 @@ public class TacticalController : Singleton<TacticalController>,
     private readonly List<Unit> alliedUnits = new();
     private readonly List<Unit> enemyUnits = new();
 
-    // ────────────────────────────────────────────────────────────────
     #region Events
 
     /// <summary>Fired whenever a unit becomes the current selection.</summary>
@@ -46,7 +45,7 @@ public class TacticalController : Singleton<TacticalController>,
     public event System.Action<int> OnTurnChangedEvent;
 
     #endregion
-    // ────────────────────────────────────────────────────────────────
+    
     #region Properties
 
     public Unit SelectedUnit { get; private set; }
@@ -60,7 +59,7 @@ public class TacticalController : Singleton<TacticalController>,
     public Pathfinding Pathfinding => pathfinding;
 
     #endregion
-    // ────────────────────────────────────────────────────────────────
+    
     #region Unity Lifecycle
 
     protected override void Awake()
@@ -111,7 +110,7 @@ public class TacticalController : Singleton<TacticalController>,
     }
 
     #endregion
-    // ────────────────────────────────────────────────────────────────
+    
     #region Input Handlers
 
     public void OnMove(AxisEventData eventData)
@@ -131,7 +130,7 @@ public class TacticalController : Singleton<TacticalController>,
     public void HandleMenuButtonClick(int buttonIndex) => stateMachine.CurrentState.OnClickButton(buttonIndex);
 
     #endregion
-    // ────────────────────────────────────────────────────────────────
+    
     #region Unit Management
 
     private void InitializeUnits()
@@ -251,7 +250,7 @@ public class TacticalController : Singleton<TacticalController>,
     }
 
     #endregion
-    // ────────────────────────────────────────────────────────────────
+    
     #region Grid and Tile Management
 
     private void OnTileClicked(Tile tile) => stateMachine.CurrentState.OnTileClicked(tile);
