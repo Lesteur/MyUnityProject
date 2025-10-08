@@ -17,15 +17,9 @@ public class SkillArea
         Cross
     }
 
-    [SerializeField, Min(0)] private int minRange = 0;
-    [SerializeField, Min(1)] private int maxRange = 1;
-    [SerializeField] private AreaType areaType = AreaType.Circle;
-
-    /// <summary> Minimum distance from the origin tile that tiles can be affected. </summary>
-    public int MinRange => minRange;
-
-    /// <summary> Maximum distance from the origin tile that tiles can be affected. </summary>
-    public int MaxRange => maxRange;
+    [SerializeField, Min(0)] private int _minRange = 0;
+    [SerializeField, Min(1)] private int _maxRange = 1;
+    [SerializeField] private AreaType _areaType = AreaType.Circle;
 
     /// <summary> The shape of the skill's area of effect. </summary>
     //public AreaType Shape => areaType;
@@ -37,9 +31,9 @@ public class SkillArea
     {
         List<Vector2Int> affectedPositions = new List<Vector2Int>();
         
-        for (int x = -maxRange; x <= maxRange; x++)
+        for (int x = -_maxRange; x <= _maxRange; x++)
         {
-            for (int y = -maxRange; y <= maxRange; y++)
+            for (int y = -_maxRange; y <= _maxRange; y++)
             {
                 int distance = Mathf.Abs(x) + Mathf.Abs(y);
 
@@ -58,15 +52,15 @@ public class SkillArea
     /// </summary>
     private bool IsTileInArea(int x, int y, int distance)
     {
-        switch (areaType)
+        switch (_areaType)
         {
             case AreaType.Circle:
-                return distance > minRange && distance <= maxRange;
+                return distance > _minRange && distance <= _maxRange;
             case AreaType.Square:
-                return Mathf.Max(Mathf.Abs(x), Mathf.Abs(y)) > minRange && 
-                       Mathf.Max(Mathf.Abs(x), Mathf.Abs(y)) <= maxRange;
+                return Mathf.Max(Mathf.Abs(x), Mathf.Abs(y)) > _minRange && 
+                       Mathf.Max(Mathf.Abs(x), Mathf.Abs(y)) <= _maxRange;
             case AreaType.Cross:
-                return (x == 0 || y == 0) && distance > minRange && distance <= maxRange;
+                return (x == 0 || y == 0) && distance > _minRange && distance <= _maxRange;
             default:
                 return false;
         }

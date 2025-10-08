@@ -32,10 +32,16 @@ public class TacticalMenu : Singleton<TacticalMenu>
     private System.Action _onEndTurnClicked;
     private System.Action<InputAction.CallbackContext> _onCancelPerformed;
 
+    /// <summary>
+    /// Gets the currently selected unit from the TacticalController.
+    /// </summary>
     private Unit SelectedUnit => TacticalController.Instance.SelectedUnit;
 
     #region Unity Lifecycle
 
+    /// <summary>
+    /// Unity Awake callback. Initializes menu UI references and buttons.
+    /// </summary>
     protected override void Awake()
     {
         base.Awake();
@@ -68,6 +74,9 @@ public class TacticalMenu : Singleton<TacticalMenu>
         _root.style.display = DisplayStyle.None;
     }
 
+    /// <summary>
+    /// Unity OnEnable callback. Subscribes to button and input events.
+    /// </summary>
     private void OnEnable()
     {
         var eventSystem = EventSystem.current;
@@ -109,6 +118,9 @@ public class TacticalMenu : Singleton<TacticalMenu>
         }
     }
 
+    /// <summary>
+    /// Unity OnDisable callback. Unsubscribes from button and input events.
+    /// </summary>
     private void OnDisable()
     {
         if (_cancelAction != null)
@@ -131,28 +143,45 @@ public class TacticalMenu : Singleton<TacticalMenu>
 
     #region Event Handlers
 
-    private void OnMainMenuClicked(int index)
-        => TacticalController.Instance.HandleMenuButtonClick(index);
+    /// <summary>
+    /// Handles main menu button clicks and routes to TacticalController.
+    /// </summary>
+    /// <param name="index">Index of the clicked button.</param>
+    private void OnMainMenuClicked(int index) => TacticalController.Instance.HandleMenuButtonClick(index);
 
-    private void OnItemsClicked()
-        => Debug.Log("Items button clicked. (Not implemented)");
+    /// <summary>
+    /// Handles the Items button click event.
+    /// </summary>
+    private void OnItemsClicked() => Debug.Log("Items button clicked. (Not implemented)");
 
-    private void OnStatusClicked()
-        => Debug.Log("Status button clicked. (Not implemented)");
+    /// <summary>
+    /// Handles the Status button click event.
+    /// </summary>
+    private void OnStatusClicked() => Debug.Log("Status button clicked. (Not implemented)");
 
-    private void OnEndTurnClicked()
-        => TacticalController.Instance.EndTurn();
+    /// <summary>
+    /// Handles the End Turn button click event.
+    /// </summary>
+    private void OnEndTurnClicked() => TacticalController.Instance.EndTurn();
 
-    private void OnSkillClicked(int skillIndex)
-        => TacticalController.Instance.HandleMenuButtonClick(skillIndex);
+    /// <summary>
+    /// Handles skill button click events and routes to TacticalController.
+    /// </summary>
+    /// <param name="skillIndex">Index of the clicked skill button.</param>
+    private void OnSkillClicked(int skillIndex) => TacticalController.Instance.HandleMenuButtonClick(skillIndex);
 
-    public void OnCancel()
-        => TacticalController.Instance.OnCancel(null);
+    /// <summary>
+    /// Handles cancel input and routes to TacticalController.
+    /// </summary>
+    public void OnCancel() => TacticalController.Instance.OnCancel(null);
 
     #endregion
 
     #region Public API
 
+    /// <summary>
+    /// Shows the main menu for the selected unit.
+    /// </summary>
     public void ShowMainMenu()
     {
         if (_root == null || SelectedUnit == null) return;
@@ -172,6 +201,9 @@ public class TacticalMenu : Singleton<TacticalMenu>
         }
     }
 
+    /// <summary>
+    /// Shows the skill menu for the selected unit.
+    /// </summary>
     public void ShowSkillMenu()
     {
         if (_root == null) return;
@@ -209,6 +241,9 @@ public class TacticalMenu : Singleton<TacticalMenu>
         _skillButtons[0]?.Focus();
     }
 
+    /// <summary>
+    /// Hides the tactical menu UI.
+    /// </summary>
     public void Hide()
     {
         if (_root == null) return;
@@ -222,6 +257,11 @@ public class TacticalMenu : Singleton<TacticalMenu>
 
     #region Helpers
 
+    /// <summary>
+    /// Sets the visibility of a menu VisualElement.
+    /// </summary>
+    /// <param name="element">The VisualElement to show or hide.</param>
+    /// <param name="visible">True to show, false to hide.</param>
     private void SetMenuVisibility(VisualElement element, bool visible)
     {
         if (element == null) return;

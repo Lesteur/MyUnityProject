@@ -597,13 +597,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e44ed1a6f2d328d4daeca2a27b97f7ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tilePrefab: {fileID: 1800878482449061111, guid: a8aa14e112d695b4d9098e8c68e90cf2, type: 3}
-  defaultTileData: {fileID: 11400000, guid: 6996dbc35b0a5004591ec03c0a4e3869, type: 2}
-  cursor: {fileID: 1286407444}
-  tilemaps:
+  _tilePrefab: {fileID: 1800878482449061111, guid: a8aa14e112d695b4d9098e8c68e90cf2, type: 3}
+  _defaultTileData: {fileID: 11400000, guid: 6996dbc35b0a5004591ec03c0a4e3869, type: 2}
+  _cursor: {fileID: 1286407444}
+  _tilemaps:
   - {fileID: 1261169259}
   - {fileID: 319372283}
-  allUnits:
+  _allUnits:
   - {fileID: 684959799}
   - {fileID: 1092169552}
   - {fileID: 786777736}

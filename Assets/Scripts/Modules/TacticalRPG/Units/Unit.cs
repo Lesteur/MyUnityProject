@@ -26,7 +26,6 @@ public class Unit : MonoBehaviour
 
     private readonly List<List<Vector2Int>> _movementPatterns = new();
 
-    // ────────────────────────────────────────────────────────────────
     #region Events
 
     /// <summary>Fired when the unit finishes its movement animation and reaches destination.</summary>
@@ -36,7 +35,7 @@ public class Unit : MonoBehaviour
     // public event System.Action<Unit> OnActionComplete;
 
     #endregion
-    // ────────────────────────────────────────────────────────────────
+    
     #region Properties
 
     public bool EndTurn { get; set; }
@@ -55,7 +54,7 @@ public class Unit : MonoBehaviour
     public List<List<Vector2Int>> MovementPatterns => _movementPatterns;
 
     #endregion
-    // ────────────────────────────────────────────────────────────────
+    
     #region Initialization
 
     private void Awake()
@@ -86,7 +85,7 @@ public class Unit : MonoBehaviour
     }
 
     #endregion
-    // ────────────────────────────────────────────────────────────────
+    
     #region Movement
 
     /// <summary>
@@ -139,7 +138,7 @@ public class Unit : MonoBehaviour
     }
 
     #endregion
-    // ────────────────────────────────────────────────────────────────
+    
     #region Position & Skills
 
     public void SetAvailablePaths(List<PathResult> paths)
