@@ -24,7 +24,7 @@ public class Unit : MonoBehaviour
     private PathResult _currentPath;
     private Coroutine _movementCoroutine;
 
-    private readonly List<List<Vector2Int>> _movementPatterns = new();
+    private readonly Dictionary<SkillData, List<Vector2Int>> _movementPatterns = new();
 
     #region Events
 
@@ -51,7 +51,7 @@ public class Unit : MonoBehaviour
     public int MaxFallHeight        => _maxFallHeight;
     public UnitType Type            => _unitType;
     public List<SkillData> Skills   => _skills;
-    public List<List<Vector2Int>> MovementPatterns => _movementPatterns;
+    public Dictionary<SkillData, List<Vector2Int>> MovementPatterns => _movementPatterns;
 
     #endregion
     
@@ -80,7 +80,7 @@ public class Unit : MonoBehaviour
         foreach (var skill in _skills)
         {
             if (skill != null)
-                _movementPatterns.Add(skill.AreaOfEffect.GetAllRangedPositions());
+                _movementPatterns[skill] = skill.AreaOfEffect.GetAllRangedPositions();
         }
     }
 

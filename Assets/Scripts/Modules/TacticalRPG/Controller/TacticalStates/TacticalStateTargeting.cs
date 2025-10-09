@@ -8,6 +8,8 @@ public class TacticalStateTargeting : TacticalStateBase
 {
     private Vector2Int _cursorPos;
     private Vector2Int _lastCursorPos;
+    private Unit _selectedUnit => TacticalController.Instance.SelectedUnit;
+    private SkillData _selectedSkill => TacticalController.Instance.SelectedSkill;
 
     public TacticalStateTargeting(TacticalStateMachine stateMachine) : base(stateMachine)
     {
@@ -17,7 +19,7 @@ public class TacticalStateTargeting : TacticalStateBase
     /// <inheritdoc/>
     public override void Enter(TacticalStateBase previousState)
     {
-        Debug.Log("Entering Unit Choice State");
+        Debug.Log("Entering Targeting State");
 
         EventSystem.current?.SetSelectedGameObject(Controller.gameObject);
         _lastCursorPos = _cursorPos;
@@ -77,19 +79,35 @@ public class TacticalStateTargeting : TacticalStateBase
     /// <inheritdoc/>
     public override void UpdateRendering()
     {
-        var cursor = Controller.Cursor;
-        var grid = Controller.Grid;
+        // Reset grid illumination safely
+        Controller.ResetAllTiles();
+
+        if (_selectedSkill == null || _selectedUnit == null)
+            return;
+
+        var pattern = _selectedUnit.MovementPatterns[_selectedSkill];
+        Vector2Int unitPos = _selectedUnit.GridPosition;
+
+        Debug.Log($"Highlighting skill pattern at unit position {unitPos}");
 
         // Update cursor position
-        cursor.transform.position = grid[_cursorPos.x, _cursorPos.y].transform.position;
-
-        // Reset previous tile highlight
         var lastTile = Controller.GetTileAt(_lastCursorPos);
-        lastTile?.ResetIllumination();
+        lastTile.ResetIllumination();
 
-        // Highlight current tile
         var currentTile = Controller.GetTileAt(_cursorPos);
-        currentTile?.Illuminate(Color.blue);
+        currentTile.Illuminate(Color.blue);
+
+        foreach (Vector2Int offset in pattern)
+        {
+            Tile tile = TacticalController.Instance.GetTileAt(unitPos + offset);
+            if ((tile != null) && (currentTile != tile))
+                tile.Illuminate(Color.cyan); // Different highlight color for skill preview
+        }
+    }
+
+    public override void Exit()
+    {
+        Controller.ResetAllTiles();
     }
 
     public override void OnTileClicked(Tile tile)

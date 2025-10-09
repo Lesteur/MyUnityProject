@@ -47,6 +47,11 @@ public class TacticalStateMachine
     public TacticalStateEnemyTurn EnemyTurnState { get; }
 
     /// <summary>
+    /// State for targeting with skills or attacks.
+    /// </summary>
+    public TacticalStateTargeting TargetingState { get; }
+
+    /// <summary>
     /// Initializes the tactical state machine and its states.
     /// </summary>
     /// <param name="controller">The tactical controller that owns this state machine.</param>
@@ -60,6 +65,7 @@ public class TacticalStateMachine
         SkillMenuState = new TacticalStateSkillMenu(this);
         ActingUnitState = new TacticalStateActingUnit(this);
         EnemyTurnState = new TacticalStateEnemyTurn(this);
+        TargetingState = new TacticalStateTargeting(this);
 
         EnterDefaultState();
     }

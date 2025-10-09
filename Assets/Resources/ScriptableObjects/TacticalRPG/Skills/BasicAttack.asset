@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e8c18875bb48364c84c2280ff3139d9, type: 3}
   m_Name: BasicAttack
   m_EditorClassIdentifier: 
-  skillName:
+  _skillName:
     m_TableReference:
       m_TableCollectionName: GUID:abf27c91b12696648a2978e9f9c80a9c
     m_TableEntryReference:
@@ -21,7 +21,7 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
-  description:
+  _description:
     m_TableReference:
       m_TableCollectionName: 
     m_TableEntryReference:
@@ -30,22 +30,26 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
-  icon: {fileID: 0}
-  skillType: 0
-  targetType: 0
-  spCost: 0
-  power: 50
-  cooldownTurns: 0
-  accuracy: 1
-  criticalRate: 0.05
-  areaOfEffect:
-    minRange: 1
-    maxRange: 3
-    areaType: 0
-  canTargetSelf: 0
-  requiresLineOfSight: 0
-  effectPrefab: {fileID: 0}
-  soundEffect: {fileID: 0}
+  _icon: {fileID: 0}
+  _skillType: 0
+  _targetType: 0
+  _skillPointsCost: 0
+  _power: 10
+  _cooldownTurns: 0
+  _accuracy: 1
+  _criticalRate: 0
+  _areaOfEffect:
+    _minRange: 0
+    _maxRange: 4
+    _areaType: 0
+  _areaOfEffectSecondary:
+    _minRange: 0
+    _maxRange: 1
+    _areaType: 0
+  _canTargetSelf: 0
+  _requiresLineOfSight: 1
+  _effectPrefab: {fileID: 0}
+  _soundEffect: {fileID: 0}
   references:
     version: 2
     RefIds: []

@@ -20,7 +20,7 @@ public class TacticalStateSkillMenu : TacticalStateBase
 
         TacticalController.Instance.SelectSkill(null);
         TacticalMenu.Instance.ShowSkillMenu();
-        UpdateRendering();
+        // UpdateRendering();
     }
 
     /// <inheritdoc/>
@@ -51,47 +51,15 @@ public class TacticalStateSkillMenu : TacticalStateBase
         _selectedIndex = buttonIndex;
         TacticalController.Instance.SelectSkill(_selectedUnit.GetSkillByIndex(buttonIndex));
 
-        Debug.Log($"Skill selected: {_selectedSkill.SkillName.GetLocalizedString()}");
-
-        UpdateRendering();
-
         // Optional: Transition to targeting state once selection confirmed
-        // stateMachine.EnterState(stateMachine.SkillTargetingState);
+        stateMachine.EnterState(stateMachine.TargetingState);
     }
 
     /// <inheritdoc/>
     public override void Exit()
     {
         TacticalMenu.Instance.Hide();
-        TacticalController.Instance.SelectSkill(null);
 
         _selectedIndex = -1;
-    }
-
-    /// <inheritdoc/>
-    public override void UpdateRendering()
-    {
-        // Reset grid illumination safely
-        Controller.ResetAllTiles();
-
-        if (_selectedSkill == null || _selectedUnit == null)
-            return;
-
-        // Validate pattern availability
-        if (_selectedIndex < 0 || _selectedIndex >= _selectedUnit.MovementPatterns.Count)
-        {
-            Debug.LogWarning($"No movement pattern found for skill index {_selectedIndex}");
-            return;
-        }
-
-        var pattern = _selectedUnit.MovementPatterns[_selectedIndex];
-        Vector2Int unitPos = _selectedUnit.GridPosition;
-
-        foreach (Vector2Int offset in pattern)
-        {
-            Tile tile = TacticalController.Instance.GetTileAt(unitPos + offset);
-            if (tile != null)
-                tile.Illuminate(Color.cyan); // Different highlight color for skill preview
-        }
     }
 }
