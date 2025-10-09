@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 /// <summary>
 /// State responsible for displaying the skill menu and handling skill selection.
@@ -7,8 +6,8 @@ using System.Collections.Generic;
 public class TacticalStateSkillMenu : TacticalStateBase
 {
     private int _selectedIndex = -1;
-    private SkillData _selectedSkill;
-    private Unit _selectedUnit => Controller.SelectedUnit;
+    private Unit _selectedUnit => TacticalController.Instance.SelectedUnit;
+    private SkillData _selectedSkill => TacticalController.Instance.SelectedSkill;
 
     public TacticalStateSkillMenu(TacticalStateMachine stateMachine) : base(stateMachine) { }
 
@@ -18,8 +17,8 @@ public class TacticalStateSkillMenu : TacticalStateBase
         Debug.Log("Entering Skill Menu State");
 
         _selectedIndex = -1;
-        _selectedSkill = null;
 
+        TacticalController.Instance.SelectSkill(null);
         TacticalMenu.Instance.ShowSkillMenu();
         UpdateRendering();
     }
@@ -37,7 +36,7 @@ public class TacticalStateSkillMenu : TacticalStateBase
         if (_selectedUnit == null)
         {
             Debug.LogWarning("No selected unit to choose skill for.");
-            _selectedSkill = null;
+            TacticalController.Instance.SelectSkill(null);
             return;
         }
 
@@ -45,12 +44,12 @@ public class TacticalStateSkillMenu : TacticalStateBase
         if (buttonIndex < 0 || buttonIndex >= _selectedUnit.Skills.Count)
         {
             Debug.LogWarning($"Invalid skill index: {buttonIndex}");
-            _selectedSkill = null;
+            TacticalController.Instance.SelectSkill(null);
             return;
         }
 
         _selectedIndex = buttonIndex;
-        _selectedSkill = _selectedUnit.GetSkillByIndex(buttonIndex);
+        TacticalController.Instance.SelectSkill(_selectedUnit.GetSkillByIndex(buttonIndex));
 
         Debug.Log($"Skill selected: {_selectedSkill.SkillName.GetLocalizedString()}");
 
@@ -64,7 +63,8 @@ public class TacticalStateSkillMenu : TacticalStateBase
     public override void Exit()
     {
         TacticalMenu.Instance.Hide();
-        _selectedSkill = null;
+        TacticalController.Instance.SelectSkill(null);
+
         _selectedIndex = -1;
     }
 

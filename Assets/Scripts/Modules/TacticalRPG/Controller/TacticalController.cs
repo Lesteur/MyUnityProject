@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 
@@ -37,6 +36,7 @@ public class TacticalController : Singleton<TacticalController>,
     private readonly List<Unit> _enemyUnits = new();
 
     private Unit _selectedUnit;
+    private SkillData _selectedSkill;
 
     #region Events
 
@@ -44,6 +44,11 @@ public class TacticalController : Singleton<TacticalController>,
     /// Occurs when a unit becomes the current selection.
     /// </summary>
     public event System.Action<Unit> OnUnitSelectedEvent;
+
+    /// <summary>
+    /// Occurs when a skill is selected from the skill menu.
+    /// </summary>
+    public event System.Action<SkillData> OnSkillSelectedEvent;
 
     // public event System.Action<Unit> OnUnitActionFinishedEvent;
 
@@ -60,6 +65,10 @@ public class TacticalController : Singleton<TacticalController>,
     /// Gets the currently selected unit.
     /// </summary>
     public Unit SelectedUnit => _selectedUnit;
+    /// <summary>
+    /// Gets the currently selected skill.
+    /// </summary>
+    public SkillData SelectedSkill => _selectedSkill;
     /// <summary>
     /// Gets the tactical grid.
     /// </summary>
@@ -247,7 +256,21 @@ public class TacticalController : Singleton<TacticalController>,
     public void SelectUnit(Unit unit)
     {
         _selectedUnit = unit;
-        OnUnitSelectedEvent?.Invoke(unit);
+
+        if (unit != null)
+            OnUnitSelectedEvent?.Invoke(unit);
+    }
+
+    /// <summary>
+    /// Selects the given skill and triggers the skill selection event.
+    /// </summary>
+    /// <param name="skill">Skill to select.</param>
+    public void SelectSkill(SkillData skill)
+    {
+        _selectedSkill = skill;
+
+        if (skill != null)
+            OnSkillSelectedEvent?.Invoke(skill);
     }
 
     /// <summary>

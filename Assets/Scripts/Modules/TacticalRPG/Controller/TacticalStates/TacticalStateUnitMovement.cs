@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.EventSystems;
 
@@ -31,12 +30,10 @@ public class TacticalStateUnitMovement : TacticalStateBase
     }
 
     /// <inheritdoc/>
-    public override void HorizontalKey(int direction) =>
-        UpdatePathSelection(new Vector2Int(_cursorPosition.x, _cursorPosition.y - direction));
+    public override void HorizontalKey(int direction) => UpdatePathSelection(new Vector2Int(_cursorPosition.x, _cursorPosition.y - direction));
 
     /// <inheritdoc/>
-    public override void VerticalKey(int direction) =>
-        UpdatePathSelection(new Vector2Int(_cursorPosition.x + direction, _cursorPosition.y));
+    public override void VerticalKey(int direction) => UpdatePathSelection(new Vector2Int(_cursorPosition.x + direction, _cursorPosition.y));
 
     /// <inheritdoc/>
     public override void ConfirmKey()
@@ -46,10 +43,7 @@ public class TacticalStateUnitMovement : TacticalStateBase
     }
 
     /// <inheritdoc/>
-    public override void CancelKey()
-    {
-        stateMachine.EnterState(stateMachine.MainMenuState);
-    }
+    public override void CancelKey() => stateMachine.EnterState(stateMachine.MainMenuState);
 
     /// <inheritdoc/>
     public override void UpdateRendering()

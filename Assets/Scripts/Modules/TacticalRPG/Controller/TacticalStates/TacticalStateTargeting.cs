@@ -4,12 +4,12 @@ using UnityEngine.EventSystems;
 /// <summary>
 /// State responsible for selecting a unit on the tactical grid.
 /// </summary>
-public class TacticalStateUnitChoice : TacticalStateBase
+public class TacticalStateTargeting : TacticalStateBase
 {
     private Vector2Int _cursorPos;
     private Vector2Int _lastCursorPos;
 
-    public TacticalStateUnitChoice(TacticalStateMachine stateMachine) : base(stateMachine)
+    public TacticalStateTargeting(TacticalStateMachine stateMachine) : base(stateMachine)
     {
         _cursorPos = Vector2Int.zero;
     }
@@ -59,6 +59,7 @@ public class TacticalStateUnitChoice : TacticalStateBase
     /// <inheritdoc/>
     public override void ConfirmKey()
     {
+        /*
         foreach (var unit in Controller.AlliedUnits)
         {
             if (unit.GridPosition == _cursorPos && !unit.EndTurn)
@@ -68,7 +69,10 @@ public class TacticalStateUnitChoice : TacticalStateBase
                 return;
             }
         }
+        */
     }
+
+    public override void CancelKey() => stateMachine.EnterState(stateMachine.SkillMenuState);
 
     /// <inheritdoc/>
     public override void UpdateRendering()
