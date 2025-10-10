@@ -9,12 +9,16 @@ namespace TacticalRPG
     /// </summary>
     public class TacticalStateEnemyTurn : TacticalStateBase
     {
-        private Unit _selectedUnit => TacticalController.Instance.SelectedUnit;
+        /// <summary>
+        /// Gets the currently selected unit from the controller.
+        /// </summary>
+        private Unit SelectedUnit => Controller.SelectedUnit;
         private PathResult _selectedPath;
 
         /// <summary>
-        /// Initializes a new instance of the enemy turn state.
+        /// Initializes a new instance of the <see cref="TacticalStateEnemyTurn"/> class.
         /// </summary>
+        /// <param name="stateMachine">The state machine managing this state.</param>
         public TacticalStateEnemyTurn(TacticalStateMachine stateMachine) : base(stateMachine)
         {
             _selectedPath = default; // struct default (invalid state)
@@ -30,22 +34,22 @@ namespace TacticalRPG
             {
                 if (enemy.Type == Unit.UnitType.Enemy && !enemy.EndTurn)
                 {
-                    stateMachine.Controller.SelectUnit(enemy);
+                    Controller.SelectUnit(enemy);
                     break;
                 }
             }
 
             // Find a path to the nearest player unit
-            if (_selectedUnit != null)
+            if (SelectedUnit != null)
             {
-                List<PathResult> paths = TacticalController.Instance.Pathfinding.GetAllPathsFrom(_selectedUnit.GridPosition, _selectedUnit);
+                List<PathResult> paths = TacticalController.Instance.Pathfinding.GetAllPathsFrom(SelectedUnit.GridPosition, SelectedUnit);
                 Unit nearestPlayer = null;
                 int shortestDistance = int.MaxValue;
 
                 foreach (Unit unit in TacticalController.Instance.AlliedUnits)
                 {
-                    int distance = Mathf.Abs(unit.GridPosition.x - _selectedUnit.GridPosition.x) +
-                                    Mathf.Abs(unit.GridPosition.y - _selectedUnit.GridPosition.y);
+                    int distance = Mathf.Abs(unit.GridPosition.x - SelectedUnit.GridPosition.x) +
+                                    Mathf.Abs(unit.GridPosition.y - SelectedUnit.GridPosition.y);
                     
                     if (distance < shortestDistance)
                     {
@@ -74,12 +78,12 @@ namespace TacticalRPG
 
                 if (_selectedPath.IsValid)
                 {
-                    TacticalController.Instance.MoveUnitPath(_selectedUnit, _selectedPath);
+                    TacticalController.Instance.MoveUnitPath(SelectedUnit, _selectedPath);
                 }
                 else
                 {
                     Debug.LogWarning("No valid path found to the nearest player unit.");
-                    _selectedUnit.EndTurn = true; // End turn if no path is found
+                    SelectedUnit.EndTurn = true; // End turn if no path is found
                 }
             }
             else

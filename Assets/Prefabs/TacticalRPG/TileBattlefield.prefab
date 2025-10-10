@@ -46,9 +46,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b891bedf9202e6141ba3b53dd0fb9252, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tileSprite: {fileID: 4009801671198873655}
-  tileData: {fileID: 11400000, guid: 38ce3c4a0f194574e856f8472018b4af, type: 2}
-  terrainType: 0
+  _tileSprite: {fileID: 4009801671198873655}
+  _tileData: {fileID: 11400000, guid: 6996dbc35b0a5004591ec03c0a4e3869, type: 2}
+  _terrainType: 0
 --- !u!60 &-5866206889142521204
 PolygonCollider2D:
   m_ObjectHideFlags: 0

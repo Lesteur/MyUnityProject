@@ -4,15 +4,26 @@ using UnityEngine.EventSystems;
 namespace TacticalRPG
 {
     /// <summary>
-    /// State responsible for selecting a unit on the tactical grid.
+    /// State responsible for targeting with skills on the tactical grid.
     /// </summary>
     public class TacticalStateTargeting : TacticalStateBase
     {
         private Vector2Int _cursorPos;
         private Vector2Int _lastCursorPos;
-        private Unit _selectedUnit => TacticalController.Instance.SelectedUnit;
-        private SkillData _selectedSkill => TacticalController.Instance.SelectedSkill;
 
+        /// <summary>
+        /// Gets the currently selected unit from the controller.
+        /// </summary>
+        private Unit SelectedUnit => Controller.SelectedUnit;
+        /// <summary>
+        /// Gets the currently selected skill from the controller.
+        /// </summary>
+        private SkillData SelectedSkill => Controller.SelectedSkill;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TacticalStateTargeting"/> class.
+        /// </summary>
+        /// <param name="stateMachine">The state machine managing this state.</param>
         public TacticalStateTargeting(TacticalStateMachine stateMachine) : base(stateMachine)
         {
             _cursorPos = Vector2Int.zero;
@@ -30,14 +41,21 @@ namespace TacticalRPG
         }
 
         /// <inheritdoc/>
-        public override void HorizontalKey(int direction) => MoveCursor(Vector2Int.down * direction);
+        public override void HorizontalKey(int direction)
+        {
+            MoveCursor(Vector2Int.down * direction);
+        }
 
         /// <inheritdoc/>
-        public override void VerticalKey(int direction) => MoveCursor(Vector2Int.right * direction);
+        public override void VerticalKey(int direction)
+        {
+            MoveCursor(Vector2Int.right * direction);
+        }
 
         /// <summary>
         /// Moves the cursor by a directional delta, if within grid bounds.
         /// </summary>
+        /// <param name="delta">The directional movement vector.</param>
         private void MoveCursor(Vector2Int delta)
         {
             var newPos = _cursorPos + delta;
@@ -49,6 +67,7 @@ namespace TacticalRPG
         /// <summary>
         /// Updates the cursor position and re-renders highlights.
         /// </summary>
+        /// <param name="newPosition">The new cursor position.</param>
         private void UpdateCursorPosition(Vector2Int newPosition)
         {
             if (newPosition == _cursorPos)
@@ -63,20 +82,14 @@ namespace TacticalRPG
         /// <inheritdoc/>
         public override void ConfirmKey()
         {
-            /*
-            foreach (var unit in Controller.AlliedUnits)
-            {
-                if (unit.GridPosition == _cursorPos && !unit.EndTurn)
-                {
-                    Controller.SelectUnit(unit);
-                    stateMachine.EnterState(stateMachine.MainMenuState);
-                    return;
-                }
-            }
-            */
+            // Implement skill targeting confirmation logic here if needed.
         }
 
-        public override void CancelKey() => stateMachine.EnterState(stateMachine.SkillMenuState);
+        /// <inheritdoc/>
+        public override void CancelKey()
+        {
+            _stateMachine.EnterState(_stateMachine.SkillMenuState);
+        }
 
         /// <inheritdoc/>
         public override void UpdateRendering()
@@ -84,11 +97,11 @@ namespace TacticalRPG
             // Reset grid illumination safely
             Controller.ResetAllTiles();
 
-            if (_selectedSkill == null || _selectedUnit == null)
+            if (SelectedSkill == null || SelectedUnit == null)
                 return;
 
-            var pattern = _selectedUnit.MovementPatterns[_selectedSkill];
-            Vector2Int unitPos = _selectedUnit.GridPosition;
+            var pattern = SelectedUnit.MovementPatterns[SelectedSkill];
+            Vector2Int unitPos = SelectedUnit.GridPosition;
 
             Debug.Log($"Highlighting skill pattern at unit position {unitPos}");
 
@@ -101,17 +114,19 @@ namespace TacticalRPG
 
             foreach (Vector2Int offset in pattern)
             {
-                Tile tile = TacticalController.Instance.GetTileAt(unitPos + offset);
+                Tile tile = Controller.GetTileAt(unitPos + offset);
                 if ((tile != null) && (currentTile != tile))
                     tile.Illuminate(Color.cyan); // Different highlight color for skill preview
             }
         }
 
+        /// <inheritdoc/>
         public override void Exit()
         {
             Controller.ResetAllTiles();
         }
 
+        /// <inheritdoc/>
         public override void OnTileClicked(Tile tile)
         {
             if (tile == null) return;
@@ -120,6 +135,7 @@ namespace TacticalRPG
             ConfirmKey();
         }
 
+        /// <inheritdoc/>
         public override void OnTileHovered(Tile tile)
         {
             if (tile == null) return;

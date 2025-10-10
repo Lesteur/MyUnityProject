@@ -3,105 +3,117 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Interprets and executes commands from a script file.
-/// The script file should be in JSON format, containing a list of commands and their arguments.
-/// Each command can be synchronous or asynchronous.
-/// </summary>
-public class CommandInterpreter : MonoBehaviour
+namespace VisualNovel
 {
     /// <summary>
-    /// List of all actor instances available to commands.
-    /// This is shared across all interpreters.
+    /// Interprets and executes commands from a script file.
+    /// The script file should be in JSON format, containing a list of commands and their arguments.
+    /// Each command can be synchronous or asynchronous.
     /// </summary>
-    public static List<Actor> actors = new List<Actor>();
-
-    /// <summary>
-    /// JSON script file containing a list of serialized commands.
-    /// This should be assigned in the Unity Inspector.
-    /// </summary>
-    public TextAsset scriptFile;
-
-    /// <summary>
-    /// List of parsed commands loaded from the script file.
-    /// </summary>
-    private List<SerializedCommand> commandsList = new List<SerializedCommand>();
-
-    /// <summary>
-    /// Represents a single command from the script file, with its name and arguments.
-    /// </summary>
-    [Serializable]
-    public class SerializedCommand
+    public class CommandInterpreter : Singleton<CommandInterpreter>
     {
-        public string command;     // The keyword/name of the command
-        public List<string> args;  // Arguments for the command
-    }
+        /// <summary>
+        /// List of all actor instances available to commands.
+        /// This is shared across all interpreters.
+        /// </summary>
+        public static List<Actor> Actors = new();
 
-    /// <summary>
-    /// Wrapper for deserializing a list of commands from JSON.
-    /// </summary>
-    [Serializable]
-    public class SerializedCommandList
-    {
-        public List<SerializedCommand> commands;
-    }
+        /// <summary>
+        /// JSON script file containing a list of serialized commands.
+        /// This should be assigned in the Unity Inspector.
+        /// </summary>
+        [SerializeField] private TextAsset _scriptFile;
 
-    /// <summary>
-    /// Unity lifecycle method.
-    /// Called once when the GameObject is initialized.
-    /// </summary>
-    private void Start()
-    {
-        LoadScript(scriptFile.text);
-        StartCoroutine(RunScript());
-    }
+        /// <summary>
+        /// List of parsed commands loaded from the script file.
+        /// </summary>
+        private List<SerializedCommand> _commandsList = new();
 
-    /// <summary>
-    /// Parses the JSON-formatted script file into a list of commands.
-    /// </summary>
-    /// <param name="text">JSON text of the script file.</param>
-    private void LoadScript(string text)
-    {
-        SerializedCommandList list = JsonUtility.FromJson<SerializedCommandList>(text);
-        if (list != null && list.commands != null)
+        /// <summary>
+        /// Represents a single command from the script file, with its name and arguments.
+        /// </summary>
+        [Serializable]
+        public class SerializedCommand
         {
-            commandsList = list.commands;
+            /// <summary>
+            /// The keyword/name of the command.
+            /// </summary>
+            public string command;
+            /// <summary>
+            /// Arguments for the command.
+            /// </summary>
+            public List<string> args;
         }
-        else
+
+        /// <summary>
+        /// Wrapper for deserializing a list of commands from JSON.
+        /// </summary>
+        [Serializable]
+        public class SerializedCommandList
         {
-            Debug.LogWarning("Failed to parse script file or no commands found.");
-            commandsList = new List<SerializedCommand>();
+            /// <summary>
+            /// The list of commands.
+            /// </summary>
+            public List<SerializedCommand> commands;
         }
-    }
 
-    /// <summary>
-    /// Executes all commands from the loaded script.
-    /// Synchronous commands run immediately; asynchronous commands are awaited via coroutine.
-    /// </summary>
-    private IEnumerator RunScript()
-    {
-        foreach (var serializedCommand in commandsList)
+        /// <summary>
+        /// Unity lifecycle method.
+        /// Called once when the GameObject is initialized.
+        /// </summary>
+        private void Start()
         {
-            string keyword = serializedCommand.command;
-            List<string> args = serializedCommand.args;
+            LoadScript(_scriptFile.text);
+            StartCoroutine(RunScript());
+        }
 
-            IVNCommand command = CommandRegistry.GetCommand(keyword);
-
-            if (command == null)
+        /// <summary>
+        /// Parses the JSON-formatted script file into a list of commands.
+        /// </summary>
+        /// <param name="text">JSON text of the script file.</param>
+        private void LoadScript(string text)
+        {
+            SerializedCommandList list = JsonUtility.FromJson<SerializedCommandList>(text);
+            if (list != null && list.commands != null)
             {
-                Debug.LogWarning($"Command not found: {keyword}");
-                continue;
-            }
-
-            if (command is IVNCommandSync syncCommand)
-            {
-                Debug.Log($"Executing synchronous command: {keyword}");
-                syncCommand.ExecuteImmediate(args);
+                _commandsList = list.commands;
             }
             else
             {
-                Debug.Log($"Executing coroutine command: {keyword}");
-                yield return StartCoroutine(command.Execute(args));
+                Debug.LogWarning("Failed to parse script file or no commands found.");
+                _commandsList = new List<SerializedCommand>();
+            }
+        }
+
+        /// <summary>
+        /// Executes all commands from the loaded script.
+        /// Synchronous commands run immediately; asynchronous commands are awaited via coroutine.
+        /// </summary>
+        private IEnumerator RunScript()
+        {
+            foreach (var serializedCommand in _commandsList)
+            {
+                string keyword = serializedCommand.command;
+                List<string> args = serializedCommand.args;
+
+                IVNCommand command = CommandRegistry.GetCommand(keyword);
+
+                if (command == null)
+                {
+                    Debug.LogWarning($"Command not found: {keyword}");
+                    continue;
+                }
+
+                if (command is IVNCommandSync syncCommand)
+                {
+                    Debug.Log($"Executing synchronous command: {keyword}");
+                    syncCommand.ExecuteImmediate(args);
+                }
+                else
+                {
+                    Debug.Log($"Executing coroutine command: {keyword}");
+                    yield return StartCoroutine(command.Execute(args));
+                }
             }
         }
     }

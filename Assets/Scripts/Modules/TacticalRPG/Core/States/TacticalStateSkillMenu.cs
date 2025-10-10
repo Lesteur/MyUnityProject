@@ -7,10 +7,19 @@ namespace TacticalRPG
     /// </summary>
     public class TacticalStateSkillMenu : TacticalStateBase
     {
-        private int _selectedIndex = -1;
-        private Unit _selectedUnit => TacticalController.Instance.SelectedUnit;
-        private SkillData _selectedSkill => TacticalController.Instance.SelectedSkill;
+        /// <summary>
+        /// Gets the currently selected unit from the controller.
+        /// </summary>
+        private Unit SelectedUnit => Controller.SelectedUnit;
+        /// <summary>
+        /// Gets the currently selected skill from the controller.
+        /// </summary>
+        private SkillData SelectedSkill => Controller.SelectedSkill;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TacticalStateSkillMenu"/> class.
+        /// </summary>
+        /// <param name="stateMachine">The state machine managing this state.</param>
         public TacticalStateSkillMenu(TacticalStateMachine stateMachine) : base(stateMachine) { }
 
         /// <inheritdoc/>
@@ -18,51 +27,45 @@ namespace TacticalRPG
         {
             Debug.Log("Entering Skill Menu State");
 
-            _selectedIndex = -1;
-
-            TacticalController.Instance.SelectSkill(null);
+            Controller.SelectSkill(null);
             TacticalMenu.Instance.ShowSkillMenu();
-            // UpdateRendering();
         }
 
         /// <inheritdoc/>
         public override void CancelKey()
         {
             // Return to the main menu when cancelling skill selection
-            stateMachine.EnterState(stateMachine.MainMenuState);
+            _stateMachine.EnterState(_stateMachine.MainMenuState);
         }
 
         /// <inheritdoc/>
         public override void OnClickButton(int buttonIndex)
         {
-            if (_selectedUnit == null)
+            if (SelectedUnit == null)
             {
                 Debug.LogWarning("No selected unit to choose skill for.");
-                TacticalController.Instance.SelectSkill(null);
+                Controller.SelectSkill(null);
                 return;
             }
 
             // Validate index
-            if (buttonIndex < 0 || buttonIndex >= _selectedUnit.Skills.Count)
+            if (buttonIndex < 0 || buttonIndex >= SelectedUnit.Skills.Count)
             {
                 Debug.LogWarning($"Invalid skill index: {buttonIndex}");
-                TacticalController.Instance.SelectSkill(null);
+                Controller.SelectSkill(null);
                 return;
             }
 
-            _selectedIndex = buttonIndex;
-            TacticalController.Instance.SelectSkill(_selectedUnit.GetSkillByIndex(buttonIndex));
+            Controller.SelectSkill(SelectedUnit.GetSkillByIndex(buttonIndex));
 
-            // Optional: Transition to targeting state once selection confirmed
-            stateMachine.EnterState(stateMachine.TargetingState);
+            // Transition to targeting state once selection confirmed
+            _stateMachine.EnterState(_stateMachine.TargetingState);
         }
 
         /// <inheritdoc/>
         public override void Exit()
         {
             TacticalMenu.Instance.Hide();
-
-            _selectedIndex = -1;
         }
     }
 }

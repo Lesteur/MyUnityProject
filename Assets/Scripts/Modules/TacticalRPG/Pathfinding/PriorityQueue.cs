@@ -18,6 +18,9 @@ public class PriorityQueue<T> : IDisposable where T : IComparable<T>
     /// </summary>
     public int Count => _heap.Count;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PriorityQueue{T}"/> class.
+    /// </summary>
     public PriorityQueue()
     {
         _heap = ListPool<T>.Get();

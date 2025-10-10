@@ -30,40 +30,86 @@ namespace TacticalRPG
 
         #region Events
 
-        /// <summary>Fired when the unit finishes its movement animation and reaches destination.</summary>
+        /// <summary>
+        /// Fired when the unit finishes its movement animation and reaches destination.
+        /// </summary>
         public event System.Action<Unit> OnMovementComplete;
 
-        /// <summary>Fired when the unit finishes its action (attack, skill, etc.).</summary>
         // public event System.Action<Unit> OnActionComplete;
 
         #endregion
         
         #region Properties
 
+        /// <summary>
+        /// Gets or sets whether the unit has ended its turn.
+        /// </summary>
         public bool EndTurn { get; set; }
+        /// <summary>
+        /// Gets or sets whether the unit has completed its movement.
+        /// </summary>
         public bool MovementDone { get; set; }
+        /// <summary>
+        /// Gets or sets whether the unit has completed its action.
+        /// </summary>
         public bool ActionDone { get; set; }
 
+        /// <summary>
+        /// Gets or sets the available paths for this unit.
+        /// </summary>
         public List<PathResult> AvailablePaths { get; private set; } = new();
-        public Tile CurrentTile         => _currentTile;
-        public Tile PreviousTile        => _previousTile;
-        public Vector2Int GridPosition  => _currentTile != null ? _currentTile.GridPosition : _startPosition;
-        public int MovementPoints       => _movementPoints;
-        public int JumpHeight           => _jumpHeight;
-        public int MaxFallHeight        => _maxFallHeight;
-        public UnitType Type            => _unitType;
-        public List<SkillData> Skills   => _skills;
+        /// <summary>
+        /// Gets the current tile occupied by this unit.
+        /// </summary>
+        public Tile CurrentTile => _currentTile;
+        /// <summary>
+        /// Gets the previous tile occupied by this unit.
+        /// </summary>
+        public Tile PreviousTile => _previousTile;
+        /// <summary>
+        /// Gets the grid position of this unit.
+        /// </summary>
+        public Vector2Int GridPosition => _currentTile != null ? _currentTile.GridPosition : _startPosition;
+        /// <summary>
+        /// Gets the movement points of this unit.
+        /// </summary>
+        public int MovementPoints => _movementPoints;
+        /// <summary>
+        /// Gets the jump height of this unit.
+        /// </summary>
+        public int JumpHeight => _jumpHeight;
+        /// <summary>
+        /// Gets the maximum fall height of this unit.
+        /// </summary>
+        public int MaxFallHeight => _maxFallHeight;
+        /// <summary>
+        /// Gets the type of this unit.
+        /// </summary>
+        public UnitType Type => _unitType;
+        /// <summary>
+        /// Gets the list of skills for this unit.
+        /// </summary>
+        public List<SkillData> Skills => _skills;
+        /// <summary>
+        /// Gets the movement patterns for each skill.
+        /// </summary>
         public Dictionary<SkillData, List<Vector2Int>> MovementPatterns => _movementPatterns;
 
         #endregion
         
         #region Initialization
 
+        /// <summary>
+        /// Unity Awake callback. Initializes the sprite renderer.
+        /// </summary>
         private void Awake()
         {
             _spriteRenderer = GetComponent<SpriteRenderer>();
         }
 
+        /// <summary>
+        /// Initializes the unit's position and movement patterns.
+        /// </summary>
         public void Initialize()
         {
             var tile = TacticalController.Instance.GetTileAt(_startPosition);
@@ -93,6 +139,7 @@ namespace TacticalRPG
         /// <summary>
         /// Starts moving the unit along the given path using coroutine animation.
         /// </summary>
+        /// <param name="pathResult">The path to follow.</param>
         public void FollowPath(PathResult pathResult)
         {
             if (!pathResult.IsValid)
@@ -109,6 +156,9 @@ namespace TacticalRPG
             _movementCoroutine = StartCoroutine(MoveAlongPath());
         }
 
+        /// <summary>
+        /// Coroutine for moving the unit along its path.
+        /// </summary>
         private IEnumerator MoveAlongPath()
         {
             foreach (var tile in _currentPath.Path)
@@ -130,6 +180,10 @@ namespace TacticalRPG
             OnMovementComplete?.Invoke(this);
         }
 
+        /// <summary>
+        /// Instantly moves the unit to the specified tile.
+        /// </summary>
+        /// <param name="tile">The tile to move to.</param>
         private void MoveToTile(Tile tile)
         {
             if (tile == null) return;
@@ -143,12 +197,25 @@ namespace TacticalRPG
         
         #region Position & Skills
 
+        /// <summary>
+        /// Sets the available paths for this unit.
+        /// </summary>
+        /// <param name="paths">The list of available paths.</param>
         public void SetAvailablePaths(List<PathResult> paths)
             => AvailablePaths = (paths != null && paths.Count > 0) ? paths : new();
 
+        /// <summary>
+        /// Gets the skill at the specified index.
+        /// </summary>
+        /// <param name="index">The index of the skill.</param>
+        /// <returns>The skill at the index, or null if out of range.</returns>
         public SkillData GetSkillByIndex(int index)
             => (_skills != null && index >= 0 && index < _skills.Count) ? _skills[index] : null;
 
+        /// <summary>
+        /// Sets the unit's position to the specified tile.
+        /// </summary>
+        /// <param name="newTile">The tile to move to.</param>
         public void SetPosition(Tile newTile)
         {
             if (newTile == null) return;
@@ -164,6 +231,10 @@ namespace TacticalRPG
             MoveToTile(_currentTile);
         }
 
+        /// <summary>
+        /// Sets the unit's position to the specified grid position.
+        /// </summary>
+        /// <param name="newPosition">The grid position to move to.</param>
         public void SetPosition(Vector2Int newPosition)
         {
             var tile = TacticalController.Instance.GetTileAt(newPosition);

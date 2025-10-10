@@ -27,13 +27,6 @@ namespace TacticalRPG
         private readonly Button[] _skillButtons = new Button[5];
         private InputAction _cancelAction;
 
-        private System.Action _onMoveClicked;
-        private System.Action _onSkillsClicked;
-        private System.Action _onItemsClicked;
-        private System.Action _onStatusClicked;
-        private System.Action _onEndTurnClicked;
-        private System.Action<InputAction.CallbackContext> _onCancelPerformed;
-
         /// <summary>
         /// Gets the currently selected unit from the TacticalController.
         /// </summary>
@@ -89,28 +82,20 @@ namespace TacticalRPG
             }
 
             var uiModule = eventSystem.GetComponent<InputSystemUIInputModule>();
-            _cancelAction = uiModule.cancel?.action;
+            _cancelAction = uiModule.cancel.action;
             if (_cancelAction == null)
             {
                 Debug.LogError($"{nameof(TacticalMenu)}: Cancel action not found in InputSystemUIInputModule.");
                 return;
             }
 
-            // Initialize persistent delegates
-            _onMoveClicked     = () => OnMainMenuClicked(0);
-            _onSkillsClicked   = () => OnMainMenuClicked(1);
-            _onItemsClicked    = OnItemsClicked;
-            _onStatusClicked   = OnStatusClicked;
-            _onEndTurnClicked  = OnEndTurnClicked;
-            _onCancelPerformed = ctx => OnCancel();
-
             // Subscribe
-            _moveButton.clicked    += _onMoveClicked;
-            _skillsButton.clicked  += _onSkillsClicked;
-            _itemsButton.clicked   += _onItemsClicked;
-            _statusButton.clicked  += _onStatusClicked;
-            _endTurnButton.clicked += _onEndTurnClicked;
-            _cancelAction.performed += _onCancelPerformed;
+            _moveButton.clicked    += () => OnMainMenuClicked(0);
+            _skillsButton.clicked  += () => OnMainMenuClicked(1);
+            _itemsButton.clicked   += OnItemsClicked;
+            _statusButton.clicked  += OnStatusClicked;
+            _endTurnButton.clicked += OnEndTurnClicked;
+            _cancelAction.performed += OnCancelPerformed;
 
             for (int i = 0; i < _skillButtons.Length; i++)
             {
@@ -126,19 +111,28 @@ namespace TacticalRPG
         private void OnDisable()
         {
             if (_cancelAction != null)
-                _cancelAction.performed -= _onCancelPerformed;
+                _cancelAction.performed -= OnCancelPerformed;
 
-            _moveButton.clicked    -= _onMoveClicked;
-            _skillsButton.clicked  -= _onSkillsClicked;
-            _itemsButton.clicked   -= _onItemsClicked;
-            _statusButton.clicked  -= _onStatusClicked;
-            _endTurnButton.clicked -= _onEndTurnClicked;
+            _moveButton.clicked    -= () => OnMainMenuClicked(0);
+            _skillsButton.clicked  -= () => OnMainMenuClicked(1);
+            _itemsButton.clicked   -= OnItemsClicked;
+            _statusButton.clicked  -= OnStatusClicked;
+            _endTurnButton.clicked -= OnEndTurnClicked;
 
             for (int i = 0; i < _skillButtons.Length; i++)
             {
                 if (_skillButtons[i] != null)
                     _skillButtons[i].clicked -= () => OnSkillClicked(i);
             }
+        }
+
+        /// <summary>
+        /// Handles cancel input performed event.
+        /// </summary>
+        /// <param name="ctx">Callback context.</param>
+        private void OnCancelPerformed(InputAction.CallbackContext ctx)
+        {
+            OnCancel();
         }
 
         #endregion
@@ -225,7 +219,7 @@ namespace TacticalRPG
                 if (i < unit.Skills.Count)
                 {
                     var skill = unit.Skills[i];
-                    string skillName = skill?.SkillName.GetLocalizedString() ?? "Unnamed Skill";
+                    string skillName = skill.SkillName.GetLocalizedString() ?? "Unnamed Skill";
 
                     button.text = skillName;
                     button.style.display = DisplayStyle.Flex;
@@ -240,7 +234,7 @@ namespace TacticalRPG
             SetMenuVisibility(_mainMenu, false);
             SetMenuVisibility(_skillMenu, true);
 
-            _skillButtons[0]?.Focus();
+            _skillButtons[0].Focus();
         }
 
         /// <summary>

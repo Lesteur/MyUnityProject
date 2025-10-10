@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a14f603198bc0a946addcf5858f9d2d7, type: 3}
   m_Name: ActorZoe
   m_EditorClassIdentifier: 
-  id: zoe
-  displayName:
+  _id: zoe
+  _displayName:
     m_TableReference:
       m_TableCollectionName: GUID:d0bf8a3abb594a144a39a1c090fe275d
     m_TableEntryReference:
@@ -22,8 +22,8 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
-  defaultBody: {fileID: 21300000, guid: 9f08ee9dadd86544db94478b5610f9c8, type: 3}
-  moods:
+  _defaultBody: {fileID: 21300000, guid: 9f08ee9dadd86544db94478b5610f9c8, type: 3}
+  _moods:
   - moodId: angry
     face: {fileID: 21300000, guid: 804d525c30e41644e96aa495b4ccea98, type: 3}
   - moodId: blush
@@ -52,7 +52,7 @@ MonoBehaviour:
     face: {fileID: 21300000, guid: 0e4930d14bd54d442b7f2e7fa2240502, type: 3}
   - moodId: naughty
     face: {fileID: 21300000, guid: 5556a7f916ec03f4d8b1b521c1d2ee61, type: 3}
-  - moodId: possesed
+  - moodId: possessed
     face: {fileID: 21300000, guid: 930bd14ff232bee43bf2ded62643d712, type: 3}
   - moodId: scary
     face: {fileID: 21300000, guid: e23799d3b6274b84ca8170e03e0f96dd, type: 3}

@@ -7,10 +7,20 @@ namespace TacticalRPG
     /// </summary>
     public class TacticalStateMainMenu : TacticalStateBase
     {
+        /// <summary>
+        /// Represents the available main menu actions.
+        /// </summary>
         private enum MainMenuAction { Move = 0, Skills = 1, Items = 2, Status = 3, EndTurn = 4 }
 
-        private Unit _selectedUnit => stateMachine.Controller.SelectedUnit;
+        /// <summary>
+        /// Gets the currently selected unit from the controller.
+        /// </summary>
+        private Unit SelectedUnit => Controller.SelectedUnit;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TacticalStateMainMenu"/> class.
+        /// </summary>
+        /// <param name="stateMachine">The state machine managing this state.</param>
         public TacticalStateMainMenu(TacticalStateMachine stateMachine) : base(stateMachine) { }
 
         /// <inheritdoc/>
@@ -26,17 +36,17 @@ namespace TacticalRPG
         /// <inheritdoc/>
         public override void CancelKey()
         {
-            if (_selectedUnit == null || _selectedUnit.ActionDone)
+            if (SelectedUnit == null || SelectedUnit.ActionDone)
                 return;
 
             // If unit moved but hasn’t confirmed
-            if (_selectedUnit.MovementDone)
+            if (SelectedUnit.MovementDone)
             {
-                _selectedUnit.SetPosition(_selectedUnit.PreviousTile.GridPosition);
-                _selectedUnit.MovementDone = false;
+                SelectedUnit.SetPosition(SelectedUnit.PreviousTile.GridPosition);
+                SelectedUnit.MovementDone = false;
             }
 
-            stateMachine.EnterState(stateMachine.UnitChoiceState);
+            _stateMachine.EnterState(_stateMachine.UnitChoiceState);
         }
 
         /// <inheritdoc/>
@@ -45,11 +55,11 @@ namespace TacticalRPG
             switch ((MainMenuAction)buttonIndex)
             {
                 case MainMenuAction.Move:
-                    stateMachine.EnterState(stateMachine.UnitMovementState);
+                    _stateMachine.EnterState(_stateMachine.UnitMovementState);
                     break;
 
                 case MainMenuAction.Skills:
-                    stateMachine.EnterState(stateMachine.SkillMenuState);
+                    _stateMachine.EnterState(_stateMachine.SkillMenuState);
                     break;
 
                 case MainMenuAction.Items:
@@ -61,7 +71,7 @@ namespace TacticalRPG
                     break;
 
                 case MainMenuAction.EndTurn:
-                    stateMachine.Controller.EndTurn();
+                    _stateMachine.Controller.EndTurn();
                     break;
 
                 default:

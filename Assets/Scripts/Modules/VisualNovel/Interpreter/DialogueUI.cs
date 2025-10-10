@@ -2,104 +2,118 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-
-/// <summary>
-/// Defines the available dialogue typing speeds.
-/// </summary>
-public enum DialogueSpeed
-{
-    Slow,
-    Normal,
-    Fast
-}
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// Manages the dialogue user interface, including text display with typing effect,
 /// input handling, and sound effects during dialogue.
+/// Uses Unity's new Input System for input handling.
 /// </summary>
 public class DialogueUI : MonoBehaviour
 {
+    /// <summary>
+    /// Defines the available dialogue typing speeds.
+    /// </summary>
+    public enum DialogueSpeed
+    {
+        Slow,
+        Normal,
+        Fast
+    }
+
     [Header("UI Components")]
-    private GameObject textBox;      // UI container for the dialogue box
-    private TMP_Text speakerName;    // UI text element for speaker's name
-    private TMP_Text speakerText;    // UI text element for dialogue content
+    private GameObject _textBox;      // UI container for the dialogue box
+    private TMP_Text _speakerName;    // UI text element for speaker's name
+    private TMP_Text _speakerText;    // UI text element for dialogue content
 
     [Header("Audio")]
-    private AudioSource audioSource;      // Source for playing sound effects
-    public AudioClip typingSound;         // Sound played when a character appears
-    public float pitchVariation = 0.05f;  // Random pitch variation for typing sound
+    private AudioSource _audioSource;      // Source for playing sound effects
+    [SerializeField] private AudioClip _typingSound;         // Sound played when a character appears
+    [SerializeField] private float _pitchVariation = 0.05f;  // Random pitch variation for typing sound
 
     [Header("Settings")]
-    public DialogueSpeed speed = DialogueSpeed.Normal; // Typing speed setting
+    [SerializeField] public DialogueSpeed Speed = DialogueSpeed.Normal; // Typing speed setting
 
-    private bool isSkipping = false;      // Indicates whether the player is skipping dialogue
+    private bool _isSkipping = false;      // Indicates whether the player is skipping dialogue
+
+    private InputAction _skipAction;
+    private InputAction _continueAction;
 
     /// <summary>
     /// Unity lifecycle method called when the script instance is being loaded.
-    /// Initializes UI components and audio source.
+    /// Initializes UI components, audio source, and input actions.
     /// </summary>
     private void Awake()
     {
-        textBox = transform.Find("TextBox").gameObject;
-        speakerName = textBox.transform.Find("SpeakerName").GetComponent<TMP_Text>();
-        speakerText = textBox.transform.Find("SpeakerText").GetComponent<TMP_Text>();
+        _textBox = transform.Find("TextBox").gameObject;
+        _speakerName = _textBox.transform.Find("SpeakerName").GetComponent<TMP_Text>();
+        _speakerText = _textBox.transform.Find("SpeakerText").GetComponent<TMP_Text>();
 
-        if (textBox == null)
+        if (_textBox == null)
         {
             Debug.LogError("TextBox GameObject not found in DialogueUI.");
             return;
         }
 
-        if (speakerName == null || speakerText == null)
+        if (_speakerName == null || _speakerText == null)
         {
             Debug.LogError("SpeakerName or SpeakerText components not found in DialogueUI.");
             return;
         }
 
         // Initialize audio source for sound effects
-        audioSource = GetComponent<AudioSource>();
-        if (audioSource == null)
+        _audioSource = GetComponent<AudioSource>();
+        if (_audioSource == null)
         {
-            audioSource = gameObject.AddComponent<AudioSource>();
+            _audioSource = gameObject.AddComponent<AudioSource>();
         }
+
+        // Setup input actions (new Input System)
+        _skipAction = new InputAction("SkipDialogue", binding: "<Keyboard>/space");
+        _skipAction.AddBinding("<Mouse>/leftButton");
+        _continueAction = new InputAction("ContinueDialogue", binding: "<Keyboard>/space");
+        _continueAction.AddBinding("<Mouse>/leftButton");
+
+        _skipAction.Enable();
+        _continueAction.Enable();
     }
 
     /// <summary>
     /// Displays dialogue content with a typing effect and waits for player input to continue.
     /// </summary>
-    /// <param name="speakerName">Name of the speaker (can be empty).</param>
+    /// <param name="name">Name of the speaker (can be empty).</param>
     /// <param name="content">The dialogue text to show.</param>
     /// <returns>IEnumerator for coroutine handling.</returns>
     public IEnumerator ShowDialogue(string name, string content)
     {
-        if (textBox != null)
-            textBox.SetActive(true);
+        if (_textBox != null)
+            _textBox.SetActive(true);
 
         // Show/hide speaker name based on availability
-        speakerName.text = name;
-        speakerName.gameObject.SetActive(!string.IsNullOrEmpty(name));
+        _speakerName.text = name;
+        _speakerName.gameObject.SetActive(!string.IsNullOrEmpty(name));
 
-        speakerText.text = "";
-        isSkipping = false;
+        _speakerText.text = "";
+        _isSkipping = false;
 
         float delay = GetDelay();
 
         // Typing effect loop
         for (int i = 0; i < content.Length; i++)
         {
-            if (isSkipping)
+            if (_isSkipping)
             {
-                speakerText.text = content;
+                _speakerText.text = content;
                 break;
             }
 
-            speakerText.text += content[i];
+            _speakerText.text += content[i];
 
             // Play typing sound for non-whitespace characters
-            if (!char.IsWhiteSpace(content[i]) && typingSound != null && audioSource != null)
+            if (!char.IsWhiteSpace(content[i]) && _typingSound != null && _audioSource != null)
             {
-                audioSource.pitch = 1.0f + Random.Range(-pitchVariation, pitchVariation);
-                audioSource.PlayOneShot(typingSound);
+                _audioSource.pitch = 1.0f + Random.Range(-_pitchVariation, _pitchVariation);
+                _audioSource.PlayOneShot(_typingSound);
             }
 
             yield return new WaitForSeconds(delay);
@@ -118,7 +132,7 @@ public class DialogueUI : MonoBehaviour
     /// </summary>
     private IEnumerator WaitForKeyRelease()
     {
-        while (Input.GetKey(KeyCode.Space) || Input.GetMouseButton(0))
+        while (_skipAction.ReadValue<float>() > 0 || _continueAction.ReadValue<float>() > 0)
         {
             yield return null;
         }
@@ -129,8 +143,11 @@ public class DialogueUI : MonoBehaviour
     /// </summary>
     private IEnumerator WaitForNewInput()
     {
-        while (!Input.GetKeyDown(KeyCode.Space) && !Input.GetMouseButtonDown(0))
+        bool pressed = false;
+        while (!pressed)
         {
+            if (_continueAction.triggered || _skipAction.triggered)
+                pressed = true;
             yield return null;
         }
     }
@@ -141,7 +158,7 @@ public class DialogueUI : MonoBehaviour
     /// <returns>Delay in seconds.</returns>
     private float GetDelay()
     {
-        return speed switch
+        return Speed switch
         {
             DialogueSpeed.Slow => 0.05f,
             DialogueSpeed.Fast => 0.01f,
@@ -154,8 +171,8 @@ public class DialogueUI : MonoBehaviour
     /// </summary>
     public void HideDialogue()
     {
-        if (textBox != null)
-            textBox.SetActive(false);
+        if (_textBox != null)
+            _textBox.SetActive(false);
     }
 
     /// <summary>
@@ -164,9 +181,18 @@ public class DialogueUI : MonoBehaviour
     private void Update()
     {
         // Allow skipping only during dialogue display
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
+        if (_skipAction.triggered)
         {
-            isSkipping = true;
+            _isSkipping = true;
         }
+    }
+
+    /// <summary>
+    /// Unity OnDestroy method to clean up input actions.
+    /// </summary>
+    private void OnDestroy()
+    {
+        _skipAction?.Dispose();
+        _continueAction?.Dispose();
     }
 }

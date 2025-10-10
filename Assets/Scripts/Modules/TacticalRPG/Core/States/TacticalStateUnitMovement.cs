@@ -9,10 +9,17 @@ namespace TacticalRPG
     /// </summary>
     public class TacticalStateUnitMovement : TacticalStateBase
     {
-        private Unit _selectedUnit => stateMachine.Controller.SelectedUnit;
+        /// <summary>
+        /// Gets the currently selected unit from the controller.
+        /// </summary>
+        private Unit SelectedUnit => Controller.SelectedUnit;
         private Vector2Int _cursorPosition;
         private PathResult _selectedPath;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TacticalStateUnitMovement"/> class.
+        /// </summary>
+        /// <param name="stateMachine">The state machine managing this state.</param>
         public TacticalStateUnitMovement(TacticalStateMachine stateMachine) : base(stateMachine)
         {
             _cursorPosition = Vector2Int.zero;
@@ -24,7 +31,7 @@ namespace TacticalRPG
         {
             Debug.Log("Entering Unit Movement State");
 
-            _cursorPosition = _selectedUnit.GridPosition;
+            _cursorPosition = SelectedUnit.GridPosition;
             _selectedPath = default;
 
             EventSystem.current.SetSelectedGameObject(Controller.gameObject);
@@ -32,25 +39,34 @@ namespace TacticalRPG
         }
 
         /// <inheritdoc/>
-        public override void HorizontalKey(int direction) => UpdatePathSelection(new Vector2Int(_cursorPosition.x, _cursorPosition.y - direction));
+        public override void HorizontalKey(int direction)
+        {
+            UpdatePathSelection(new Vector2Int(_cursorPosition.x, _cursorPosition.y - direction));
+        }
 
         /// <inheritdoc/>
-        public override void VerticalKey(int direction) => UpdatePathSelection(new Vector2Int(_cursorPosition.x + direction, _cursorPosition.y));
+        public override void VerticalKey(int direction)
+        {
+            UpdatePathSelection(new Vector2Int(_cursorPosition.x + direction, _cursorPosition.y));
+        }
 
         /// <inheritdoc/>
         public override void ConfirmKey()
         {
             if (_selectedPath.IsValid)
-                Controller.MoveUnitPath(_selectedUnit, _selectedPath);
+                Controller.MoveUnitPath(SelectedUnit, _selectedPath);
         }
 
         /// <inheritdoc/>
-        public override void CancelKey() => stateMachine.EnterState(stateMachine.MainMenuState);
+        public override void CancelKey()
+        {
+            _stateMachine.EnterState(_stateMachine.MainMenuState);
+        }
 
         /// <inheritdoc/>
         public override void UpdateRendering()
         {
-            if (_selectedUnit == null)
+            if (SelectedUnit == null)
                 return;
 
             RenderCursor();
@@ -76,7 +92,7 @@ namespace TacticalRPG
             {
                 if (tile == null) continue;
 
-                if (_selectedUnit.GridPosition == tile.GridPosition)
+                if (SelectedUnit.GridPosition == tile.GridPosition)
                 {
                     tile.Illuminate(Color.yellow); // Unit position
                 }
@@ -88,7 +104,7 @@ namespace TacticalRPG
                 {
                     tile.Illuminate(Color.blue); // Current path
                 }
-                else if (_selectedUnit.AvailablePaths?.Any(p => p.Destination.GridPosition == tile.GridPosition) == true)
+                else if (SelectedUnit.AvailablePaths?.Any(p => p.Destination.GridPosition == tile.GridPosition) == true)
                 {
                     tile.Illuminate(Color.red); // Reachable destinations
                 }
@@ -106,6 +122,7 @@ namespace TacticalRPG
         /// <summary>
         /// Updates the currently selected path based on the cursor position.
         /// </summary>
+        /// <param name="newPosition">The new cursor position.</param>
         private void UpdatePathSelection(Vector2Int newPosition)
         {
             if (Controller.GetTileAt(newPosition) == null)
@@ -113,20 +130,21 @@ namespace TacticalRPG
 
             _cursorPosition = newPosition;
 
-            if (_selectedUnit?.AvailablePaths == null)
+            if (SelectedUnit.AvailablePaths == null)
             {
                 _selectedPath = default;
                 UpdateRendering();
                 return;
             }
 
-            _selectedPath = _selectedUnit.AvailablePaths.FirstOrDefault(
+            _selectedPath = SelectedUnit.AvailablePaths.FirstOrDefault(
                 p => p.Destination.GridPosition == _cursorPosition
             );
 
             UpdateRendering();
         }
 
+        /// <inheritdoc/>
         public override void OnTileClicked(Tile tile)
         {
             if (tile == null) return;
@@ -135,6 +153,7 @@ namespace TacticalRPG
             ConfirmKey();
         }
 
+        /// <inheritdoc/>
         public override void OnTileHovered(Tile tile)
         {
             if (tile == null) return;

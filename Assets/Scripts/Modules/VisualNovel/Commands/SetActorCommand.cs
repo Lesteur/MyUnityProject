@@ -1,16 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using VisualNovel;
 
+/// <summary>
+/// Visual novel command that sets the mood of an actor in a specific slot.
+/// Implements both asynchronous and synchronous command interfaces.
+/// </summary>
 public class SetActorCommand : IVNCommand, IVNCommandSync
 {
+    /// <summary>
+    /// Executes the set actor command asynchronously.
+    /// </summary>
+    /// <param name="args">List of string arguments passed to the command.</param>
+    /// <returns>Coroutine IEnumerator.</returns>
     public IEnumerator Execute(List<string> args)
     {
-        // This command is intended to be executed immediately, so we can call ExecuteImmediate directly
         ExecuteImmediate(args);
         yield break; // No coroutine needed, so we return immediately
     }
 
+    /// <summary>
+    /// Executes the set actor command synchronously.
+    /// </summary>
+    /// <param name="args">List of string arguments passed to the command.</param>
     public void ExecuteImmediate(List<string> args)
     {
         if (args.Count < 2)
@@ -21,7 +34,7 @@ public class SetActorCommand : IVNCommand, IVNCommandSync
 
         if (!int.TryParse(args[0], out int slotIndex))
         {
-            Debug.LogError("Invalid slot index: " + args[0]);
+            Debug.LogError($"Invalid slot index: {args[0]}");
             return;
         }
 
@@ -37,8 +50,11 @@ public class SetActorCommand : IVNCommand, IVNCommandSync
         }
     }
 
+    /// <summary>
+    /// Registers the set actor command with the command registry before the scene loads.
+    /// </summary>
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    static void Register()
+    private static void Register()
     {
         CommandRegistry.Register("setActor", () => new SetActorCommand());
     }

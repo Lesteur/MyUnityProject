@@ -3,28 +3,28 @@ using UnityEngine;
 namespace TacticalRPG
 {
     /// <summary>
-    /// Base class for tactical gameplay states.  
-    /// Provides virtual methods for handling lifecycle events, input, updates, and rendering.  
+    /// Base class for tactical gameplay states.
+    /// Provides virtual methods for handling lifecycle events, input, updates, and rendering.
     /// </summary>
     public abstract class TacticalStateBase
     {
         /// <summary>
         /// Reference to the owning state machine.
         /// </summary>
-        protected readonly TacticalStateMachine stateMachine;
+        protected readonly TacticalStateMachine _stateMachine;
 
         /// <summary>
         /// Shortcut to the tactical controller managed by the state machine.
         /// </summary>
-        protected TacticalController Controller => stateMachine.Controller;
+        protected TacticalController Controller => _stateMachine.Controller;
 
         /// <summary>
-        /// Creates a new tactical state bound to a state machine.
+        /// Initializes a new instance of the <see cref="TacticalStateBase"/> class.
         /// </summary>
         /// <param name="stateMachine">The state machine managing this state.</param>
         protected TacticalStateBase(TacticalStateMachine stateMachine)
         {
-            this.stateMachine = stateMachine;
+            _stateMachine = stateMachine;
         }
 
         /// <summary>
@@ -89,11 +89,13 @@ namespace TacticalRPG
         /// <summary>
         /// Handles tile click events.
         /// </summary>
+        /// <param name="tile">The tile that was clicked.</param>
         public virtual void OnTileClicked(Tile tile) { }
 
         /// <summary>
-        /// Gets the tile currently under the mouse cursor.
+        /// Handles tile hover events.
         /// </summary>
+        /// <param name="tile">The tile currently under the mouse cursor.</param>
         public virtual void OnTileHovered(Tile tile) { }
 
         /// <summary>

@@ -69,6 +69,8 @@ namespace TacticalRPG
             EnemyTurnState = new TacticalStateEnemyTurn(this);
             TargetingState = new TacticalStateTargeting(this);
 
+            Debug.Log("Etats initialisés");
+
             EnterDefaultState();
         }
 
