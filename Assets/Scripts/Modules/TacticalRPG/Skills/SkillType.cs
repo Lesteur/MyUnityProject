@@ -1,4 +1,4 @@
-namespace TacticalRPG
+namespace TacticalRPG.Skills
 {
     public enum SkillType
     {

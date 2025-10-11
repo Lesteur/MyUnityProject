@@ -1,6 +1,7 @@
 using UnityEngine;
+using TacticalRPG.Core.States;
 
-namespace TacticalRPG
+namespace TacticalRPG.Core
 {
     /// <summary>
     /// Manages tactical gameplay states, handling transitions between unit selection,

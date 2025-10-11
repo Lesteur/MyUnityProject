@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.InputSystem;
+using Utilities;
 
 /// <summary>
 /// Manages the dialogue user interface, including text display with typing effect,

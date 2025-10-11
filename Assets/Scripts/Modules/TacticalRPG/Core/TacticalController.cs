@@ -2,8 +2,12 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
+using Utilities;
+using TacticalRPG.Paths;
+using TacticalRPG.Units;
+using TacticalRPG.Skills;
 
-namespace TacticalRPG
+namespace TacticalRPG.Core
 {
     /// <summary>
     /// Core tactical battle controller.

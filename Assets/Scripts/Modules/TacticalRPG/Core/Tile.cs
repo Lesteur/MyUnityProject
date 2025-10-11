@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using TacticalRPG.Units;
 
-namespace TacticalRPG
+namespace TacticalRPG.Core
 {
     /// <summary>
     /// Represents a single tile on the tactical grid, including position, terrain, and unit occupancy.

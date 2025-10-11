@@ -1,6 +1,7 @@
 using UnityEngine;
+using TacticalRPG.Units;
 
-namespace TacticalRPG
+namespace TacticalRPG.Core.States
 {
     /// <summary>
     /// State responsible for displaying and handling interactions with the tactical main menu.

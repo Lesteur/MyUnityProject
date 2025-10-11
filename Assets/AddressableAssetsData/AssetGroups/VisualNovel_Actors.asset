@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: VisualNovel_Actors
+  m_EditorClassIdentifier: 
+  m_GroupName: VisualNovel_Actors
+  m_GUID: 652fe8e3fb2c7914484c349c4ef7f93c
+  m_SerializeEntries:
+  - m_GUID: 1e793ef216c9f2043be8308b4d7061fb
+    m_Address: ActorLiam
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Actor
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ac49541373e26674481e2f73b17d6fc3
+    m_Address: ActorZoe
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Actor
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: e7a46526646baa342aacefc4af5c6982, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 360878b1487ca544f82e5dab30ade134, type: 2}
+    - {fileID: 11400000, guid: e512556c181c9b344b37cb5e040ea1a1, type: 2}

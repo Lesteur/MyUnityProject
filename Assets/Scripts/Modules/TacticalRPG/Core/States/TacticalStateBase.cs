@@ -1,6 +1,4 @@
-using UnityEngine;
-
-namespace TacticalRPG
+namespace TacticalRPG.Core.States
 {
     /// <summary>
     /// Base class for tactical gameplay states.

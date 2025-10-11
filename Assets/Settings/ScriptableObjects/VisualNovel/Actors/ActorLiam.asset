@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a14f603198bc0a946addcf5858f9d2d7, type: 3}
+  m_Name: ActorLiam
+  m_EditorClassIdentifier: 
+  _id: liam
+  _displayName:
+    m_TableReference:
+      m_TableCollectionName: GUID:d0bf8a3abb594a144a39a1c090fe275d
+    m_TableEntryReference:
+      m_KeyId: 1131211424182272
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  _defaultBody: {fileID: 21300000, guid: 3e2b51d4bc3858a4194376a10c751a20, type: 3}
+  _moods:
+  - moodId: blush
+    face: {fileID: 21300000, guid: 72e36e48ecdfdea429f11b183292b1e8, type: 3}
+  - moodId: blushside
+    face: {fileID: 21300000, guid: cb4dbd479f29d634e9c77b638297d9f4, type: 3}
+  - moodId: bored
+    face: {fileID: 21300000, guid: efd848167661af247aee7b698d5ca580, type: 3}
+  - moodId: default
+    face: {fileID: 21300000, guid: 449f7a6dfc275cd419a07d9ca21af4db, type: 3}
+  - moodId: disgust
+    face: {fileID: 21300000, guid: 07965e6bc2cce0944b6ec9045759fdc7, type: 3}
+  - moodId: embarrassed
+    face: {fileID: 21300000, guid: 537a74a9ed4d71542802518fbd16cf95, type: 3}
+  - moodId: excited
+    face: {fileID: 21300000, guid: b5fabe9503322494c93e67153afc1b60, type: 3}
+  - moodId: eyeroll
+    face: {fileID: 21300000, guid: bc8982cdf48cc2644ae274dd3f49e120, type: 3}
+  - moodId: glasses
+    face: {fileID: 21300000, guid: b94f073e5f572b14682d3d6f855a3569, type: 3}
+  - moodId: shocked
+    face: {fileID: 21300000, guid: f40ba1cbd834b9c44931f6483a5e269f, type: 3}
+  - moodId: smile
+    face: {fileID: 21300000, guid: 77a93a2680ca22e438cf7b5b7b3af3f2, type: 3}
+  - moodId: surprised
+    face: {fileID: 21300000, guid: 4aaea5d7b13621c40a3f6ff991d8b5d2, type: 3}
+  - moodId: suspicious
+    face: {fileID: 21300000, guid: bf03b655e0e1d6c4e8802148502d8ffc, type: 3}
+  - moodId: talking
+    face: {fileID: 21300000, guid: 3c625dfc9d8a54943a8d560c96eb0aa0, type: 3}
+  - moodId: thinking
+    face: {fileID: 21300000, guid: aad97ed583aafd141b8111cc1f6a3bf3, type: 3}
+  - moodId: unimpressed
+    face: {fileID: 21300000, guid: f07450ee4e9dc5442849be2271fc2b39, type: 3}
+  references:
+    version: 2
+    RefIds: []

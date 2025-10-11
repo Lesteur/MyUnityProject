@@ -1,5 +1,9 @@
 using System.Collections.Generic;
+using System.Threading.Tasks; // Ajout explicite pour Task
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using Utilities;
 
 namespace VisualNovel
 {
@@ -62,28 +66,65 @@ namespace VisualNovel
         }
 
         /// <summary>
-        /// Preloads all actor data from resources at startup.
+        /// Entry point: automatically invoked before the first scene load.
         /// </summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        static void Register()
+        static void Initialize()
         {
-            Debug.Log("Loading actors...");
-
+            Debug.Log("Loading actors via Addressables...");
             _actors = new Dictionary<string, Actor>();
-            var actors = Resources.LoadAll<Actor>("Objects/Actors");
-            foreach (var actor in actors)
-            {
-                if (!_actors.ContainsKey(actor.Id))
-                {
-                    _actors.Add(actor.Id, actor);
-                }
-                else
-                {
-                    Debug.LogWarning($"Duplicate actor ID found: {actor.Id}. Skipping.");
-                }
-            }
 
-            Debug.Log($"Loaded {_actors.Count} actors.");
+            // Start async load
+            _ = LoadAllActorsAsync();
+        }
+
+        /// <summary>
+        /// Asynchronously loads all Actor ScriptableObjects from the Addressables system.
+        /// </summary>
+        private static async Task LoadAllActorsAsync()
+        {
+            AsyncOperationHandle<IList<Actor>> handle = Addressables.LoadAssetsAsync<Actor>(
+                "Actor", // label passé comme premier argument
+                null      // callback optionnel
+            );
+
+            try
+            {
+                IList<Actor> actors = await handle.Task;
+
+                if (handle.Status != AsyncOperationStatus.Succeeded || actors == null)
+                {
+                    Debug.LogError("Failed to load actors from Addressables.");
+                    return;
+                }
+
+                foreach (var actor in actors)
+                {
+                    if (actor == null || string.IsNullOrEmpty(actor.Id))
+                    {
+                        Debug.LogWarning("Actor asset is null or has empty Id. Skipping.");
+                        continue;
+                    }
+                    if (!_actors.ContainsKey(actor.Id))
+                    {
+                        _actors.Add(actor.Id, actor);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Duplicate actor ID found: {actor.Id}. Skipping.");
+                    }
+                }
+
+                Debug.Log($"Loaded {_actors.Count} actors.");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"Exception while loading actors: {ex.Message}");
+            }
+            finally
+            {
+                Addressables.Release(handle);
+            }
         }
     }
 }

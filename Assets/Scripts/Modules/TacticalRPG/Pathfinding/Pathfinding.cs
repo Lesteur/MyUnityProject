@@ -1,8 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
+using Utilities;
+using TacticalRPG.Units;
+using TacticalRPG.Core;
 
-namespace TacticalRPG
+namespace TacticalRPG.Paths
 {
     /// <summary>
     /// Handles tile-based pathfinding using the A* algorithm and reachability checks,

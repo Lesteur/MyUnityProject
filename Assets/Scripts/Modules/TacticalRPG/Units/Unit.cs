@@ -1,8 +1,11 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using TacticalRPG.Core;
+using TacticalRPG.Paths;
+using TacticalRPG.Skills;
 
-namespace TacticalRPG
+namespace TacticalRPG.Units
 {
     /// <summary>
     /// Represents a tactical unit capable of moving, acting, and using skills on the grid.

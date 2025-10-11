@@ -598,7 +598,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _tilePrefab: {fileID: 1800878482449061111, guid: a8aa14e112d695b4d9098e8c68e90cf2, type: 3}
-  _defaultTileData: {fileID: 11400000, guid: 6996dbc35b0a5004591ec03c0a4e3869, type: 2}
+  _defaultTileData: {fileID: 11400000, guid: 653e723091f80514094fbeabbe202a6b, type: 2}
   _cursor: {fileID: 1286407444}
   _tilemaps:
   - {fileID: 1261169259}
@@ -725,6 +725,10 @@ PrefabInstance:
     - target: {fileID: 5734348783090883360, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7646391694914544576, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7646391694914544576, guid: 44688545346df4b43aee0670d58bedeb, type: 3}
       propertyPath: m_SortingOrder
@@ -2878,7 +2882,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_PanelSettings: {fileID: 11400000, guid: 2660f686e149d974992df006f1f6dbb2, type: 2}
   m_ParentUI: {fileID: 0}
-  sourceAsset: {fileID: 9197481963319205126, guid: 11bc0d4fd126b5040989f8e30eb481bc, type: 3}
+  sourceAsset: {fileID: 9197481963319205126, guid: 0943d5092f5ff3b4eac359f10b279a99, type: 3}
   m_SortingOrder: 0
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920

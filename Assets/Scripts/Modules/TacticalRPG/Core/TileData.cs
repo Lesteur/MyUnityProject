@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace TacticalRPG
+namespace TacticalRPG.Core
 {
     /// <summary>
     /// Enumeration of different terrain types for tiles.

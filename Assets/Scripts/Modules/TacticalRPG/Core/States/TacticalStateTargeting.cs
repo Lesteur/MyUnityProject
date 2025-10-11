@@ -1,7 +1,9 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using TacticalRPG.Units;
+using TacticalRPG.Skills;
 
-namespace TacticalRPG
+namespace TacticalRPG.Core.States
 {
     /// <summary>
     /// State responsible for targeting with skills on the tactical grid.

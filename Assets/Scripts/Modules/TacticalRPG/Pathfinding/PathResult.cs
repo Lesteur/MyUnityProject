@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using UnityEngine;
+using TacticalRPG.Core;
 
-namespace TacticalRPG
+namespace TacticalRPG.Paths
 {
     /// <summary>
     /// Represents the result of a pathfinding query: a destination tile and the path leading to it.

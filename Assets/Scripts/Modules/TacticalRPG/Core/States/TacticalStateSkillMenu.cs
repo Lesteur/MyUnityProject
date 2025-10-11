@@ -1,6 +1,8 @@
 using UnityEngine;
+using TacticalRPG.Units;
+using TacticalRPG.Skills;
 
-namespace TacticalRPG
+namespace TacticalRPG.Core.States
 {
     /// <summary>
     /// State responsible for displaying the skill menu and handling skill selection.

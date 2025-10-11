@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a14f603198bc0a946addcf5858f9d2d7, type: 3}
+  m_Name: ActorZoe
+  m_EditorClassIdentifier: 
+  _id: zoe
+  _displayName:
+    m_TableReference:
+      m_TableCollectionName: GUID:d0bf8a3abb594a144a39a1c090fe275d
+    m_TableEntryReference:
+      m_KeyId: 1131051851886592
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  _defaultBody: {fileID: 21300000, guid: 9f08ee9dadd86544db94478b5610f9c8, type: 3}
+  _moods:
+  - moodId: angry
+    face: {fileID: 21300000, guid: 804d525c30e41644e96aa495b4ccea98, type: 3}
+  - moodId: blush
+    face: {fileID: 21300000, guid: 1d049e16ec7fba24dac65c5ddf77af0c, type: 3}
+  - moodId: chaos
+    face: {fileID: 21300000, guid: 844863b5f6625d449b5691a28333716d, type: 3}
+  - moodId: default
+    face: {fileID: 21300000, guid: 47557875107bede4a9981cc57377940a, type: 3}
+  - moodId: dreamy
+    face: {fileID: 21300000, guid: 1b781247cd4315546a693d4cfc0d98fe, type: 3}
+  - moodId: excited
+    face: {fileID: 21300000, guid: 4f1073d134e65164584c4e36b114601f, type: 3}
+  - moodId: eyebrows
+    face: {fileID: 21300000, guid: 4c805b0b08b39e8479ec46ec7e88416e, type: 3}
+  - moodId: grumpy
+    face: {fileID: 21300000, guid: c94b4de82799e7842bd4435a09e0cdbf, type: 3}
+  - moodId: happy
+    face: {fileID: 21300000, guid: dc3a151e3501f5a4298c0286f04c6a9a, type: 3}
+  - moodId: hyped
+    face: {fileID: 21300000, guid: fc0f7d9bf377aff4da93ff69f7709b0f, type: 3}
+  - moodId: intense
+    face: {fileID: 21300000, guid: 74c6da38e6f6c864c8f7fbf7d64a371b, type: 3}
+  - moodId: laugh
+    face: {fileID: 21300000, guid: 1a52c508ed3c4354386896b1f68ff514, type: 3}
+  - moodId: memeface
+    face: {fileID: 21300000, guid: 0e4930d14bd54d442b7f2e7fa2240502, type: 3}
+  - moodId: naughty
+    face: {fileID: 21300000, guid: 5556a7f916ec03f4d8b1b521c1d2ee61, type: 3}
+  - moodId: possessed
+    face: {fileID: 21300000, guid: 930bd14ff232bee43bf2ded62643d712, type: 3}
+  - moodId: scary
+    face: {fileID: 21300000, guid: e23799d3b6274b84ca8170e03e0f96dd, type: 3}
+  - moodId: sentimental
+    face: {fileID: 21300000, guid: a2f81bc7bdbe9b048a43a342f0aeb271, type: 3}
+  - moodId: shocked
+    face: {fileID: 21300000, guid: 41d15c1c8c98cf7429d7aaa4ed63d22e, type: 3}
+  - moodId: surprised
+    face: {fileID: 21300000, guid: b580f6e4b24990045a1d11d330ca729d, type: 3}
+  - moodId: what
+    face: {fileID: 21300000, guid: b48f936c998d8cc479f76a0641b09088, type: 3}
+  references:
+    version: 2
+    RefIds: []

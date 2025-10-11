@@ -3,8 +3,10 @@ using UnityEngine.UIElements;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
+using Utilities;
+using TacticalRPG.Units;
 
-namespace TacticalRPG
+namespace TacticalRPG.Core
 {
     /// <summary>
     /// Manages the tactical UI menu for unit actions and skill selections.

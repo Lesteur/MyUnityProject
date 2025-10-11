@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace TacticalRPG
+namespace TacticalRPG.Skills
 {
     /// <summary>
     /// Defines the area of effect pattern for a skill, including range and shape.

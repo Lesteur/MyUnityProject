@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace TacticalRPG
+namespace TacticalRPG.Core.States
 {
     /// <summary>
     /// State responsible for selecting a unit on the tactical grid.

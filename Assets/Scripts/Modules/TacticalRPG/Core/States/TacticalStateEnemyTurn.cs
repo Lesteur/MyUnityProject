@@ -1,8 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine.EventSystems;
+using TacticalRPG.Units;
+using TacticalRPG.Paths;
 
-namespace TacticalRPG
+namespace TacticalRPG.Core.States
 {
     /// <summary>
     /// State responsible for handling the enemy turn in the tactical state machine.
@@ -30,7 +31,7 @@ namespace TacticalRPG
             Debug.Log("Entering Enemy Turn State");
 
             // Automatically select the first enemy unit that hasn't ended its turn
-            foreach (Unit enemy in TacticalController.Instance.AllUnits)
+            foreach (Unit enemy in Controller.AllUnits)
             {
                 if (enemy.Type == Unit.UnitType.Enemy && !enemy.EndTurn)
                 {
@@ -42,11 +43,11 @@ namespace TacticalRPG
             // Find a path to the nearest player unit
             if (SelectedUnit != null)
             {
-                List<PathResult> paths = TacticalController.Instance.Pathfinding.GetAllPathsFrom(SelectedUnit.GridPosition, SelectedUnit);
+                List<PathResult> paths = Controller.Pathfinding.GetAllPathsFrom(SelectedUnit.GridPosition, SelectedUnit);
                 Unit nearestPlayer = null;
                 int shortestDistance = int.MaxValue;
 
-                foreach (Unit unit in TacticalController.Instance.AlliedUnits)
+                foreach (Unit unit in Controller.AlliedUnits)
                 {
                     int distance = Mathf.Abs(unit.GridPosition.x - SelectedUnit.GridPosition.x) +
                                     Mathf.Abs(unit.GridPosition.y - SelectedUnit.GridPosition.y);
@@ -78,7 +79,7 @@ namespace TacticalRPG
 
                 if (_selectedPath.IsValid)
                 {
-                    TacticalController.Instance.MoveUnitPath(SelectedUnit, _selectedPath);
+                    Controller.MoveUnitPath(SelectedUnit, _selectedPath);
                 }
                 else
                 {

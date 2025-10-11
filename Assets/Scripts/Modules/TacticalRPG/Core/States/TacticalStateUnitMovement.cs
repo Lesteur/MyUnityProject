@@ -1,8 +1,10 @@
 using UnityEngine;
 using System.Linq;
 using UnityEngine.EventSystems;
+using TacticalRPG.Units;
+using TacticalRPG.Paths;
 
-namespace TacticalRPG
+namespace TacticalRPG.Core.States
 {
     /// <summary>
     /// State responsible for handling unit movement input and rendering path highlights.

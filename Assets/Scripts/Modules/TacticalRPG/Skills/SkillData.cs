@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Localization;
 
-namespace TacticalRPG
+namespace TacticalRPG.Skills
 {
     /// <summary>
     /// Defines the data for a skill, including cost, range, effects, and visuals.

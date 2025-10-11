@@ -1,0 +1,19 @@
+{
+    "name": "TacticalRPG",
+    "rootNamespace": "",
+    "references": [
+        "GUID:1e365378699d8474a856d3a127aeaa42",
+        "GUID:eec0964c48f6f4e40bc3ec2257ccf8c5",
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:09dcc9c0126b6b34ab2a877b8f2277f5"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
