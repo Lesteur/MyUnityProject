@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/Scenes/2D/SceneTactical.unity
     guid: 8c444d7dbc34d1e4bac8eba2f124df75
   m_configObjects:
-    com.unity.addressableassets: {fileID: 11400000, guid: 18ecc6396eabb024bb4f124ad2908f42, type: 2}
+    com.unity.addressableassets: {fileID: 11400000, guid: 08a6713c1114b4b489bf84666eba9a5e, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     com.unity.localization.settings: {fileID: 11400000, guid: 8a37bde4f0ff6254186bb1151d0ad0fb, type: 2}
   m_UseUCBPForAssetBundles: 0

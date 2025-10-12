@@ -186,10 +186,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 3373422821837981711}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf42ba0eab975874ea14a2a6d624096e, type: 3}
+  m_Script: {fileID: 11500000, guid: 978f6996be1abca498ca1148ba76ee8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scriptFile: {fileID: 4900000, guid: 8bccc910966d853449f3620b299531ab, type: 3}
+  _scriptFile: {fileID: 4900000, guid: e1d7d54690f08614fb2adff4feb5552a, type: 3}
 --- !u!114 &960722507932369442
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -202,8 +202,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f8e3bf9aebdaba4780fb4c6f865b68d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actorDatabase: {fileID: 11400000, guid: 7c113186411fe8e4fba397d6f205c213, type: 2}
-  slots:
+  _slots:
   - {fileID: 5598798110575110406}
   - {fileID: 3939919179794179297}
   - {fileID: 1936633305844975877}
@@ -234,9 +233,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0180cca5ad1e85642a95197de2d356c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  typingSound: {fileID: 8300000, guid: 7f154d6f0bd405448ac76c238fb42180, type: 3}
-  pitchVariation: 0.05
-  speed: 1
+  _typingSound: {fileID: 8300000, guid: da3f18324a52928439e03ffc1a7de67f, type: 3}
+  _pitchVariation: 0.05
+  Speed: 1
 --- !u!1 &4174687191492626781
 GameObject:
   m_ObjectHideFlags: 0

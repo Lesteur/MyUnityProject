@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _tileSprite: {fileID: 4009801671198873655}
-  _tileData: {fileID: 11400000, guid: 6996dbc35b0a5004591ec03c0a4e3869, type: 2}
+  _tileData: {fileID: 11400000, guid: 653e723091f80514094fbeabbe202a6b, type: 2}
   _terrainType: 0
 --- !u!60 &-5866206889142521204
 PolygonCollider2D:
@@ -176,7 +176,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 53913de6e4550f244ba51e47e72693fc, type: 3}
+  m_Sprite: {fileID: 21300000, guid: abdde0534e6b4d74395ef3a8215f6b2b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

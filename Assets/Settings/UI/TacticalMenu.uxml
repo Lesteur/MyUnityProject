@@ -1,5 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI%20Toolkit/StyleSheet/MainMenu.uss?fileID=7433441132597879392&amp;guid=c6f55d9679144174aa2d8420c377e892&amp;type=3#MainMenu" />
+    <Style src="project://database/Assets/Components/UI%20Toolkit/StyleSheet/MainMenu.uss?fileID=7433441132597879392&amp;guid=ac9afe59aa600e346b5c47e5474090bd&amp;type=3#MainMenu" />
     <ui:VisualElement name="MainContainer" style="flex-grow: 1; justify-content: flex-start; align-items: stretch; flex-direction: column;">
         <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
             <ui:VisualElement name="MainMenu" class="container" style="flex-grow: 0; height: 492px; width: 432px; align-content: flex-start; justify-content: flex-start; right: auto; left: 2%; top: 2%;">
@@ -41,6 +41,5 @@
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement style="flex-grow: 1;" />
     </ui:VisualElement>
 </ui:UXML>

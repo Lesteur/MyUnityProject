@@ -1,8 +1,0 @@
-# Intro
-
-@waitSeconds 2
-
-@waitSeconds 1
-@talk -1 "C'est ainsi que commença cette bien étrange histoire..."
-@talk -1 "Dans un endroit où tout... semblait très différent de ce que certains connaissaient."
-@talk -1 "Le monde semblait étrange. Rien n'était familier..."
