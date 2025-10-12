@@ -1,6 +1,7 @@
 using UnityEngine;
 using Metroidvania.Core;
 using Metroidvania.Core.States;
+using Codice.Client.BaseCommands;
 
 /// <summary>
 /// Represents the jump state for a playable character.
@@ -28,7 +29,11 @@ public class CharacterStateJump : CharacterState
 
         Debug.Log("Jump State Entered");
 
-        Character.Rb.linearVelocity = new Vector2(Character.Rb.linearVelocity.x, Character.JumpForce);
+        if (Character.IsJumpCutting)
+            Character.Rb.linearVelocity = new Vector2(Character.Rb.linearVelocity.x, Character.JumpForce * Character.JumpCutMultiplier);
+        else
+            Character.Rb.linearVelocity = new Vector2(Character.Rb.linearVelocity.x, Character.JumpForce);
+
         _hasJumped = true;
     }
 
@@ -39,6 +44,8 @@ public class CharacterStateJump : CharacterState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
+
+        ApplyVariableGravity();
 
         // If falling and grounded, transition to idle or move
         if (_hasJumped && Character.IsGrounded)
@@ -60,5 +67,24 @@ public class CharacterStateJump : CharacterState
 
         // Air control: allow horizontal movement while jumping
         Character.Rb.linearVelocity = new Vector2(Character.MoveInput.x * Character.MoveSpeed, Character.Rb.linearVelocity.y);
+    }
+
+    /// <summary>
+    /// Controls gravity based on jump state.
+    /// </summary>
+    private void ApplyVariableGravity()
+    {
+        if (Character.Rb.linearVelocity.y > 0.1f) // Ascending
+        {
+            Character.Rb.gravityScale = Character.JumpGravity;
+        }
+        else if (Character.Rb.linearVelocity.y < -0.1f) // Descending
+        {
+            Character.Rb.gravityScale = Character.FallGravity;
+        }
+        else // Neutral
+        {
+            Character.Rb.gravityScale = Character.NormalGravity;
+        }
     }
 }

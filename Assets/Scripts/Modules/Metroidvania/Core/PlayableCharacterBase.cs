@@ -19,6 +19,10 @@ namespace Metroidvania.Core
         [Header("Movement Settings")]
         [SerializeField] private float _moveSpeed = 5f;
         [SerializeField] private float _jumpForce = 10f;
+        [SerializeField] private float jumpCutMultiplier = 0.5f;
+        [SerializeField] private float normalGravity = 1f;
+        [SerializeField] private float fallGravity = 2.5f;
+        [SerializeField] private float jumpGravity = 2f;
         private Vector2 _moveInput;
 
         // --- Ground Check ---
@@ -33,6 +37,7 @@ namespace Metroidvania.Core
 
         // --- Jump Input ---
         private bool _jumpRequested;
+        private bool _isJumpCutting;
 
         // --- Properties ---
         public Rigidbody2D Rb => _rb;
@@ -44,10 +49,15 @@ namespace Metroidvania.Core
 
         public float MoveSpeed => _moveSpeed;
         public float JumpForce => _jumpForce;
+        public float JumpCutMultiplier => jumpCutMultiplier;
+        public float NormalGravity => normalGravity;
+        public float FallGravity => fallGravity;
+        public float JumpGravity => jumpGravity;
         public Vector2 MoveInput => _moveInput;
         public bool IsGrounded => _isGrounded;
         public bool IsFacingRight => _isFacingRight;
         public bool JumpRequested => _jumpRequested;
+        public bool IsJumpCutting => _isJumpCutting;
 
         protected virtual void Awake()
         {
@@ -67,9 +77,11 @@ namespace Metroidvania.Core
 
         protected virtual void Update()
         {
-            UpdateGroundCheck();
             _stateMachine.CurrentState?.LogicUpdate();
+            UpdateGroundCheck();
+
             _jumpRequested = false; // Reset jump request each frame
+            _isJumpCutting = false; // Reset jump cut each frame
         }
 
         protected virtual void FixedUpdate()
@@ -84,9 +96,14 @@ namespace Metroidvania.Core
 
         public void OnJump(InputValue value)
         {
-            if (value.isPressed)
+            if (value.isPressed && _isGrounded)
             {
                 _jumpRequested = true;
+            }
+            else
+            {
+                _jumpRequested = true;
+                _isJumpCutting = true;
             }
         }
 
