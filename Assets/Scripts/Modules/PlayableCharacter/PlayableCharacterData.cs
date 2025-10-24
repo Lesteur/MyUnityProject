@@ -8,7 +8,4 @@ public class PlayableCharacterData : ScriptableObject
 
     [Header("Personality Settings")]
     public CharacterPersonalityData personality;
-
-    [Header("Fight Settings")]
-    public UnitData fight;
 }

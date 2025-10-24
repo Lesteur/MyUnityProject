@@ -9,16 +9,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 218ae85e25f3de84ca7fe9bc5f085772, type: 3}
+  m_Script: {fileID: 11500000, guid: cbabdf6b4dd89e54988080703e8b46e7, type: 3}
   m_Name: SoldierData
   m_EditorClassIdentifier: 
   baseHP: 100
-  baseSP: 20
+  baseSP: 10
   baseAttack: 10
   baseDefense: 10
   baseSpecialAttack: 10
   baseSpecialDefense: 10
   baseSpeed: 10
+  gainHP: 0
+  gainSP: 0
   gainAttack: 0
   gainDefense: 0
   gainSpecialAttack: 0
@@ -26,5 +28,10 @@ MonoBehaviour:
   gainSpeed: 0
   criticalRate: 0
   criticalDamage: 1
-  movementRange: 4
-  heightJump: 2
+  movementRange: 5
+  heightJump: 3
+  heightFall: 10
+  _skills:
+  - {fileID: 11400000, guid: 3ed75e8351e0f1d49adaf481686bdeb9, type: 2}
+  - {fileID: 11400000, guid: 5f83e2be1e21cd747a0b42b079046c66, type: 2}
+  - {fileID: 11400000, guid: 6d3b87a40194a914b8f56176359c13bc, type: 2}

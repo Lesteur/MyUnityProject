@@ -16,12 +16,16 @@ namespace TacticalRPG.Units
         public enum UnitType { Player, Enemy, Neutral }
 
         [Header("Unit Settings")]
+        [SerializeField] private UnitType _unitType = UnitType.Player;
         [SerializeField] private Vector2Int _startPosition;
+        [SerializeField] private UnitData _data;
+
+        /*
         [SerializeField] private int _movementPoints = 5;
         [SerializeField] private int _jumpHeight = 1;
         [SerializeField] private int _maxFallHeight = 10;
-        [SerializeField] private UnitType _unitType = UnitType.Player;
         [SerializeField] private List<SkillData> _skills = new();
+        */
 
         private Tile _currentTile;
         private Tile _previousTile;
@@ -70,29 +74,29 @@ namespace TacticalRPG.Units
         /// </summary>
         public Tile PreviousTile => _previousTile;
         /// <summary>
+        /// Gets the type of this unit.
+        /// </summary>
+        public UnitType Type => _unitType;
+        /// <summary>
         /// Gets the grid position of this unit.
         /// </summary>
         public Vector2Int GridPosition => _currentTile != null ? _currentTile.GridPosition : _startPosition;
         /// <summary>
         /// Gets the movement points of this unit.
         /// </summary>
-        public int MovementPoints => _movementPoints;
+        public int MovementPoints => _data.MovementRange;
         /// <summary>
         /// Gets the jump height of this unit.
         /// </summary>
-        public int JumpHeight => _jumpHeight;
+        public int JumpHeight => _data.HeightJump;
         /// <summary>
         /// Gets the maximum fall height of this unit.
         /// </summary>
-        public int MaxFallHeight => _maxFallHeight;
-        /// <summary>
-        /// Gets the type of this unit.
-        /// </summary>
-        public UnitType Type => _unitType;
+        public int MaxFallHeight => _data.HeightFall;
         /// <summary>
         /// Gets the list of skills for this unit.
         /// </summary>
-        public List<SkillData> Skills => _skills;
+        public List<SkillData> Skills => _data.Skills;
         /// <summary>
         /// Gets the movement patterns for each skill.
         /// </summary>
@@ -128,7 +132,7 @@ namespace TacticalRPG.Units
 
             MoveToTile(_currentTile);
 
-            foreach (var skill in _skills)
+            foreach (var skill in Skills)
             {
                 if (skill != null)
                     _movementPatterns[skill] = skill.AreaOfEffect.GetAllRangedPositions();
@@ -213,7 +217,7 @@ namespace TacticalRPG.Units
         /// <param name="index">The index of the skill.</param>
         /// <returns>The skill at the index, or null if out of range.</returns>
         public SkillData GetSkillByIndex(int index)
-            => (_skills != null && index >= 0 && index < _skills.Count) ? _skills[index] : null;
+            => (Skills != null && index >= 0 && index < Skills.Count) ? Skills[index] : null;
 
         /// <summary>
         /// Sets the unit's position to the specified tile.
