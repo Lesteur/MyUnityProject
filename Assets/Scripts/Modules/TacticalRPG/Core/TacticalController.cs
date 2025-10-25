@@ -23,26 +23,26 @@ namespace TacticalRPG.Core
 
         [Header("Grid Settings")]
         [SerializeField] private GameObject _tilePrefab;
-        [SerializeField] private TileData _defaultTileData;
+        [SerializeField] private TileData   _defaultTileData;
         [SerializeField] private GameObject _cursor;
-        [SerializeField] private Tilemap[] _tilemaps;
+        [SerializeField] private Tilemap[]  _tilemaps;
 
         [Header("Units & UI")]
         [SerializeField] private List<Unit> _allUnits = new();
 
         private Tile[,] _grid;
-        private Pathfinding _pathfinding;
-        private TacticalStateMachine _stateMachine;
+        private int     _width;
+        private int     _height;
 
-        private int _width;
-        private int _height;
-        private Team _currentTeam = Team.Player;
+        private Pathfinding             _pathfinding;
+        private TacticalStateMachine    _stateMachine;
+        
+        private Team                _currentTeam    = Team.Player;
+        private readonly List<Unit> _alliedUnits    = new();
+        private readonly List<Unit> _enemyUnits     = new();
 
-        private readonly List<Unit> _alliedUnits = new();
-        private readonly List<Unit> _enemyUnits = new();
-
-        private Unit _selectedUnit;
-        private SkillData _selectedSkill;
+        private Unit        _selectedUnit;
+        private SkillData   _selectedSkill;
 
         #region Events
 
@@ -67,45 +67,25 @@ namespace TacticalRPG.Core
         
         #region Properties
 
-        /// <summary>
-        /// Gets the currently selected unit.
-        /// </summary>
+        /// <summary> Gets the currently selected unit. </summary>
         public Unit SelectedUnit => _selectedUnit;
-        /// <summary>
-        /// Gets the currently selected skill.
-        /// </summary>
+        /// <summary> Gets the currently selected skill. </summary>
         public SkillData SelectedSkill => _selectedSkill;
-        /// <summary>
-        /// Gets the tactical grid.
-        /// </summary>
+        /// <summary> Gets the tactical grid. </summary>
         public Tile[,] Grid => _grid;
-        /// <summary>
-        /// Gets the grid width.
-        /// </summary>
+        /// <summary> Gets the grid width. </summary>
         public int Width => _width;
-        /// <summary>
-        /// Gets the grid height.
-        /// </summary>
+        /// <summary> Gets the grid height. </summary>
         public int Height => _height;
-        /// <summary>
-        /// Gets the cursor GameObject.
-        /// </summary>
+        /// <summary> Gets the cursor GameObject. </summary>
         public GameObject Cursor => _cursor;
-        /// <summary>
-        /// Gets all units in the battle.
-        /// </summary>
+        /// <summary> Gets all units in the battle. </summary>
         public List<Unit> AllUnits => _allUnits;
-        /// <summary>
-        /// Gets all allied units.
-        /// </summary>
+        /// <summary> Gets all allied units. </summary>
         public List<Unit> AlliedUnits => _alliedUnits;
-        /// <summary>
-        /// Gets all enemy units.
-        /// </summary>
+        /// <summary> Gets all enemy units. </summary>
         public List<Unit> EnemyUnits => _enemyUnits;
-        /// <summary>
-        /// Gets the pathfinding component.
-        /// </summary>
+        /// <summary> Gets the pathfinding component. </summary>
         public Pathfinding Pathfinding => _pathfinding;
 
         #endregion

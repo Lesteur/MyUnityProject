@@ -12,25 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cbabdf6b4dd89e54988080703e8b46e7, type: 3}
   m_Name: SoldierData
   m_EditorClassIdentifier: 
-  baseHP: 100
-  baseSP: 10
-  baseAttack: 10
-  baseDefense: 10
-  baseSpecialAttack: 10
-  baseSpecialDefense: 10
-  baseSpeed: 10
-  gainHP: 0
-  gainSP: 0
-  gainAttack: 0
-  gainDefense: 0
-  gainSpecialAttack: 0
-  gainSpecialDefense: 0
-  gainSpeed: 0
-  criticalRate: 0
-  criticalDamage: 1
-  movementRange: 5
-  heightJump: 3
-  heightFall: 10
+  _baseHP: 10
+  _baseSP: 10
+  _baseAttack: 10
+  _baseDefense: 10
+  _baseSpecialAttack: 10
+  _baseSpecialDefense: 10
+  _baseSpeed: 10
+  _gainHP: 0
+  _gainSP: 0
+  _gainAttack: 0
+  _gainDefense: 0
+  _gainSpecialAttack: 0
+  _gainSpecialDefense: 0
+  _gainSpeed: 0
+  _criticalRate: 0
+  _criticalDamage: 1
+  _movementRange: 5
+  _jumpHeight: 3
+  _fallHeight: 10
   _skills:
   - {fileID: 11400000, guid: 3ed75e8351e0f1d49adaf481686bdeb9, type: 2}
   - {fileID: 11400000, guid: 5f83e2be1e21cd747a0b42b079046c66, type: 2}

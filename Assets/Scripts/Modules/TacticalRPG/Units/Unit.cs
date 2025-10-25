@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TacticalRPG.Core;
 using TacticalRPG.Paths;
 using TacticalRPG.Skills;
+using UnityEngine.UIElements;
 
 namespace TacticalRPG.Units
 {
@@ -16,30 +17,25 @@ namespace TacticalRPG.Units
         public enum UnitType { Player, Enemy, Neutral }
 
         [Header("Unit Settings")]
-        [SerializeField] private UnitType _unitType = UnitType.Player;
-        [SerializeField] private Vector2Int _startPosition;
-        [SerializeField] private UnitData _data;
+        [SerializeField] private UnitType   _unitType       = UnitType.Player;
+        [SerializeField] private Vector2Int _startPosition  = Vector2Int.zero;
+        [SerializeField] private int        _level          = 1;
+        [SerializeField] private UnitData   _data;
 
-        /*
-        [SerializeField] private int _movementPoints = 5;
-        [SerializeField] private int _jumpHeight = 1;
-        [SerializeField] private int _maxFallHeight = 10;
-        [SerializeField] private List<SkillData> _skills = new();
-        */
+        private Tile    _currentTile;
+        private Tile    _previousTile;
 
-        private Tile _currentTile;
-        private Tile _previousTile;
-        private SpriteRenderer _spriteRenderer;
-        private PathResult _currentPath;
-        private Coroutine _movementCoroutine;
+        private PathResult  _currentPath;
+        private Coroutine   _movementCoroutine;
 
+        private int _healthPoints;
         private readonly Dictionary<SkillData, List<Vector2Int>> _movementPatterns = new();
+
+        private SpriteRenderer _spriteRenderer;
 
         #region Events
 
-        /// <summary>
-        /// Fired when the unit finishes its movement animation and reaches destination.
-        /// </summary>
+        /// <summary> Fired when the unit finishes its movement animation and reaches destination. </summary>
         public event System.Action<Unit> OnMovementComplete;
 
         // public event System.Action<Unit> OnActionComplete;
@@ -48,58 +44,50 @@ namespace TacticalRPG.Units
         
         #region Properties
 
-        /// <summary>
-        /// Gets or sets whether the unit has ended its turn.
-        /// </summary>
+        /// <summary> Gets or sets whether the unit has ended its turn. </summary>
         public bool EndTurn { get; set; }
-        /// <summary>
-        /// Gets or sets whether the unit has completed its movement.
-        /// </summary>
+        /// <summary> Gets or sets whether the unit has completed its movement. </summary>
         public bool MovementDone { get; set; }
-        /// <summary>
-        /// Gets or sets whether the unit has completed its action.
-        /// </summary>
+        /// <summary> Gets or sets whether the unit has completed its action. </summary>
         public bool ActionDone { get; set; }
 
-        /// <summary>
-        /// Gets or sets the available paths for this unit.
-        /// </summary>
+        /// <summary> Gets or sets the available paths for this unit. </summary>
         public List<PathResult> AvailablePaths { get; private set; } = new();
-        /// <summary>
-        /// Gets the current tile occupied by this unit.
-        /// </summary>
+        /// <summary>  Gets the current tile occupied by this unit. </summary>
         public Tile CurrentTile => _currentTile;
-        /// <summary>
-        /// Gets the previous tile occupied by this unit.
-        /// </summary>
+        /// <summary> Gets the previous tile occupied by this unit. </summary>
         public Tile PreviousTile => _previousTile;
-        /// <summary>
-        /// Gets the type of this unit.
-        /// </summary>
+        /// <summary> Gets the type of this unit. </summary>
         public UnitType Type => _unitType;
-        /// <summary>
-        /// Gets the grid position of this unit.
-        /// </summary>
+        /// <summary> Gets the grid position of this unit. </summary>
         public Vector2Int GridPosition => _currentTile != null ? _currentTile.GridPosition : _startPosition;
-        /// <summary>
-        /// Gets the movement points of this unit.
-        /// </summary>
+
+        /// <summary> Lets the level of this unit. </summary> 
+        public int Level => _level;
+        /// <summary> Gets the maximum health points of this unit. </summary>
+        public int HealthPointsMax => _data.BaseHP + (_data.GainHP * (_level - 1));
+        /// <summary> Gets the current health points of this unit. </summary>
+        public int HealthPoints => _healthPoints;
+        /// <summary> Gets the attack value of this unit. </summary>
+        public int Attack => _data.BaseAttack + (_data.GainAttack * (_level - 1));
+        /// <summary> Gets the defense value of this unit. </summary>
+        public int Defense => _data.BaseDefense + (_data.GainDefense * (_level - 1));
+        /// <summary> Gets the special attack value of this unit. </summary>
+        public int SpecialAttack => _data.BaseSpecialAttack + (_data.GainSpecialAttack * (_level - 1));
+        /// <summary> Gets the special defense value of this unit. </summary>
+        public int SpecialDefense => _data.BaseSpecialDefense + (_data.GainSpecialDefense * (_level - 1));
+        /// <summary> Gets the speed value of this unit. </summary>
+        public int Speed => _data.BaseSpeed + (_data.GainSpeed * (_level - 1));
+        /// <summary> Gets the movement points of this unit. </summary>
         public int MovementPoints => _data.MovementRange;
-        /// <summary>
-        /// Gets the jump height of this unit.
-        /// </summary>
-        public int JumpHeight => _data.HeightJump;
-        /// <summary>
-        /// Gets the maximum fall height of this unit.
-        /// </summary>
-        public int MaxFallHeight => _data.HeightFall;
-        /// <summary>
-        /// Gets the list of skills for this unit.
-        /// </summary>
+        /// <summary> Gets the jump height of this unit. </summary>
+        public int JumpHeight => _data.JumpHeight;
+        /// <summary> Gets the maximum fall height of this unit. </summary>
+        public int FallHeight => _data.FallHeight;
+        /// <summary>  Gets the list of skills for this unit. </summary>
         public List<SkillData> Skills => _data.Skills;
-        /// <summary>
-        /// Gets the movement patterns for each skill.
-        /// </summary>
+
+        /// <summary> Gets the movement patterns for each skill. </summary>
         public Dictionary<SkillData, List<Vector2Int>> MovementPatterns => _movementPatterns;
 
         #endregion

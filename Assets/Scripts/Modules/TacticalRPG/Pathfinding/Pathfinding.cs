@@ -281,7 +281,7 @@ namespace TacticalRPG.Paths
 
                     int heightDelta = jumpTile.Height - initialHeight;
 
-                    if (unit.MaxFallHeight >= heightDelta * -1)
+                    if (unit.FallHeight >= heightDelta * -1)
                     {
                         // If the player can land here, we allow it
                         int totalMoveCost = current.G + moveSteps;
@@ -344,7 +344,7 @@ namespace TacticalRPG.Paths
 
             int heightDelta = to.Height - from.Height;
 
-            if (heightDelta > unit.JumpHeight || heightDelta < -unit.MaxFallHeight)
+            if (heightDelta > unit.JumpHeight || heightDelta < -unit.FallHeight)
                 return false;
 
             return true;

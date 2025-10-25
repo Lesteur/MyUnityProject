@@ -1,10 +1,11 @@
+using TacticalRPG.Units;
 using UnityEngine;
-using UnityEngine.UIElements;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.UIElements;
 using Utilities;
-using TacticalRPG.Units;
+using static UnityEngine.UI.CanvasScaler;
 
 namespace TacticalRPG.Core
 {
@@ -32,7 +33,7 @@ namespace TacticalRPG.Core
         /// <summary>
         /// Gets the currently selected unit from the TacticalController.
         /// </summary>
-        private Unit SelectedUnit => TacticalController.Instance.SelectedUnit;
+        private TacticalRPG.Units.Unit SelectedUnit => TacticalController.Instance.SelectedUnit;
 
         #region Unity Lifecycle
 
@@ -184,6 +185,26 @@ namespace TacticalRPG.Core
         {
             if (_root == null || SelectedUnit == null) return;
 
+            for (int i = 0; i < _skillButtons.Length; i++)
+            {
+                var button = _skillButtons[i];
+                if (button == null) continue;
+
+                if (i < SelectedUnit.Skills.Count)
+                {
+                    var skill = SelectedUnit.Skills[i];
+                    string skillName = skill.SkillName.GetLocalizedString() ?? "Unnamed Skill";
+
+                    button.text = skillName;
+                    button.style.display = DisplayStyle.Flex;
+                    button.SetEnabled(skill != null);
+                }
+                else
+                {
+                    button.style.display = DisplayStyle.None;
+                }
+            }
+
             SetMenuVisibility(_mainMenu, true);
             SetMenuVisibility(_skillMenu, false);
 
@@ -205,33 +226,6 @@ namespace TacticalRPG.Core
         public void ShowSkillMenu()
         {
             if (_root == null) return;
-
-            var unit = SelectedUnit;
-            if (unit == null)
-            {
-                Debug.LogWarning("No unit selected. Cannot show skill menu.");
-                return;
-            }
-
-            for (int i = 0; i < _skillButtons.Length; i++)
-            {
-                var button = _skillButtons[i];
-                if (button == null) continue;
-
-                if (i < unit.Skills.Count)
-                {
-                    var skill = unit.Skills[i];
-                    string skillName = skill.SkillName.GetLocalizedString() ?? "Unnamed Skill";
-
-                    button.text = skillName;
-                    button.style.display = DisplayStyle.Flex;
-                    button.SetEnabled(skill != null);
-                }
-                else
-                {
-                    button.style.display = DisplayStyle.None;
-                }
-            }
 
             SetMenuVisibility(_mainMenu, false);
             SetMenuVisibility(_skillMenu, true);
