@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -8,6 +10,8 @@ namespace TacticalRPG.Core.States
     /// </summary>
     public class TacticalStateTargeting : TacticalStateBase
     {
+        private List<Vector2Int> Pattern => SelectedUnit.MovementPatterns[SelectedSkill];
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TacticalStateTargeting"/> class.
         /// </summary>
@@ -71,7 +75,10 @@ namespace TacticalRPG.Core.States
         /// <inheritdoc/>
         public override void ConfirmKey()
         {
-            // Implement skill targeting confirmation logic here if needed.
+            if (Pattern.Contains(_cursorPosition - SelectedUnit.GridPosition))
+            {
+                Controller.ExecuteSkill(SelectedUnit, SelectedSkill, _cursorPosition);
+            }
         }
 
         /// <inheritdoc/>
@@ -88,8 +95,7 @@ namespace TacticalRPG.Core.States
 
             if (SelectedSkill == null || SelectedUnit == null)
                 return;
-
-            var pattern = SelectedUnit.MovementPatterns[SelectedSkill];
+            
             Vector2Int unitPos = SelectedUnit.GridPosition;
 
             Debug.Log($"Highlighting skill pattern at unit position {unitPos}");
@@ -101,7 +107,7 @@ namespace TacticalRPG.Core.States
             var currentTile = Controller.GetTileAt(_cursorPosition);
             currentTile.Illuminate(Color.blue);
 
-            foreach (Vector2Int offset in pattern)
+            foreach (Vector2Int offset in Pattern)
             {
                 Tile tile = Controller.GetTileAt(unitPos + offset);
                 if ((tile != null) && (currentTile != tile))

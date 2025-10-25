@@ -37,8 +37,8 @@ namespace TacticalRPG.Units
 
         /// <summary> Fired when the unit finishes its movement animation and reaches destination. </summary>
         public event System.Action<Unit> OnMovementComplete;
-
-        // public event System.Action<Unit> OnActionComplete;
+        /// <summary> Fired when the unit completes its action. </summary>
+        public event System.Action<Unit> OnActionComplete;
 
         #endregion
         
@@ -173,6 +173,14 @@ namespace TacticalRPG.Units
             SetPosition(_currentPath.Path[^1]);
             
             OnMovementComplete?.Invoke(this);
+        }
+
+        public void ExecuteSkill(SkillData skill, Vector2Int targetPosition)
+        {
+            // Placeholder for skill execution logic
+            Debug.Log($"Unit '{name}' executed skill '{skill.SkillName}'.");
+
+            OnActionComplete?.Invoke(this);
         }
 
         /// <summary>

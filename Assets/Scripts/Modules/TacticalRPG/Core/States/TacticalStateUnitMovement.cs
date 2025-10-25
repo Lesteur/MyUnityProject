@@ -48,9 +48,10 @@ namespace TacticalRPG.Core.States
         public override void ConfirmKey()
         {
             if (_selectedPath.IsValid)
+            {
+                _cursorPosition = _selectedPath.Destination.GridPosition;
                 Controller.MoveUnitPath(SelectedUnit, _selectedPath);
-
-            _cursorPosition = _selectedPath.Destination.GridPosition;
+            }
         }
 
         /// <inheritdoc/>

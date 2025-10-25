@@ -179,7 +179,20 @@ namespace TacticalRPG.Core
             foreach (var unit in _allUnits)
             {
                 unit.OnMovementComplete -= HandleUnitMovementComplete;
-                // unit.OnActionComplete -= HandleUnitActionComplete;
+                unit.OnActionComplete -= HandleUnitActionComplete;
+            }
+
+            _tacticalMenu.MoveButton.clicked -= () => HandleMenuButtonClick(TacticalMenuOptions.Move);
+            _tacticalMenu.SkillsButton.clicked -= () => HandleMenuButtonClick(TacticalMenuOptions.Skills);
+            _tacticalMenu.ItemsButton.clicked -= () => HandleMenuButtonClick(TacticalMenuOptions.Items);
+            _tacticalMenu.StatusButton.clicked -= () => HandleMenuButtonClick(TacticalMenuOptions.Status);
+            _tacticalMenu.EndTurnButton.clicked -= () => EndTurn();
+            _tacticalMenu.CancelAction.performed -= ctx => OnCancel(null);
+
+            for (int i = 0; i < _tacticalMenu.SkillButtons.Length; i++)
+            {
+                TacticalMenuOptions index = (TacticalMenuOptions) (i + (int) TacticalMenuOptions.Skill0);
+                _tacticalMenu.SkillButtons[i].clicked -= () => HandleMenuButtonClick(index);
             }
         }
 
@@ -237,7 +250,7 @@ namespace TacticalRPG.Core
 
                 // Subscribe to unit lifecycle events
                 unit.OnMovementComplete += HandleUnitMovementComplete;
-                // unit.OnActionComplete += HandleUnitActionComplete;
+                unit.OnActionComplete += HandleUnitActionComplete;
 
                 switch (unit.Type)
                 {
@@ -316,7 +329,15 @@ namespace TacticalRPG.Core
             if (!path.IsValid) return;
 
             _stateMachine.EnterState(_stateMachine.ActingUnitState);
+
             unit.FollowPath(path);
+        }
+
+        public void ExecuteSkill(Unit unit, SkillData skill, Vector2Int targetPosition)
+        {
+            _stateMachine.EnterState(_stateMachine.ActingUnitState);
+            
+            unit.ExecuteSkill(skill, targetPosition);
         }
 
         /// <summary>
