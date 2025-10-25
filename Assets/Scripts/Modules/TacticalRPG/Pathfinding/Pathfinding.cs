@@ -11,8 +11,15 @@ namespace TacticalRPG.Paths
     /// Handles tile-based pathfinding using the A* algorithm and reachability checks,
     /// with support for vertical movement constraints such as jump height and fall distance.
     /// </summary>
-    public class Pathfinding : MonoBehaviour
+    public class Pathfinding
     {
+        private readonly TacticalController _controller;
+
+        public Pathfinding(TacticalController controller)
+        {
+            _controller = controller;
+        }
+
         /// <summary>
         /// Finds the optimal path from a start tile to a target tile using the A* algorithm.
         /// </summary>
@@ -22,8 +29,7 @@ namespace TacticalRPG.Paths
         /// <returns>List of tiles representing the path, or null if no path found.</returns>
         public List<Tile> FindPath(Vector2Int start, Vector2Int target, Unit unit)
         {
-            Tile startTile = TacticalController.Instance.GetTileAt(start);
-            //Tile targetTile = TacticalController.Instance.GetTileAt(target);
+            Tile startTile = _controller.GetTileAt(start);
 
             var queue = new PriorityQueue<TileNode>();
             var closedSet = ListPool<Vector2Int>.Get();
@@ -71,7 +77,7 @@ namespace TacticalRPG.Paths
         /// <returns>List of reachable tiles.</returns>
         public List<Tile> GetReachableTiles(Vector2Int start, Unit unit)
         {
-            int maxMovementPoints = unit.MovementPoints;
+            //int maxMovementPoints = unit.MovementPoints;
             Tile startTile = TacticalController.Instance.GetTileAt(start);
 
             var reachableTiles = ListPool<Tile>.Get();
@@ -98,7 +104,7 @@ namespace TacticalRPG.Paths
             }
 
             // Copy to safe list before releasing pools
-            List<Tile> result = new List<Tile>(reachableTiles);
+            List<Tile> result = new(reachableTiles);
 
             ListPool<Tile>.Release(reachableTiles);
             DictionaryPool<Vector2Int, int>.Release(visited);
@@ -115,7 +121,6 @@ namespace TacticalRPG.Paths
         /// <returns>List of reachable paths to each tile.</returns>
         public List<PathResult> GetAllPathsFrom(Vector2Int start, Unit unit)
         {
-            int maxMovementPoints = unit.MovementPoints;
             Tile startTile = TacticalController.Instance.GetTileAt(start);
 
             var results = ListPool<PathResult>.Get();
@@ -159,7 +164,7 @@ namespace TacticalRPG.Paths
             }
 
             // Copy to safe list before releasing pools
-            List<PathResult> finalResults = new List<PathResult>(results);
+            List<PathResult> finalResults = new(results);
 
             ListPool<PathResult>.Release(results);
             DictionaryPool<Vector2Int, int>.Release(visited);
@@ -174,7 +179,6 @@ namespace TacticalRPG.Paths
         /// </summary>
         private List<Tile> ReconstructPath(TileNode endNode)
         {
-            //var path = new List<Tile>();
             var path = ListPool<Tile>.Get();
             TileNode current = endNode;
 
@@ -227,7 +231,7 @@ namespace TacticalRPG.Paths
 
                 int heuristic = target.HasValue ? GetHeuristic(unitPos, target.Value) : 0;
 
-                TileNode neighborNode = new TileNode(neighbor, moveCost, heuristic, current);
+                TileNode neighborNode = new(neighbor, moveCost, heuristic, current);
 
                 if (target != null)
                     queue.EnqueueOrUpdate(neighborNode);
@@ -266,7 +270,7 @@ namespace TacticalRPG.Paths
                 int moveSteps = 1;
                 int jumpCount = 0;
                 Vector2Int currentPos = startTile.GridPosition + dir;
-                Tile jumpTile = TacticalController.Instance.GetTileAt(currentPos);
+                Tile jumpTile = _controller.GetTileAt(currentPos);
 
                 if (closedSet != null && closedSet.Contains(currentPos))
                     continue; // Skip if already visited
@@ -293,7 +297,7 @@ namespace TacticalRPG.Paths
                             jumpCount++;
                             currentPos += dir;
 
-                            jumpTile = TacticalController.Instance.GetTileAt(currentPos);
+                            jumpTile = _controller.GetTileAt(currentPos);
 
                             continue;
                         }
@@ -303,7 +307,7 @@ namespace TacticalRPG.Paths
 
                         int heuristic = target.HasValue ? GetHeuristic(unitPos, target.Value) : 0;
 
-                        TileNode jumpNode = new TileNode(jumpTile, totalMoveCost, heuristic, current);
+                        TileNode jumpNode = new(jumpTile, totalMoveCost, heuristic, current);
 
                         if (target != null)
                             queue.EnqueueOrUpdate(jumpNode);
@@ -318,7 +322,7 @@ namespace TacticalRPG.Paths
                     jumpCount++;
                     currentPos += dir;
 
-                    jumpTile = TacticalController.Instance.GetTileAt(currentPos);
+                    jumpTile = _controller.GetTileAt(currentPos);
                 }
             }
         }
@@ -363,7 +367,7 @@ namespace TacticalRPG.Paths
 
             foreach (var dir in directions)
             {
-                Tile neighbor = TacticalController.Instance.GetTileAt(tile.GridPosition + dir);
+                Tile neighbor = _controller.GetTileAt(tile.GridPosition + dir);
                 if (neighbor != null)
                     neighbors.Add(neighbor);
             }

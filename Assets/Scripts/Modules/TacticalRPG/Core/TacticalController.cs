@@ -102,7 +102,6 @@ namespace TacticalRPG.Core
         {
             base.Awake();
 
-            _pathfinding = GetComponent<Pathfinding>();
             _tacticalMenu = GetComponent<TacticalMenu>();
 
             GenerateGrid();
@@ -110,6 +109,7 @@ namespace TacticalRPG.Core
             if (_grid == null || _grid.Length == 0)
                 Debug.LogError("Grid initialization failed in TacticalController.");
 
+            _pathfinding = new Pathfinding(this);
             _stateMachine = new TacticalStateMachine(this);
         }
 
