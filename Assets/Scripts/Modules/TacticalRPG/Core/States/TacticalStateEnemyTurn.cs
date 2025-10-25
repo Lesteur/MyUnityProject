@@ -10,10 +10,6 @@ namespace TacticalRPG.Core.States
     /// </summary>
     public class TacticalStateEnemyTurn : TacticalStateBase
     {
-        /// <summary>
-        /// Gets the currently selected unit from the controller.
-        /// </summary>
-        private Unit SelectedUnit => Controller.SelectedUnit;
         private PathResult _selectedPath;
 
         /// <summary>

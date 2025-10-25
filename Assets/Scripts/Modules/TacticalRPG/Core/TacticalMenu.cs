@@ -30,10 +30,13 @@ namespace TacticalRPG.Core
         private readonly Button[] _skillButtons = new Button[5];
         private InputAction _cancelAction;
 
-        /// <summary>
-        /// Gets the currently selected unit from the TacticalController.
-        /// </summary>
-        private Unit SelectedUnit => TacticalController.Instance.SelectedUnit;
+        public Button MoveButton => _moveButton;
+        public Button SkillsButton => _skillsButton;
+        public Button ItemsButton => _itemsButton;
+        public Button StatusButton => _statusButton;
+        public Button EndTurnButton => _endTurnButton;
+        public Button[] SkillButtons => _skillButtons;
+        public InputAction CancelAction => _cancelAction;
 
         #region Unity Lifecycle
 
@@ -57,26 +60,6 @@ namespace TacticalRPG.Core
                 return;
             }
 
-            _mainMenu  = _root.Q<VisualElement>("MainMenu");
-            _skillMenu = _root.Q<VisualElement>("SkillMenu");
-
-            _moveButton    = _root.Q<Button>("Move");
-            _skillsButton  = _root.Q<Button>("Skills");
-            _itemsButton   = _root.Q<Button>("Items");
-            _statusButton  = _root.Q<Button>("Status");
-            _endTurnButton = _root.Q<Button>("EndTurn");
-
-            for (int i = 0; i < _skillButtons.Length; i++)
-                _skillButtons[i] = _root.Q<Button>($"Skill{i}");
-
-            _root.style.display = DisplayStyle.None;
-        }
-
-        /// <summary>
-        /// Unity OnEnable callback. Subscribes to button and input events.
-        /// </summary>
-        private void OnEnable()
-        {
             var eventSystem = EventSystem.current;
             if (eventSystem == null)
             {
@@ -92,87 +75,19 @@ namespace TacticalRPG.Core
                 return;
             }
 
-            // Subscribe
-            _moveButton.clicked    += () => OnMainMenuClicked(0);
-            _skillsButton.clicked  += () => OnMainMenuClicked(1);
-            _itemsButton.clicked   += OnItemsClicked;
-            _statusButton.clicked  += OnStatusClicked;
-            _endTurnButton.clicked += OnEndTurnClicked;
-            _cancelAction.performed += OnCancelPerformed;
+            _mainMenu  = _root.Q<VisualElement>("MainMenu");
+            _skillMenu = _root.Q<VisualElement>("SkillMenu");
+            _moveButton    = _root.Q<Button>("Move");
+            _skillsButton  = _root.Q<Button>("Skills");
+            _itemsButton   = _root.Q<Button>("Items");
+            _statusButton  = _root.Q<Button>("Status");
+            _endTurnButton = _root.Q<Button>("EndTurn");
 
             for (int i = 0; i < _skillButtons.Length; i++)
-            {
-                int index = i;
-                if (_skillButtons[i] != null)
-                    _skillButtons[i].clicked += () => OnSkillClicked(index);
-            }
+                _skillButtons[i] = _root.Q<Button>($"Skill{i}");
+
+            _root.style.display = DisplayStyle.None;
         }
-
-        /// <summary>
-        /// Unity OnDisable callback. Unsubscribes from button and input events.
-        /// </summary>
-        private void OnDisable()
-        {
-            if (_cancelAction != null)
-                _cancelAction.performed -= OnCancelPerformed;
-
-            _moveButton.clicked    -= () => OnMainMenuClicked(0);
-            _skillsButton.clicked  -= () => OnMainMenuClicked(1);
-            _itemsButton.clicked   -= OnItemsClicked;
-            _statusButton.clicked  -= OnStatusClicked;
-            _endTurnButton.clicked -= OnEndTurnClicked;
-
-            for (int i = 0; i < _skillButtons.Length; i++)
-            {
-                if (_skillButtons[i] != null)
-                    _skillButtons[i].clicked -= () => OnSkillClicked(i);
-            }
-        }
-
-        /// <summary>
-        /// Handles cancel input performed event.
-        /// </summary>
-        /// <param name="ctx">Callback context.</param>
-        private void OnCancelPerformed(InputAction.CallbackContext ctx)
-        {
-            OnCancel();
-        }
-
-        #endregion
-
-        #region Event Handlers
-
-        /// <summary>
-        /// Handles main menu button clicks and routes to TacticalController.
-        /// </summary>
-        /// <param name="index">Index of the clicked button.</param>
-        private void OnMainMenuClicked(int index) => TacticalController.Instance.HandleMenuButtonClick(index);
-
-        /// <summary>
-        /// Handles the Items button click event.
-        /// </summary>
-        private void OnItemsClicked() => Debug.Log("Items button clicked. (Not implemented)");
-
-        /// <summary>
-        /// Handles the Status button click event.
-        /// </summary>
-        private void OnStatusClicked() => Debug.Log("Status button clicked. (Not implemented)");
-
-        /// <summary>
-        /// Handles the End Turn button click event.
-        /// </summary>
-        private void OnEndTurnClicked() => TacticalController.Instance.EndTurn();
-
-        /// <summary>
-        /// Handles skill button click events and routes to TacticalController.
-        /// </summary>
-        /// <param name="skillIndex">Index of the clicked skill button.</param>
-        private void OnSkillClicked(int skillIndex) => TacticalController.Instance.HandleMenuButtonClick(skillIndex);
-
-        /// <summary>
-        /// Handles cancel input and routes to TacticalController.
-        /// </summary>
-        public void OnCancel() => TacticalController.Instance.OnCancel(null);
 
         #endregion
 
@@ -181,18 +96,18 @@ namespace TacticalRPG.Core
         /// <summary>
         /// Shows the main menu for the selected unit.
         /// </summary>
-        public void ShowMainMenu()
+        public void ShowMainMenu(Unit unit)
         {
-            if (_root == null || SelectedUnit == null) return;
+            if (_root == null || unit == null) return;
 
             for (int i = 0; i < _skillButtons.Length; i++)
             {
                 var button = _skillButtons[i];
                 if (button == null) continue;
 
-                if (i < SelectedUnit.Skills.Count)
+                if (i < unit.Skills.Count)
                 {
-                    var skill = SelectedUnit.Skills[i];
+                    var skill = unit.Skills[i];
                     string skillName = skill.SkillName.GetLocalizedString() ?? "Unnamed Skill";
 
                     button.text = skillName;
@@ -208,7 +123,7 @@ namespace TacticalRPG.Core
             SetMenuVisibility(_mainMenu, true);
             SetMenuVisibility(_skillMenu, false);
 
-            if (SelectedUnit.MovementDone)
+            if (unit.MovementDone)
             {
                 _moveButton.SetEnabled(false);
                 _skillsButton.Focus();

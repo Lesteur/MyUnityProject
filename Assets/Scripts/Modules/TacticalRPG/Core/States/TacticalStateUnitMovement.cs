@@ -14,7 +14,7 @@ namespace TacticalRPG.Core.States
         /// <summary>
         /// Gets the currently selected unit from the controller.
         /// </summary>
-        private Unit SelectedUnit => Controller.SelectedUnit;
+        //private Unit SelectedUnit => Controller.SelectedUnit;
         private Vector2Int _cursorPosition;
         private PathResult _selectedPath;
 
@@ -57,6 +57,8 @@ namespace TacticalRPG.Core.States
         {
             if (_selectedPath.IsValid)
                 Controller.MoveUnitPath(SelectedUnit, _selectedPath);
+
+            _cursorPosition = _selectedPath.Destination.GridPosition;
         }
 
         /// <inheritdoc/>

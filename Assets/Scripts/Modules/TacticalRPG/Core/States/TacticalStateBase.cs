@@ -1,3 +1,6 @@
+using TacticalRPG.Skills;
+using TacticalRPG.Units;
+
 namespace TacticalRPG.Core.States
 {
     /// <summary>
@@ -15,6 +18,16 @@ namespace TacticalRPG.Core.States
         /// Shortcut to the tactical controller managed by the state machine.
         /// </summary>
         protected TacticalController Controller => _stateMachine.Controller;
+
+        /// <summary>
+        /// Gets the currently selected unit from the controller.
+        /// </summary>
+        protected Unit SelectedUnit => Controller.SelectedUnit;
+
+        /// <summary>
+        /// Gets the currently selected skill from the controller.
+        /// </summary>
+        protected SkillData SelectedSkill => Controller.SelectedSkill;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TacticalStateBase"/> class.

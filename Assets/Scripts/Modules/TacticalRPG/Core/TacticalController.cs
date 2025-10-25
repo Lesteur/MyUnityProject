@@ -36,7 +36,8 @@ namespace TacticalRPG.Core
 
         private Pathfinding             _pathfinding;
         private TacticalStateMachine    _stateMachine;
-        
+        private TacticalMenu            _tacticalMenu;
+
         private Team                _currentTeam    = Team.Player;
         private readonly List<Unit> _alliedUnits    = new();
         private readonly List<Unit> _enemyUnits     = new();
@@ -67,29 +68,31 @@ namespace TacticalRPG.Core
         
         #region Properties
 
-        /// <summary> Gets the currently selected unit. </summary>
+        /// <summary> Gets the currently selected unit.</summary>
         public Unit SelectedUnit => _selectedUnit;
-        /// <summary> Gets the currently selected skill. </summary>
+        /// <summary> Gets the currently selected skill.</summary>
         public SkillData SelectedSkill => _selectedSkill;
-        /// <summary> Gets the tactical grid. </summary>
+        /// <summary> Gets the tactical grid.</summary>
         public Tile[,] Grid => _grid;
-        /// <summary> Gets the grid width. </summary>
+        /// <summary> Gets the grid width.</summary>
         public int Width => _width;
-        /// <summary> Gets the grid height. </summary>
+        /// <summary> Gets the grid height.</summary>
         public int Height => _height;
-        /// <summary> Gets the cursor GameObject. </summary>
+        /// <summary> Gets the cursor GameObject.</summary>
         public GameObject Cursor => _cursor;
-        /// <summary> Gets all units in the battle. </summary>
+        /// <summary> Gets all units in the battle.</summary>
         public List<Unit> AllUnits => _allUnits;
-        /// <summary> Gets all allied units. </summary>
+        /// <summary> Gets all allied units.</summary>
         public List<Unit> AlliedUnits => _alliedUnits;
-        /// <summary> Gets all enemy units. </summary>
+        /// <summary> Gets all enemy units.</summary>
         public List<Unit> EnemyUnits => _enemyUnits;
-        /// <summary> Gets the pathfinding component. </summary>
+        /// <summary> Gets the pathfinding component.</summary>
         public Pathfinding Pathfinding => _pathfinding;
+        /// <summary> Gets the tactical menu component.</summary>
+        public TacticalMenu TacticalMenu => _tacticalMenu;
 
         #endregion
-        
+
         #region Unity Lifecycle
 
         /// <summary>
@@ -100,6 +103,7 @@ namespace TacticalRPG.Core
             base.Awake();
 
             _pathfinding = GetComponent<Pathfinding>();
+            _tacticalMenu = GetComponent<TacticalMenu>();
 
             GenerateGrid();
 
@@ -117,6 +121,19 @@ namespace TacticalRPG.Core
             Tile.OnTileClicked += (tile) => OnTileClicked(tile);
             Tile.OnTileHovered += (tile) => OnTileHovered(tile);
             Tile.OnTileHoverExited += () => OnTileHoverExited();
+
+            _tacticalMenu.MoveButton.clicked += () => HandleMenuButtonClick(0);
+            _tacticalMenu.SkillsButton.clicked += () => HandleMenuButtonClick(1);
+            _tacticalMenu.ItemsButton.clicked += () => HandleMenuButtonClick(2);
+            _tacticalMenu.StatusButton.clicked += () => HandleMenuButtonClick(3);
+            _tacticalMenu.EndTurnButton.clicked += () => EndTurn();
+            _tacticalMenu.CancelAction.performed += ctx => OnCancel(null);
+
+            for (int i = 0; i < _tacticalMenu.SkillButtons.Length; i++)
+            {
+                int index = i; // Capture loop variable
+                _tacticalMenu.SkillButtons[i].clicked += () => HandleMenuButtonClick(index);
+            }
         }
 
         /// <summary>
@@ -127,6 +144,19 @@ namespace TacticalRPG.Core
             Tile.OnTileClicked -= (tile) => OnTileClicked(tile);
             Tile.OnTileHovered -= (tile) => OnTileHovered(tile);
             Tile.OnTileHoverExited -= () => OnTileHoverExited();
+
+            _tacticalMenu.MoveButton.clicked -= () => HandleMenuButtonClick(0);
+            _tacticalMenu.SkillsButton.clicked -= () => HandleMenuButtonClick(1);
+            _tacticalMenu.ItemsButton.clicked -= () => HandleMenuButtonClick(2);
+            _tacticalMenu.StatusButton.clicked -= () => HandleMenuButtonClick(3);
+            _tacticalMenu.EndTurnButton.clicked -= () => EndTurn();
+            _tacticalMenu.CancelAction.performed -= ctx => OnCancel(null);
+
+            for (int i = 0; i < _tacticalMenu.SkillButtons.Length; i++)
+            {
+                int index = i; // Capture loop variable
+                _tacticalMenu.SkillButtons[i].clicked -= () => HandleMenuButtonClick(index);
+            }
         }
 
         /// <summary>
@@ -320,7 +350,7 @@ namespace TacticalRPG.Core
         public void EndTurn()
         {
             _selectedUnit.EndTurn = true;
-            _selectedUnit = null;
+            //_selectedUnit = null;
 
             foreach (var unit in _allUnits)
                 unit.SetAvailablePaths(_pathfinding.GetAllPathsFrom(unit.GridPosition, unit));

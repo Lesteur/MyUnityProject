@@ -10,15 +10,6 @@ namespace TacticalRPG.Core.States
     public class TacticalStateSkillMenu : TacticalStateBase
     {
         /// <summary>
-        /// Gets the currently selected unit from the controller.
-        /// </summary>
-        private Unit SelectedUnit => Controller.SelectedUnit;
-        /// <summary>
-        /// Gets the currently selected skill from the controller.
-        /// </summary>
-        private SkillData SelectedSkill => Controller.SelectedSkill;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="TacticalStateSkillMenu"/> class.
         /// </summary>
         /// <param name="stateMachine">The state machine managing this state.</param>

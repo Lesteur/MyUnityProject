@@ -14,11 +14,6 @@ namespace TacticalRPG.Core.States
         private enum MainMenuAction { Move = 0, Skills = 1, Items = 2, Status = 3, EndTurn = 4 }
 
         /// <summary>
-        /// Gets the currently selected unit from the controller.
-        /// </summary>
-        private Unit SelectedUnit => Controller.SelectedUnit;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="TacticalStateMainMenu"/> class.
         /// </summary>
         /// <param name="stateMachine">The state machine managing this state.</param>
@@ -29,7 +24,7 @@ namespace TacticalRPG.Core.States
         {
             Debug.Log("Entering Main Menu State");
 
-            TacticalMenu.Instance.ShowMainMenu();
+            Controller.TacticalMenu.ShowMainMenu(SelectedUnit);
 
             UpdateRendering();
         }

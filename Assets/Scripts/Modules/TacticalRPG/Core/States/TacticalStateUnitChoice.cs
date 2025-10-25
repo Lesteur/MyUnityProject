@@ -28,6 +28,9 @@ namespace TacticalRPG.Core.States
             EventSystem.current.SetSelectedGameObject(Controller.gameObject);
             _lastCursorPos = _cursorPos;
 
+            _cursorPos = Controller.SelectedUnit != null ? Controller.SelectedUnit.GridPosition : Vector2Int.zero;
+            Controller.SelectUnit(null);
+
             UpdateRendering();
         }
 

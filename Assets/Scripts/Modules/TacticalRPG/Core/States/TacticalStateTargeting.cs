@@ -10,17 +10,8 @@ namespace TacticalRPG.Core.States
     /// </summary>
     public class TacticalStateTargeting : TacticalStateBase
     {
-        private Vector2Int _cursorPos;
+        private Vector2Int _cursorPosition;
         private Vector2Int _lastCursorPos;
-
-        /// <summary>
-        /// Gets the currently selected unit from the controller.
-        /// </summary>
-        private Unit SelectedUnit => Controller.SelectedUnit;
-        /// <summary>
-        /// Gets the currently selected skill from the controller.
-        /// </summary>
-        private SkillData SelectedSkill => Controller.SelectedSkill;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TacticalStateTargeting"/> class.
@@ -28,7 +19,7 @@ namespace TacticalRPG.Core.States
         /// <param name="stateMachine">The state machine managing this state.</param>
         public TacticalStateTargeting(TacticalStateMachine stateMachine) : base(stateMachine)
         {
-            _cursorPos = Vector2Int.zero;
+            _cursorPosition = Vector2Int.zero;
         }
 
         /// <inheritdoc/>
@@ -37,8 +28,9 @@ namespace TacticalRPG.Core.States
             Debug.Log("Entering Targeting State");
 
             EventSystem.current?.SetSelectedGameObject(Controller.gameObject);
-            _lastCursorPos = _cursorPos;
+            _lastCursorPos = _cursorPosition;
 
+            _cursorPosition = SelectedUnit.GridPosition;
             UpdateRendering();
         }
 
@@ -60,7 +52,7 @@ namespace TacticalRPG.Core.States
         /// <param name="delta">The directional movement vector.</param>
         private void MoveCursor(Vector2Int delta)
         {
-            var newPos = _cursorPos + delta;
+            var newPos = _cursorPosition + delta;
 
             if (Controller.GetTileAt(newPos) != null)
                 UpdateCursorPosition(newPos);
@@ -72,11 +64,11 @@ namespace TacticalRPG.Core.States
         /// <param name="newPosition">The new cursor position.</param>
         private void UpdateCursorPosition(Vector2Int newPosition)
         {
-            if (newPosition == _cursorPos)
+            if (newPosition == _cursorPosition)
                 return;
 
-            _lastCursorPos = _cursorPos;
-            _cursorPos = newPosition;
+            _lastCursorPos = _cursorPosition;
+            _cursorPosition = newPosition;
 
             UpdateRendering();
         }
@@ -111,7 +103,7 @@ namespace TacticalRPG.Core.States
             var lastTile = Controller.GetTileAt(_lastCursorPos);
             lastTile.ResetIllumination();
 
-            var currentTile = Controller.GetTileAt(_cursorPos);
+            var currentTile = Controller.GetTileAt(_cursorPosition);
             currentTile.Illuminate(Color.blue);
 
             foreach (Vector2Int offset in pattern)
