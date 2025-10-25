@@ -104,12 +104,12 @@ namespace TacticalRPG.Core
         {
             base.Awake();
 
-            _tacticalMenu = GetComponent<TacticalMenu>();
-
             GenerateGrid();
 
             if (_grid == null || _grid.Length == 0)
                 Debug.LogError("Grid initialization failed in TacticalController.");
+
+            _tacticalMenu = GetComponent<TacticalMenu>();
 
             _pathfinding = new Pathfinding(this);
             _stateMachine = new TacticalStateMachine(this);
@@ -123,19 +123,6 @@ namespace TacticalRPG.Core
             Tile.OnTileClicked += (tile) => OnTileClicked(tile);
             Tile.OnTileHovered += (tile) => OnTileHovered(tile);
             Tile.OnTileHoverExited += () => OnTileHoverExited();
-
-            _tacticalMenu.MoveButton.clicked += () => HandleMenuButtonClick(TacticalMenuOptions.Move);
-            _tacticalMenu.SkillsButton.clicked += () => HandleMenuButtonClick(TacticalMenuOptions.Skills);
-            _tacticalMenu.ItemsButton.clicked += () => HandleMenuButtonClick(TacticalMenuOptions.Items);
-            _tacticalMenu.StatusButton.clicked += () => HandleMenuButtonClick(TacticalMenuOptions.Status);
-            _tacticalMenu.EndTurnButton.clicked += () => EndTurn();
-            _tacticalMenu.CancelAction.performed += ctx => OnCancel(null);
-
-            for (int i = 0; i < _tacticalMenu.SkillButtons.Length; i++)
-            {
-                TacticalMenuOptions index = (TacticalMenuOptions) (i + (int) TacticalMenuOptions.Skill0); // Offset for skill buttons
-                _tacticalMenu.SkillButtons[i].clicked += () => HandleMenuButtonClick(index);
-            }
         }
 
         /// <summary>
@@ -146,19 +133,6 @@ namespace TacticalRPG.Core
             Tile.OnTileClicked -= (tile) => OnTileClicked(tile);
             Tile.OnTileHovered -= (tile) => OnTileHovered(tile);
             Tile.OnTileHoverExited -= () => OnTileHoverExited();
-
-            _tacticalMenu.MoveButton.clicked -= () => HandleMenuButtonClick(TacticalMenuOptions.Move);
-            _tacticalMenu.SkillsButton.clicked -= () => HandleMenuButtonClick(TacticalMenuOptions.Skills);
-            _tacticalMenu.ItemsButton.clicked -= () => HandleMenuButtonClick(TacticalMenuOptions.Items);
-            _tacticalMenu.StatusButton.clicked -= () => HandleMenuButtonClick(TacticalMenuOptions.Status);
-            _tacticalMenu.EndTurnButton.clicked -= () => EndTurn();
-            _tacticalMenu.CancelAction.performed -= ctx => OnCancel(null);
-
-            for (int i = 0; i < _tacticalMenu.SkillButtons.Length; i++)
-            {
-                TacticalMenuOptions index = (TacticalMenuOptions) (i + (int) TacticalMenuOptions.Skill0); // Offset for skill buttons
-                _tacticalMenu.SkillButtons[i].clicked -= () => HandleMenuButtonClick(index);
-            }
         }
 
         /// <summary>
@@ -170,6 +144,19 @@ namespace TacticalRPG.Core
 
             _selectedUnit = null;
             _currentTeam = Team.Player;
+
+            _tacticalMenu.MoveButton.clicked += () => HandleMenuButtonClick(TacticalMenuOptions.Move);
+            _tacticalMenu.SkillsButton.clicked += () => HandleMenuButtonClick(TacticalMenuOptions.Skills);
+            _tacticalMenu.ItemsButton.clicked += () => HandleMenuButtonClick(TacticalMenuOptions.Items);
+            _tacticalMenu.StatusButton.clicked += () => HandleMenuButtonClick(TacticalMenuOptions.Status);
+            _tacticalMenu.EndTurnButton.clicked += () => EndTurn();
+            _tacticalMenu.CancelAction.performed += ctx => OnCancel(null);
+
+            for (int i = 0; i < _tacticalMenu.SkillButtons.Length; i++)
+            {
+                TacticalMenuOptions index = (TacticalMenuOptions)(i + (int)TacticalMenuOptions.Skill0);
+                _tacticalMenu.SkillButtons[i].clicked += () => HandleMenuButtonClick(index);
+            }
         }
 
         /// <summary>
