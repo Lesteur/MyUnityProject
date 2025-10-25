@@ -16,7 +16,15 @@ MonoBehaviour:
   m_TableCollectionNameGuidString: abf27c91b12696648a2978e9f9c80a9c
   m_Entries:
   - m_Id: 127504396288
-    m_Key: BasicAttack
+    m_Key: SkillDebug 1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15909502630670336
+    m_Key: SkillDebug 2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15909640258367488
+    m_Key: SkillDebug 3
     m_Metadata:
       m_Items: []
   m_Metadata:

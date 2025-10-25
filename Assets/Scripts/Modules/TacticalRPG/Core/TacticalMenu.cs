@@ -1,11 +1,11 @@
-using TacticalRPG.Units;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UIElements;
+
+using TacticalRPG.Units;
 using Utilities;
-using static UnityEngine.UI.CanvasScaler;
 
 namespace TacticalRPG.Core
 {
@@ -33,7 +33,7 @@ namespace TacticalRPG.Core
         /// <summary>
         /// Gets the currently selected unit from the TacticalController.
         /// </summary>
-        private TacticalRPG.Units.Unit SelectedUnit => TacticalController.Instance.SelectedUnit;
+        private Unit SelectedUnit => TacticalController.Instance.SelectedUnit;
 
         #region Unity Lifecycle
 

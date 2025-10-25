@@ -19,7 +19,15 @@ MonoBehaviour:
     m_Items: []
   m_TableData:
   - m_Id: 127504396288
-    m_Localized: Attack
+    m_Localized: Skill 1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15909502630670336
+    m_Localized: Skill 2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15909640258367488
+    m_Localized: Skill 3
     m_Metadata:
       m_Items: []
   references:
