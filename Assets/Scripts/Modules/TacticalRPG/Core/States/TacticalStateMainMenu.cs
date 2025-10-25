@@ -1,5 +1,4 @@
 using UnityEngine;
-using TacticalRPG.Units;
 
 namespace TacticalRPG.Core.States
 {
@@ -8,11 +7,6 @@ namespace TacticalRPG.Core.States
     /// </summary>
     public class TacticalStateMainMenu : TacticalStateBase
     {
-        /// <summary>
-        /// Represents the available main menu actions.
-        /// </summary>
-        private enum MainMenuAction { Move = 0, Skills = 1, Items = 2, Status = 3, EndTurn = 4 }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="TacticalStateMainMenu"/> class.
         /// </summary>
@@ -46,27 +40,27 @@ namespace TacticalRPG.Core.States
         }
 
         /// <inheritdoc/>
-        public override void OnClickButton(int buttonIndex)
+        public override void OnClickButton(TacticalMenuOptions buttonIndex)
         {
-            switch ((MainMenuAction)buttonIndex)
+            switch (buttonIndex)
             {
-                case MainMenuAction.Move:
+                case TacticalMenuOptions.Move:
                     _stateMachine.EnterState(_stateMachine.UnitMovementState);
                     break;
 
-                case MainMenuAction.Skills:
+                case TacticalMenuOptions.Skills:
                     _stateMachine.EnterState(_stateMachine.SkillMenuState);
                     break;
 
-                case MainMenuAction.Items:
+                case TacticalMenuOptions.Items:
                     Debug.Log("Items menu (not yet implemented).");
                     break;
 
-                case MainMenuAction.Status:
+                case TacticalMenuOptions.Status:
                     Debug.Log("Status screen (not yet implemented).");
                     break;
 
-                case MainMenuAction.EndTurn:
+                case TacticalMenuOptions.EndTurn:
                     _stateMachine.Controller.EndTurn();
                     break;
 

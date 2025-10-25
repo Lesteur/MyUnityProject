@@ -10,6 +10,23 @@ using Utilities;
 namespace TacticalRPG.Core
 {
     /// <summary>
+    /// Enumeration of tactical menu options.
+    /// </summary>
+    public enum TacticalMenuOptions
+    {
+        Move,
+        Skills,
+        Items,
+        Status,
+        EndTurn,
+        Skill0,
+        Skill1,
+        Skill2,
+        Skill3,
+        Skill4
+    }
+
+    /// <summary>
     /// Manages the tactical UI menu for unit actions and skill selections.
     /// </summary>
     public class TacticalMenu : Singleton<TacticalMenu>

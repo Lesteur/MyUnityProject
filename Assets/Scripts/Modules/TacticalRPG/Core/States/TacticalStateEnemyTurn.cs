@@ -10,8 +10,6 @@ namespace TacticalRPG.Core.States
     /// </summary>
     public class TacticalStateEnemyTurn : TacticalStateBase
     {
-        private PathResult _selectedPath;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="TacticalStateEnemyTurn"/> class.
         /// </summary>

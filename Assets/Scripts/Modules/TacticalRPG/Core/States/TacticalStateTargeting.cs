@@ -1,7 +1,5 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using TacticalRPG.Units;
-using TacticalRPG.Skills;
 
 namespace TacticalRPG.Core.States
 {
@@ -10,9 +8,6 @@ namespace TacticalRPG.Core.States
     /// </summary>
     public class TacticalStateTargeting : TacticalStateBase
     {
-        private Vector2Int _cursorPosition;
-        private Vector2Int _lastCursorPos;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="TacticalStateTargeting"/> class.
         /// </summary>
@@ -28,7 +23,7 @@ namespace TacticalRPG.Core.States
             Debug.Log("Entering Targeting State");
 
             EventSystem.current?.SetSelectedGameObject(Controller.gameObject);
-            _lastCursorPos = _cursorPosition;
+            _lastCursorPosition = _cursorPosition;
 
             _cursorPosition = SelectedUnit.GridPosition;
             UpdateRendering();
@@ -67,7 +62,7 @@ namespace TacticalRPG.Core.States
             if (newPosition == _cursorPosition)
                 return;
 
-            _lastCursorPos = _cursorPosition;
+            _lastCursorPosition = _cursorPosition;
             _cursorPosition = newPosition;
 
             UpdateRendering();
@@ -100,7 +95,7 @@ namespace TacticalRPG.Core.States
             Debug.Log($"Highlighting skill pattern at unit position {unitPos}");
 
             // Update cursor position
-            var lastTile = Controller.GetTileAt(_lastCursorPos);
+            var lastTile = Controller.GetTileAt(_lastCursorPosition);
             lastTile.ResetIllumination();
 
             var currentTile = Controller.GetTileAt(_cursorPosition);

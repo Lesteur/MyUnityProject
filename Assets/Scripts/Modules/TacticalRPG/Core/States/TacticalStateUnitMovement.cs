@@ -1,8 +1,7 @@
-using UnityEngine;
 using System.Linq;
+
+using UnityEngine;
 using UnityEngine.EventSystems;
-using TacticalRPG.Units;
-using TacticalRPG.Paths;
 
 namespace TacticalRPG.Core.States
 {
@@ -11,13 +10,6 @@ namespace TacticalRPG.Core.States
     /// </summary>
     public class TacticalStateUnitMovement : TacticalStateBase
     {
-        /// <summary>
-        /// Gets the currently selected unit from the controller.
-        /// </summary>
-        //private Unit SelectedUnit => Controller.SelectedUnit;
-        private Vector2Int _cursorPosition;
-        private PathResult _selectedPath;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="TacticalStateUnitMovement"/> class.
         /// </summary>

@@ -8,16 +8,13 @@ namespace TacticalRPG.Core.States
     /// </summary>
     public class TacticalStateUnitChoice : TacticalStateBase
     {
-        private Vector2Int _cursorPos;
-        private Vector2Int _lastCursorPos;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="TacticalStateUnitChoice"/> class.
         /// </summary>
         /// <param name="stateMachine">The state machine managing this state.</param>
         public TacticalStateUnitChoice(TacticalStateMachine stateMachine) : base(stateMachine)
         {
-            _cursorPos = Vector2Int.zero;
+            _cursorPosition = Vector2Int.zero;
         }
 
         /// <inheritdoc/>
@@ -26,9 +23,9 @@ namespace TacticalRPG.Core.States
             Debug.Log("Entering Unit Choice State");
 
             EventSystem.current.SetSelectedGameObject(Controller.gameObject);
-            _lastCursorPos = _cursorPos;
+            _lastCursorPosition = _cursorPosition;
 
-            _cursorPos = Controller.SelectedUnit != null ? Controller.SelectedUnit.GridPosition : Vector2Int.zero;
+            _cursorPosition = Controller.SelectedUnit != null ? Controller.SelectedUnit.GridPosition : Vector2Int.zero;
             Controller.SelectUnit(null);
 
             UpdateRendering();
@@ -52,7 +49,7 @@ namespace TacticalRPG.Core.States
         /// <param name="delta">The directional movement vector.</param>
         private void MoveCursor(Vector2Int delta)
         {
-            var newPos = _cursorPos + delta;
+            var newPos = _cursorPosition + delta;
 
             if (Controller.GetTileAt(newPos) != null)
                 UpdateCursorPosition(newPos);
@@ -64,11 +61,11 @@ namespace TacticalRPG.Core.States
         /// <param name="newPosition">The new cursor position.</param>
         private void UpdateCursorPosition(Vector2Int newPosition)
         {
-            if (newPosition == _cursorPos)
+            if (newPosition == _cursorPosition)
                 return;
 
-            _lastCursorPos = _cursorPos;
-            _cursorPos = newPosition;
+            _lastCursorPosition = _cursorPosition;
+            _cursorPosition = newPosition;
 
             UpdateRendering();
         }
@@ -78,7 +75,7 @@ namespace TacticalRPG.Core.States
         {
             foreach (var unit in Controller.AlliedUnits)
             {
-                if (unit.GridPosition == _cursorPos && !unit.EndTurn)
+                if (unit.GridPosition == _cursorPosition && !unit.EndTurn)
                 {
                     Controller.SelectUnit(unit);
                     _stateMachine.EnterState(_stateMachine.MainMenuState);
@@ -94,15 +91,15 @@ namespace TacticalRPG.Core.States
             var grid = Controller.Grid;
 
             // Update cursor position
-            cursor.transform.position = grid[_cursorPos.x, _cursorPos.y].transform.position;
+            cursor.transform.position = grid[_cursorPosition.x, _cursorPosition.y].transform.position;
 
             // Reset previous tile highlight
-            var lastTile = Controller.GetTileAt(_lastCursorPos);
-            lastTile?.ResetIllumination();
+            var lastTile = Controller.GetTileAt(_lastCursorPosition);
+            lastTile.ResetIllumination();
 
             // Highlight current tile
-            var currentTile = Controller.GetTileAt(_cursorPos);
-            currentTile?.Illuminate(Color.blue);
+            var currentTile = Controller.GetTileAt(_cursorPosition);
+            currentTile.Illuminate(Color.blue);
         }
 
         /// <inheritdoc/>

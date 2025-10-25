@@ -1,6 +1,4 @@
 using UnityEngine;
-using TacticalRPG.Units;
-using TacticalRPG.Skills;
 
 namespace TacticalRPG.Core.States
 {
@@ -32,7 +30,7 @@ namespace TacticalRPG.Core.States
         }
 
         /// <inheritdoc/>
-        public override void OnClickButton(int buttonIndex)
+        public override void OnClickButton(TacticalMenuOptions buttonIndex)
         {
             if (SelectedUnit == null)
             {
@@ -42,14 +40,14 @@ namespace TacticalRPG.Core.States
             }
 
             // Validate index
-            if (buttonIndex < 0 || buttonIndex >= SelectedUnit.Skills.Count)
+            if (buttonIndex < TacticalMenuOptions.Skill0 || buttonIndex > TacticalMenuOptions.Skill4)
             {
                 Debug.LogWarning($"Invalid skill index: {buttonIndex}");
                 Controller.SelectSkill(null);
                 return;
             }
 
-            Controller.SelectSkill(SelectedUnit.GetSkillByIndex(buttonIndex));
+            Controller.SelectSkill(SelectedUnit.GetSkillByIndex((int) buttonIndex - (int) TacticalMenuOptions.Skill0));
 
             // Transition to targeting state once selection confirmed
             _stateMachine.EnterState(_stateMachine.TargetingState);

@@ -1,3 +1,6 @@
+using UnityEngine;
+
+using TacticalRPG.Paths;
 using TacticalRPG.Skills;
 using TacticalRPG.Units;
 
@@ -9,6 +12,21 @@ namespace TacticalRPG.Core.States
     /// </summary>
     public abstract class TacticalStateBase
     {
+        /// <summary>
+        /// The current cursor position on the tactical grid.
+        /// </summary>
+        protected Vector2Int _cursorPosition;
+
+        /// <summary>
+        /// The last recorded cursor position on the tactical grid.
+        /// </summary>
+        protected Vector2Int _lastCursorPosition;
+
+        /// <summary>
+        /// The currently selected path result, if applicable.
+        /// </summary>
+        protected PathResult _selectedPath;
+
         /// <summary>
         /// Reference to the owning state machine.
         /// </summary>
@@ -95,7 +113,7 @@ namespace TacticalRPG.Core.States
         /// Handles tactical menu button click events.
         /// </summary>
         /// <param name="buttonIndex">The index of the clicked button.</param>
-        public virtual void OnClickButton(int buttonIndex) { }
+        public virtual void OnClickButton(TacticalMenuOptions buttonIndex) { }
 
         /// <summary>
         /// Handles tile click events.
