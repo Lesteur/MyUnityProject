@@ -26,7 +26,7 @@ namespace TacticalRPG.Core.States
         /// <inheritdoc/>
         public override void CancelKey()
         {
-            if (SelectedUnit == null || SelectedUnit.ActionDone)
+            if (SelectedUnit == null)
                 return;
 
             // If unit moved but hasn’t confirmed
@@ -35,8 +35,10 @@ namespace TacticalRPG.Core.States
                 SelectedUnit.SetPosition(SelectedUnit.PreviousTile.GridPosition);
                 SelectedUnit.MovementDone = false;
             }
+            else if (!SelectedUnit.ActionDone)
+                _stateMachine.EnterState(_stateMachine.UnitChoiceState);
 
-            _stateMachine.EnterState(_stateMachine.UnitChoiceState);
+            Controller.TacticalMenu.UpdateMainMenu(SelectedUnit);
         }
 
         /// <inheritdoc/>

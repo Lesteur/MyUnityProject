@@ -178,7 +178,7 @@ namespace TacticalRPG.Units
         public void ExecuteSkill(SkillData skill, Vector2Int targetPosition)
         {
             // Placeholder for skill execution logic
-            Debug.Log($"Unit '{name}' executed skill '{skill.SkillName}'.");
+            Debug.Log($"Unit '{name}' executed skill '{skill.SkillName.GetLocalizedString()}'.");
 
             OnActionComplete?.Invoke(this);
         }

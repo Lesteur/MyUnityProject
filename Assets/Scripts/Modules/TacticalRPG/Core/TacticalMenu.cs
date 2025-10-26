@@ -92,13 +92,13 @@ namespace TacticalRPG.Core
                 return;
             }
 
-            _mainMenu  = _root.Q<VisualElement>("MainMenu");
-            _skillMenu = _root.Q<VisualElement>("SkillMenu");
-            _moveButton    = _root.Q<Button>("Move");
-            _skillsButton  = _root.Q<Button>("Skills");
-            _itemsButton   = _root.Q<Button>("Items");
-            _statusButton  = _root.Q<Button>("Status");
-            _endTurnButton = _root.Q<Button>("EndTurn");
+            _mainMenu       = _root.Q<VisualElement>("MainMenu");
+            _skillMenu      = _root.Q<VisualElement>("SkillMenu");
+            _moveButton     = _root.Q<Button>("Move");
+            _skillsButton   = _root.Q<Button>("Skills");
+            _itemsButton    = _root.Q<Button>("Items");
+            _statusButton   = _root.Q<Button>("Status");
+            _endTurnButton  = _root.Q<Button>("EndTurn");
 
             for (int i = 0; i < _skillButtons.Length; i++)
                 _skillButtons[i] = _root.Q<Button>($"Skill{i}");
@@ -116,6 +116,8 @@ namespace TacticalRPG.Core
         public void ShowMainMenu(Unit unit)
         {
             if (_root == null || unit == null) return;
+
+            UpdateMainMenu(unit);
 
             for (int i = 0; i < _skillButtons.Length; i++)
             {
@@ -139,15 +141,27 @@ namespace TacticalRPG.Core
 
             SetMenuVisibility(_mainMenu, true);
             SetMenuVisibility(_skillMenu, false);
+        }
 
-            if (unit.MovementDone)
+        public void UpdateMainMenu(Unit unit)
+        {
+            _moveButton.SetEnabled(!unit.MovementDone);
+            _skillsButton.SetEnabled(!unit.ActionDone);
+
+            if (unit.MovementDone && !unit.ActionDone)
             {
-                _moveButton.SetEnabled(false);
                 _skillsButton.Focus();
+            }
+            else if (!unit.MovementDone && unit.ActionDone)
+            {
+                _moveButton.Focus();
+            }
+            else if (unit.MovementDone && unit.ActionDone)
+            {
+                _endTurnButton.Focus();
             }
             else
             {
-                _moveButton.SetEnabled(true);
                 _moveButton.Focus();
             }
         }

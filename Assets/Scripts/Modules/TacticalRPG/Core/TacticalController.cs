@@ -317,6 +317,8 @@ namespace TacticalRPG.Core
             // End the unit’s turn automatically if both actions are complete
             if (unit.MovementDone && unit.ActionDone)
                 EndTurn();
+            else if (unit.Type == Unit.UnitType.Player)
+                _stateMachine.EnterState(_stateMachine.MainMenuState);
         }
 
         /// <summary>
