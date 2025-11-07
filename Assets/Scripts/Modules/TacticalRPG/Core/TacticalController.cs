@@ -337,9 +337,11 @@ namespace TacticalRPG.Core
 
         public void ExecuteSkill(Unit unit, SkillData skill, Vector2Int targetPosition)
         {
+            SkillContext context = new SkillContext(unit, null, targetPosition);
+
             _stateMachine.EnterState(_stateMachine.ActingUnitState);
             
-            unit.ExecuteSkill(skill, targetPosition);
+            unit.ExecuteSkill(skill, context);
         }
 
         /// <summary>

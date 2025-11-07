@@ -10,22 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9e8c18875bb48364c84c2280ff3139d9, type: 3}
-  m_Name: BasicAttack3
+  m_Name: NewSkill
   m_EditorClassIdentifier: 
   _skillName:
     m_TableReference:
-      m_TableCollectionName: GUID:abf27c91b12696648a2978e9f9c80a9c
+      m_TableCollectionName: 
     m_TableEntryReference:
-      m_KeyId: 15909640258367488
+      m_KeyId: 0
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
   _description:
     m_TableReference:
-      m_TableCollectionName: GUID:abf27c91b12696648a2978e9f9c80a9c
+      m_TableCollectionName: 
     m_TableEntryReference:
-      m_KeyId: 127504396288
+      m_KeyId: 0
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -39,25 +39,17 @@ MonoBehaviour:
   _accuracy: 1
   _criticalRate: 0
   _areaOfEffect:
-    _minRange: 2
-    _maxRange: 4
-    _areaType: 2
+    _minRange: 0
+    _maxRange: 1
+    _areaType: 0
   _areaOfEffectSecondary:
     _minRange: 0
     _maxRange: 1
     _areaType: 0
-  _canTargetSelf: 1
+  _canTargetSelf: 0
   _requiresLineOfSight: 1
   _effectPrefab: {fileID: 0}
-  _instructions:
-  - Type: 0
-    Value: 0
-    Duration: 0
-    CustomActionName: 
-  - Type: 0
-    Value: 0
-    Duration: 0
-    CustomActionName: 
+  _soundEffect: {fileID: 0}
   references:
     version: 2
     RefIds: []

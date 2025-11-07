@@ -27,6 +27,7 @@ namespace TacticalRPG.Units
 
         private PathResult  _currentPath;
         private Coroutine   _movementCoroutine;
+        private Coroutine   _actionCoroutine;
 
         private int _healthPoints;
         private readonly Dictionary<SkillData, List<Vector2Int>> _movementPatterns = new();
@@ -175,11 +176,21 @@ namespace TacticalRPG.Units
             OnMovementComplete?.Invoke(this);
         }
 
-        public void ExecuteSkill(SkillData skill, Vector2Int targetPosition)
+        public void ExecuteSkill(SkillData skill, SkillContext context)
         {
             // Placeholder for skill execution logic
             Debug.Log($"Unit '{name}' executed skill '{skill.SkillName.GetLocalizedString()}'.");
 
+            if (_actionCoroutine != null)
+                StopCoroutine(_actionCoroutine);
+
+            _actionCoroutine = StartCoroutine(SimulateAction());
+        }
+
+        private IEnumerator SimulateAction()
+        {
+            // Simulate action duration
+            yield return new WaitForSeconds(1.0f);
             OnActionComplete?.Invoke(this);
         }
 
