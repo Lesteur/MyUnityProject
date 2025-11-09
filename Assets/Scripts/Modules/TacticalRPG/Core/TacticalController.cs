@@ -335,9 +335,9 @@ namespace TacticalRPG.Core
             unit.FollowPath(path);
         }
 
-        public void ExecuteSkill(Unit unit, SkillData skill, Vector2Int targetPosition)
+        public void ExecuteSkill(Unit unit, SkillData skill, List<Tile> targetTiles)
         {
-            SkillContext context = new SkillContext(unit, null, targetPosition);
+            SkillContext context = new SkillContext(unit, targetTiles);
 
             _stateMachine.EnterState(_stateMachine.ActingUnitState);
             

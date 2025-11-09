@@ -145,6 +145,8 @@ namespace TacticalRPG.Core
 
         public void UpdateMainMenu(Unit unit)
         {
+            if (_root == null || unit == null) return;
+
             _moveButton.SetEnabled(!unit.MovementDone);
             _skillsButton.SetEnabled(!unit.ActionDone);
 

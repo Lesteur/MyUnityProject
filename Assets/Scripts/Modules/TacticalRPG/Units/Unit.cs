@@ -124,7 +124,7 @@ namespace TacticalRPG.Units
             foreach (var skill in Skills)
             {
                 if (skill != null)
-                    _movementPatterns[skill] = skill.AreaOfEffect.GetAllRangedPositions();
+                    _movementPatterns[skill] = skill.AreaOfEffect.GetAllRangedPositions(skill.CanTargetSelf);
             }
         }
 

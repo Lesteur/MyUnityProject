@@ -10,6 +10,8 @@ namespace TacticalRPG.Core.States
     /// </summary>
     public class TacticalStateTargeting : TacticalStateBase
     {
+        private List<Vector2Int> _areaSecondary = new List<Vector2Int>(); // Placeholder for secondary area patterns
+
         private List<Vector2Int> Pattern => SelectedUnit.MovementPatterns[SelectedSkill];
 
         /// <summary>
@@ -28,6 +30,8 @@ namespace TacticalRPG.Core.States
 
             EventSystem.current?.SetSelectedGameObject(Controller.gameObject);
             _lastCursorPosition = _cursorPosition;
+
+            _areaSecondary = SelectedSkill.AreaOfEffectSecondary.GetAllRangedPositions(true);
 
             _cursorPosition = SelectedUnit.GridPosition;
             UpdateRendering();
@@ -77,7 +81,16 @@ namespace TacticalRPG.Core.States
         {
             if (Pattern.Contains(_cursorPosition - SelectedUnit.GridPosition))
             {
-                Controller.ExecuteSkill(SelectedUnit, SelectedSkill, _cursorPosition);
+                List<Tile> affectedTiles = new List<Tile>();
+
+                foreach (var tile in _areaSecondary)
+                {
+                    Tile t = Controller.GetTileAt(_cursorPosition + tile);
+                    if (t != null)
+                        affectedTiles.Add(t);
+                }
+
+                Controller.ExecuteSkill(SelectedUnit, SelectedSkill, affectedTiles);
             }
         }
 
@@ -112,6 +125,13 @@ namespace TacticalRPG.Core.States
                 Tile tile = Controller.GetTileAt(unitPos + offset);
                 if ((tile != null) && (currentTile != tile))
                     tile.Illuminate(Color.cyan); // Different highlight color for skill preview
+            }
+
+            foreach (Vector2Int offset in _areaSecondary)
+            {
+                Tile tile = Controller.GetTileAt(_cursorPosition + offset);
+                if ((tile != null) && (currentTile != tile))
+                    tile.Illuminate(Color.magenta); // Different highlight color for secondary area
             }
         }
 

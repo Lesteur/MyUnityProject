@@ -34,9 +34,6 @@ namespace TacticalRPG.Skills
         [Header("Visuals & FX")]
         [SerializeField] private GameObject _effectPrefab;
 
-        [Header("Instructions")]
-        [SerializeField] private SkillInstruction[] _instructions;
-
         #region Properties
 
         /// <summary> The localized display name of the skill. </summary>
@@ -83,9 +80,6 @@ namespace TacticalRPG.Skills
 
         /// <summary> The prefab spawned when the skill is used. </summary>
         public GameObject EffectPrefab => _effectPrefab;
-
-        /// <summary> The list of instructions defining the skill's effects. </summary>
-        public SkillInstruction[] Instructions => _instructions;
 
         #endregion
     }

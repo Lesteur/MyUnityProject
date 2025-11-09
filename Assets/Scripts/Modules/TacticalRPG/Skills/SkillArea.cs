@@ -29,7 +29,7 @@ namespace TacticalRPG.Skills
         /// <summary>
         /// Returns a list of grid positions affected by this skill area from a given origin tile.
         /// </summary>
-        public List<Vector2Int> GetAllRangedPositions()
+        public List<Vector2Int> GetAllRangedPositions(bool includeOrigin)
         {
             List<Vector2Int> affectedPositions = new List<Vector2Int>();
             
@@ -44,6 +44,11 @@ namespace TacticalRPG.Skills
                         affectedPositions.Add(new Vector2Int(x, y));
                     }
                 }
+            }
+
+            if (includeOrigin)
+            {
+                affectedPositions.Add(Vector2Int.zero);
             }
 
             return affectedPositions;
