@@ -82,12 +82,12 @@ namespace TacticalRPG.Core
         /// <param name="order">The sorting order for rendering.</param>
         public void Initialize(TileData data, Vector2Int position, int tileHeight, int order)
         {
-            _tileData = data;
-            GridPosition = position;
-            Height = tileHeight;
-            Order = order;
-            _terrainType = data.terrainType;
-            OccupyingUnit = null;
+            _tileData       = data;
+            GridPosition    = position;
+            Height          = tileHeight;
+            Order           = order;
+            _terrainType    = data.terrainType;
+            OccupyingUnit   = null;
 
             gameObject.name = $"Tile_{position.x}_{position.y}_H{Height}";
             _tileSprite.sortingOrder = order + 1; // Ensure tile is above units

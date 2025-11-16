@@ -101,12 +101,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ce399b270383e942b8505822291faeb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _startPosition: {x: 0, y: 0}
-  _movementPoints: 5
-  _jumpHeight: 1
-  _maxFallHeight: 10
   _unitType: 0
-  _skills: []
+  _startPosition: {x: 0, y: 0}
+  _level: 1
+  _data: {fileID: 11400000, guid: 2208c8473c7a16940a588607277197e8, type: 2}
+  _healthBar: {fileID: 6145487131938191435}
 --- !u!1 &4045649602057330022
 GameObject:
   m_ObjectHideFlags: 0
@@ -319,3 +318,14 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 4773773906794237882, guid: beee06156774cec449cfa3b29a95bcac, type: 3}
   m_PrefabInstance: {fileID: 6905221457909056181}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &6145487131938191435 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 764874889679862526, guid: beee06156774cec449cfa3b29a95bcac, type: 3}
+  m_PrefabInstance: {fileID: 6905221457909056181}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc39257f836ba574fbe0b99496143284, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

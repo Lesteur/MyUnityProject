@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using TacticalRPG.Core;
 using TacticalRPG.Paths;
 using TacticalRPG.Skills;
-using UnityEngine.UIElements;
+using Utilities;
 
 namespace TacticalRPG.Units
 {
@@ -21,6 +21,7 @@ namespace TacticalRPG.Units
         [SerializeField] private Vector2Int _startPosition  = Vector2Int.zero;
         [SerializeField] private int        _level          = 1;
         [SerializeField] private UnitData   _data;
+        [SerializeField] private HealthBar  _healthBar;
 
         private Tile    _currentTile;
         private Tile    _previousTile;
@@ -126,11 +127,14 @@ namespace TacticalRPG.Units
                 if (skill != null)
                     _movementPatterns[skill] = skill.AreaOfEffect.GetAllRangedPositions(skill.CanTargetSelf);
             }
+
+            _healthPoints = HealthPointsMax;
+            _healthBar.SetHealth(_healthPoints, HealthPointsMax);
         }
 
         #endregion
-        
-        #region Movement
+
+        #region Movement & Actions
 
         /// <summary>
         /// Starts moving the unit along the given path using coroutine animation.
@@ -176,13 +180,15 @@ namespace TacticalRPG.Units
             OnMovementComplete?.Invoke(this);
         }
 
-        public void ExecuteSkill(SkillData skill, SkillContext context)
+        public void ExecuteSkill(SkillContext context)
         {
             // Placeholder for skill execution logic
-            Debug.Log($"Unit '{name}' executed skill '{skill.SkillName.GetLocalizedString()}'.");
+            Debug.Log($"Unit '{name}' executed skill '{context.Skill.SkillName.GetLocalizedString()}'.");
 
             if (_actionCoroutine != null)
                 StopCoroutine(_actionCoroutine);
+
+            context.PhysicalAttack();
 
             _actionCoroutine = StartCoroutine(SimulateAction());
         }
@@ -253,6 +259,22 @@ namespace TacticalRPG.Units
         {
             var tile = TacticalController.Instance.GetTileAt(newPosition);
             SetPosition(tile);
+        }
+
+        #endregion
+
+        #region Health Management
+
+        /// <summary>
+        /// Applies damage to the unit, reducing its health points.
+        /// </summary>
+        public void ApplyDamage(int damage)
+        {
+            _healthPoints -= damage;
+            if (_healthPoints < 0) _healthPoints = 0;
+
+            _healthBar.SetHealth(_healthPoints, HealthPointsMax);
+            Debug.Log($"Unit '{name}' took {damage} damage. Remaining HP: {_healthPoints}/{HealthPointsMax}");
         }
 
         #endregion

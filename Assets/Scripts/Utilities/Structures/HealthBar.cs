@@ -1,20 +1,35 @@
 using UnityEngine.UI;
 using UnityEngine;
 
-public class HealthBar : MonoBehaviour
+namespace Utilities
 {
-    private Slider _slider;
-
-    private void Awake()
+    /// <summary>
+    /// A simple health bar component that can be attached to a UI element.
+    /// </summary>
+    public class HealthBar : MonoBehaviour
     {
-        _slider = GetComponent<Slider>();
-    }
+        /// <summary>
+        /// The slider component representing the health bar.
+        /// </summary>
+        private Slider _slider;
 
-    public void SetHealth(float health, float maxHealth)
-    {
-        if (_slider != null)
+        /// <summary>
+        /// Initializes the health bar by getting the Slider component.
+        /// </summary>
+        private void Awake()
         {
-            _slider.value = health / maxHealth;
+            _slider = GetComponent<Slider>();
+        }
+
+        /// <summary>
+        /// Sets the health value of the health bar.
+        /// </summary>
+        public void SetHealth(float health, float maxHealth)
+        {
+            if (_slider != null)
+            {
+                _slider.value = health / maxHealth;
+            }
         }
     }
 }

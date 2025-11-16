@@ -337,11 +337,11 @@ namespace TacticalRPG.Core
 
         public void ExecuteSkill(Unit unit, SkillData skill, List<Tile> targetTiles)
         {
-            SkillContext context = new SkillContext(unit, targetTiles);
+            SkillContext context = new SkillContext(unit, skill, targetTiles);
 
             _stateMachine.EnterState(_stateMachine.ActingUnitState);
             
-            unit.ExecuteSkill(skill, context);
+            unit.ExecuteSkill(context);
         }
 
         /// <summary>
